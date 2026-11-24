@@ -133,6 +133,67 @@
         ],
         "type": "object"
       },
+      "DryRun": {
+        "properties": {
+          "companyId": {
+            "type": "string"
+          },
+          "documentTypeId": {
+            "type": "string"
+          },
+          "dryRun": {
+            "type": "boolean"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "array"
+          },
+          "processId": {
+            "type": "string"
+          },
+          "receiver": {
+            "type": "string"
+          },
+          "ruleset": {
+            "type": "string"
+          },
+          "sender": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "upcoming": {
+            "$ref": "#/components/schemas/UpcomingCheck"
+          },
+          "valid": {
+            "description": "null when validated is false: a type with no rules that its capability lets go unvalidated.",
+            "nullable": true,
+            "type": "boolean"
+          },
+          "validated": {
+            "type": "boolean"
+          },
+          "vesid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dryRun",
+          "companyId",
+          "sender",
+          "receiver",
+          "type",
+          "documentTypeId",
+          "processId",
+          "validated",
+          "valid",
+          "findings"
+        ],
+        "type": "object"
+      },
       "Error": {
         "properties": {
           "error": {
@@ -164,6 +225,686 @@
         },
         "required": [
           "error"
+        ],
+        "type": "object"
+      },
+      "Event": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "effectiveFrom": {
+            "type": "string"
+          },
+          "externalReference": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/WebhookMLSIssue"
+            },
+            "type": "array"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "mlsEventId": {
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "responseCode": {
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ruleset": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "unvalidated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "documentId",
+          "status",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "EventPage": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "description": "Always present. Ask again with ?after= set to it.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "events",
+          "nextCursor"
+        ],
+        "type": "object"
+      },
+      "Finding": {
+        "properties": {
+          "layer": {
+            "description": "schema (the document is not valid UBL, so Schematron did not run) or schematron.",
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "rule": {
+            "type": "string"
+          },
+          "severity": {
+            "description": "fatal, error or warning. A fatal finding makes valid false.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "severity",
+          "message"
+        ],
+        "type": "object"
+      },
+      "MLSEvent": {
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/MLSIssue"
+            },
+            "type": "array"
+          },
+          "lastError": {
+            "type": "string"
+          },
+          "mlsId": {
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "receivedAt": {
+            "type": "string"
+          },
+          "responseCode": {
+            "type": "string"
+          },
+          "sender": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "direction",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "MLSIssue": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "reasonCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "location",
+          "reasonCode"
+        ],
+        "type": "object"
+      },
+      "Message": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "as4AcceptedAt": {
+            "type": "string"
+          },
+          "as4MessageId": {
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "companyName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "deliveredToCustomerAt": {
+            "type": "string"
+          },
+          "deliveryUnconfirmed": {
+            "description": "An outbound SEND_FAILED document whose send outcome is unknown: the receiver may have it. Never resend it.",
+            "type": "boolean"
+          },
+          "direction": {
+            "description": "INBOUND or OUTBOUND.",
+            "type": "string"
+          },
+          "documentNumber": {
+            "type": "string"
+          },
+          "documentTypeId": {
+            "type": "string"
+          },
+          "externalReference": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": "string"
+          },
+          "lastErrorCode": {
+            "type": "string"
+          },
+          "lastErrorMessage": {
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "mlsEvents": {
+            "description": "The Message Level Status trail, oldest first. GET /v1/messages/{id} only.",
+            "items": {
+              "$ref": "#/components/schemas/MLSEvent"
+            },
+            "type": "array"
+          },
+          "payload": {
+            "description": "The business document, on GET /v1/messages/{id} only while it is under the inline limit.",
+            "type": "string"
+          },
+          "payloadBytes": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "payloadSha256": {
+            "type": "string"
+          },
+          "processId": {
+            "type": "string"
+          },
+          "queuedAt": {
+            "type": "string"
+          },
+          "receivedAt": {
+            "type": "string"
+          },
+          "receiver": {
+            "type": "string"
+          },
+          "recipientStatus": {
+            "description": "CONFIRMED, DELIVERED or REJECTED, from the receiving Service Provider's MLS. Absent until one arrives.",
+            "type": "string"
+          },
+          "recipientStatusReasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sbdhInstanceId": {
+            "type": "string"
+          },
+          "sender": {
+            "type": "string"
+          },
+          "sentAt": {
+            "type": "string"
+          },
+          "status": {
+            "description": "The document status.",
+            "type": "string"
+          },
+          "type": {
+            "description": "The register alias for documentTypeId and processId; absent for a pair the register does not know.",
+            "type": "string"
+          },
+          "validation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MessageValidation"
+              }
+            ],
+            "description": "Which Peppol rules decided the validation status. GET /v1/messages/{id} only."
+          },
+          "validationErrors": {
+            "description": "The findings of a failed validation, grouped. GET /v1/messages/{id} only.",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "direction",
+          "sender",
+          "receiver",
+          "documentTypeId",
+          "processId",
+          "payloadSha256",
+          "payloadBytes",
+          "status",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "MessagePage": {
+        "properties": {
+          "counts": {
+            "additionalProperties": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "type": "string"
+          },
+          "prevCursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "messages"
+        ],
+        "type": "object"
+      },
+      "MessageUpcomingValidation": {
+        "properties": {
+          "effectiveFrom": {
+            "description": "When the release becomes mandatory, RFC 3339 UTC.",
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array"
+          },
+          "ruleset": {
+            "type": "string"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "vesid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ruleset",
+          "effectiveFrom",
+          "valid",
+          "findings"
+        ],
+        "type": "object"
+      },
+      "MessageValidation": {
+        "properties": {
+          "ruleset": {
+            "description": "The Peppol release, as GET /v1/validation/rulesets names it.",
+            "type": "string"
+          },
+          "upcoming": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MessageUpcomingValidation"
+              }
+            ],
+            "description": "The document checked against the release scheduled next; shown until it takes effect."
+          },
+          "validatedAt": {
+            "type": "string"
+          },
+          "vesid": {
+            "description": "The exact validation artefacts the engine ran.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ruleset",
+          "vesid",
+          "validatedAt"
+        ],
+        "type": "object"
+      },
+      "Ruleset": {
+        "properties": {
+          "effectiveFrom": {
+            "description": "When the release takes effect; absent on one in force since before the platform recorded dates.",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "description": "in_force or scheduled.",
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "title",
+          "status"
+        ],
+        "type": "object"
+      },
+      "Rulesets": {
+        "properties": {
+          "rulesets": {
+            "items": {
+              "$ref": "#/components/schemas/Ruleset"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "rulesets"
+        ],
+        "type": "object"
+      },
+      "UpcomingCheck": {
+        "properties": {
+          "effectiveFrom": {
+            "description": "When the release becomes mandatory, RFC 3339 UTC.",
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "array"
+          },
+          "ruleset": {
+            "type": "string"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "vesid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ruleset",
+          "effectiveFrom",
+          "valid",
+          "findings"
+        ],
+        "type": "object"
+      },
+      "Upload": {
+        "properties": {
+          "expiresAt": {
+            "type": "string"
+          },
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "PUT the document to uploadUrl with exactly these headers.",
+            "type": "object"
+          },
+          "payloadObjectKey": {
+            "type": "string"
+          },
+          "uploadUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "payloadObjectKey",
+          "uploadUrl",
+          "expiresAt",
+          "headers"
+        ],
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "count": {
+            "description": "How many times the finding occurred; 0 or absent means once.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "location": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "rule": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "severity",
+          "message"
+        ],
+        "type": "object"
+      },
+      "ValidationResult": {
+        "properties": {
+          "documentTypeId": {
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "array"
+          },
+          "processId": {
+            "type": "string"
+          },
+          "ruleset": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "upcoming": {
+            "$ref": "#/components/schemas/UpcomingCheck"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "vesid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "valid",
+          "documentTypeId",
+          "processId",
+          "type",
+          "findings"
+        ],
+        "type": "object"
+      },
+      "WebhookEvent": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "effectiveFrom": {
+            "type": "string"
+          },
+          "externalReference": {
+            "type": "string"
+          },
+          "id": {
+            "description": "The X-Peppol-Event-ID; the same on every delivery of the event and in GET /v1/events.",
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/WebhookMLSIssue"
+            },
+            "type": "array"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "mlsEventId": {
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "responseCode": {
+            "description": "message.mls: AP, AB or RE.",
+            "type": "string"
+          },
+          "rules": {
+            "description": "message.outbound.ruleset_warning: the distinct rules it breaks there.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ruleset": {
+            "description": "message.outbound.ruleset_warning: the scheduled release the document would fail.",
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "description": "One of the six event types.",
+            "type": "string"
+          },
+          "unvalidated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "documentId",
+          "status"
+        ],
+        "type": "object"
+      },
+      "WebhookMLSIssue": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "reasonCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "location",
+          "reasonCode"
         ],
         "type": "object"
       }
@@ -1492,7 +2233,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/EventPage"
                 }
               }
             },
@@ -2026,7 +2767,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/MessagePage"
                 }
               }
             },
@@ -2069,11 +2810,38 @@
           "required": true
         },
         "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Message"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DryRun"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "A replayed Idempotency-Key (the document as it is now), or ?dryRun=true (DryRun)."
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Created with status UNVALIDATED: a type with no rules, under a capability that allows unvalidated documents."
+          },
           "202": {
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Message"
                 }
               }
             },
@@ -2269,7 +3037,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Upload"
                 }
               }
             },
@@ -2309,7 +3077,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Message"
                 }
               }
             },
@@ -2348,7 +3116,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Message"
                 }
               }
             },
@@ -4098,7 +4866,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ValidationResult"
                 }
               }
             },
@@ -4128,7 +4896,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Rulesets"
                 }
               }
             },

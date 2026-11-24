@@ -1,0 +1,22 @@
+name: spec-drift
+
+# Fails when the API publishes a route or a response field that the SDK's
+# copy of the OpenAPI document lacks, so the SDK is synced before a customer
+# notices. Weekly, and on demand.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+      - run: node scripts/spec-drift.mjs
