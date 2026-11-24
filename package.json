@@ -2,6 +2,12 @@
   "name": "@businessgateway/sdk",
   "version": "0.1.0",
   "description": "TypeScript client for the Business Gateway Peppol API: send and receive documents, validate, read events, verify webhooks.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/business-gateway/sdk-typescript.git"
+  },
+  "homepage": "https://github.com/business-gateway/sdk-typescript#readme",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
