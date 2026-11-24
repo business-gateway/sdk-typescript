@@ -110,6 +110,11 @@ export interface SendInput {
    * message it created instead of sending again. Generated when left out.
    */
   idempotencyKey?: string;
+  /**
+   * Seconds, at most 30, to hold the answer for the Peppol validation
+   * verdict instead of answering QUEUED_VALIDATION at once.
+   */
+  wait?: number;
 }
 
 export interface ValidateInput {
