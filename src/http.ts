@@ -19,6 +19,8 @@ export interface Call {
   idempotencyKey?: string;
   /** Read the answer as text rather than JSON (the document payload). */
   text?: boolean;
+  /** Added to the client's timeout, for a call the server holds on purpose (?wait=). */
+  extraTimeoutMs?: number;
 }
 
 const MAX_BACKOFF_MS = 30_000;
@@ -52,7 +54,7 @@ export class Transport {
           method: call.method,
           headers,
           body,
-          signal: AbortSignal.timeout(this.o.timeoutMs),
+          signal: AbortSignal.timeout(this.o.timeoutMs + (call.extraTimeoutMs ?? 0)),
         });
       } catch (err) {
         // No answer: the request may or may not have arrived. Only a

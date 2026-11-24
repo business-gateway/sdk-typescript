@@ -28,6 +28,7 @@ describe("the client against the OpenAPI document", () => {
   it("names the query parameters the client sends", () => {
     const params = (method: string, path: string) => (spec.paths[path]?.[method]?.parameters ?? []).map((p) => p.name);
     expect(params("post", "/v1/messages")).toContain("dryRun");
+    expect(params("post", "/v1/messages")).toContain("wait");
     expect(params("post", "/v1/validate")).toContain("ruleset");
   });
 });

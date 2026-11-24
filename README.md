@@ -22,6 +22,8 @@ const message = await bg.messages.send({
 // after the call returns. Follow it with a webhook, the event feed or get().
 ```
 
+Pass `wait: 20` (seconds, at most 30) to hold the answer until the validation is decided: the message then carries `QUEUED` or `VALIDATION_FAILED` instead of `QUEUED_VALIDATION`, unless the time runs out first.
+
 Only `sender` and `payload` are required; the receiver and document type are read off the document when you leave them out.
 
 Every send carries an `Idempotency-Key`. The client generates one, or you pass your own (`idempotencyKey: "erp-INV-1001"`) so a retry from your side cannot send twice either. Within 24 hours the same key answers with the message the first call created.
