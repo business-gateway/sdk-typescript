@@ -1,102 +1,96 @@
-// The API's JSON shapes, written from the platform's own response structs
-// (internal/http/public, internal/webhook). The OpenAPI document names its
-// routes, parameters and errors but describes most bodies only as "object",
-// so these are kept by hand; test/openapi-paths.test.ts checks every route the
-// client calls against it. Fields are optional where the API omits them.
+// The API's JSON shapes. Response types are aliases of the schemas the
+// platform publishes in its OpenAPI document (src/generated/openapi.ts, made
+// from spec/openapi.json by `npm run generate`), which the platform derives
+// from the very structs its handlers encode — so a field added there reaches
+// these types on the next sync, and CI fails if the generated file is stale.
+// The aliases only narrow plain strings to the values the API documents
+// (direction, event types, statuses), keeping room for values added later.
+// Request types are written here: the document describes request bodies only
+// in prose.
+
+import type { components } from "./generated/openapi.js";
+
+type Schemas = components["schemas"];
+
+/**
+ * Narrows some properties of T, keeping the rest. R may name only T's
+ * properties, each with a type T's accepts, so a field renamed or retyped in
+ * the API breaks the build here instead of reappearing under its old name.
+ */
+type Refine<T, R extends { [K in keyof R]: K extends keyof T ? T[K] : never }> = Omit<T, keyof R> & R;
 
 /** A Peppol participant id as `scheme:value`, e.g. `0007:5561234567`. */
 export type PeppolId = string;
 
 export type Direction = "OUTBOUND" | "INBOUND";
 
-/** One finding from validation. `layer` "schema" means XSD failed and Schematron did not run. */
-export interface Finding {
+export type EventType =
+  | "message.outbound.as4_accepted"
+  | "message.outbound.failed"
+  | "message.outbound.ruleset_warning"
+  | "message.inbound.received"
+  | "message.inbound.validation_failed"
+  | "message.mls"
+  | (string & {});
+
+/** One finding from validation, as /v1/validate and the dry run answer it. */
+export type Finding = Refine<Schemas["Finding"], {
   severity: "fatal" | "error" | "warning" | (string & {});
-  rule?: string;
-  location?: string;
-  message: string;
-  layer?: "schema" | "schematron";
-  /** How many identical findings this one stands for; absent means one. */
-  count?: number;
-}
+  layer?: "schema" | "schematron" | (string & {});
+}>;
 
-/** The Peppol rules a message was validated under, and the forecast against the next release. */
-export interface MessageValidation {
-  /** The Peppol release, e.g. "2026.5" (May 2026). */
-  ruleset: string;
-  vesid: string;
-  validatedAt: string;
-  upcoming?: UpcomingValidation;
-}
+/** A stored finding on a message: grouped, with how many times it occurred. */
+export type ValidationError = Refine<Schemas["ValidationError"], {
+  severity: "fatal" | "error" | "warning" | (string & {});
+}>;
 
-/** A check against the Peppol release that takes effect at `effectiveFrom`. It never changes a status. */
-export interface UpcomingValidation {
-  ruleset: string;
-  vesid?: string;
-  effectiveFrom: string;
-  valid: boolean;
-  findings: Finding[];
-}
+/** A document checked inline against the Peppol release taking effect at `effectiveFrom`. */
+export type UpcomingCheck = Refine<Schemas["UpcomingCheck"], { findings: Finding[] }>;
 
-export interface MLSIssue {
-  location: string;
-  reasonCode: string;
-  description?: string;
-}
+/** A message's stored check against the next release. It never changes the message's status. */
+export type UpcomingValidation = Refine<Schemas["MessageUpcomingValidation"], { findings: ValidationError[] }>;
 
-export interface MLSEvent {
-  id: string;
-  status: string;
+/** The Peppol rules a message was validated under. */
+export type MessageValidation = Refine<Schemas["MessageValidation"], { upcoming?: UpcomingValidation }>;
+
+export type MLSIssue = Schemas["MLSIssue"];
+
+export type MLSEvent = Refine<Schemas["MLSEvent"], {
   direction: Direction;
-  lastError?: string;
-  createdAt: string;
   responseCode?: "AP" | "AB" | "RE" | (string & {});
-  description?: string;
-  reasons?: string[];
-  issues?: MLSIssue[];
-  receivedAt?: string;
-}
+}>;
 
-export interface Message {
-  id: string;
-  accountId?: string;
-  companyId?: string;
-  companyName?: string;
-  accountName?: string;
+export type Message = Refine<Schemas["Message"], {
   direction: Direction;
-  sender: PeppolId;
-  receiver: PeppolId;
-  documentTypeId: string;
-  processId: string;
-  /** The document type alias, e.g. "invoice". */
-  type?: string;
-  documentNumber?: string;
-  issueDate?: string;
-  externalReference?: string;
-  metadata?: Record<string, string>;
-  payloadSha256: string;
-  payloadBytes: number;
-  /** The document itself, on a single-message fetch when it is small enough to inline. */
-  payload?: string;
-  status: string;
-  as4MessageId?: string;
-  sbdhInstanceId?: string;
-  lastErrorCode?: string;
-  lastErrorMessage?: string;
-  /** A SEND_FAILED message the receiver may have anyway. Never resend it. */
-  deliveryUnconfirmed?: boolean;
-  queuedAt?: string;
-  sentAt?: string;
-  as4AcceptedAt?: string;
-  receivedAt?: string;
-  deliveredToCustomerAt?: string;
-  validationErrors?: Finding[];
+  validationErrors?: ValidationError[];
   validation?: MessageValidation;
   mlsEvents?: MLSEvent[];
   recipientStatus?: "CONFIRMED" | "DELIVERED" | "REJECTED" | (string & {});
-  recipientStatusReasons?: string[];
-  createdAt: string;
-}
+}>;
+
+/** The answer to a dry run: what the send would do, with nothing stored or sent. */
+export type DryRunResult = Refine<Schemas["DryRun"], {
+  dryRun: true;
+  findings: Finding[];
+  upcoming?: UpcomingCheck;
+}>;
+
+export type ValidateResult = Refine<Schemas["ValidationResult"], {
+  findings: Finding[];
+  upcoming?: UpcomingCheck;
+}>;
+
+/** The body of a webhook call. */
+export type WebhookEvent = Refine<Schemas["WebhookEvent"], { type: EventType }>;
+
+/** An event-feed entry: the webhook body plus when it was raised. */
+export type FeedEvent = Refine<Schemas["Event"], { type: EventType }>;
+
+export type EventPage = Refine<Schemas["EventPage"], { events: FeedEvent[] }>;
+
+export type Ruleset = Refine<Schemas["Ruleset"], { status: "in_force" | "scheduled" | (string & {}) }>;
+
+export type Upload = Schemas["Upload"];
 
 /** What to send. Only `sender` and `payload` are required; the rest is read off the document when left out. */
 export interface SendInput {
@@ -118,24 +112,6 @@ export interface SendInput {
   idempotencyKey?: string;
 }
 
-/** The answer to a dry run: what the send would do, with nothing stored or sent. */
-export interface DryRunResult {
-  dryRun: true;
-  companyId: string;
-  sender: PeppolId;
-  receiver: PeppolId;
-  type?: string;
-  documentTypeId: string;
-  processId: string;
-  validated: boolean;
-  /** null for a type with no rules that its capability lets go unvalidated. */
-  valid: boolean | null;
-  findings: Finding[];
-  ruleset?: string;
-  vesid?: string;
-  upcoming?: UpcomingValidation;
-}
-
 export interface ValidateInput {
   payload: string | Uint8Array | Blob;
   type?: string;
@@ -144,17 +120,6 @@ export interface ValidateInput {
   /** Needed only for a document large enough to be staged, when the key reaches several companies. */
   sender?: PeppolId;
   companyId?: string;
-}
-
-export interface ValidateResult {
-  valid: boolean;
-  documentTypeId: string;
-  processId: string;
-  type?: string;
-  findings: Finding[];
-  ruleset?: string;
-  vesid?: string;
-  upcoming?: UpcomingValidation;
 }
 
 export interface ListMessagesParams {
@@ -177,56 +142,10 @@ export interface Page<T> {
   nextCursor?: string;
 }
 
-/** The body of a webhook call and of an event-feed entry. */
-export interface WebhookEvent {
-  id: string;
-  type:
-    | "message.outbound.as4_accepted"
-    | "message.outbound.failed"
-    | "message.outbound.ruleset_warning"
-    | "message.inbound.received"
-    | "message.inbound.validation_failed"
-    | "message.mls"
-    | (string & {});
-  accountId?: string;
-  companyId?: string;
-  documentId: string;
-  status: string;
-  unvalidated?: boolean;
-  externalReference?: string;
-  metadata?: Record<string, string>;
-  // message.mls
-  mlsEventId?: string;
-  responseCode?: string;
-  reasons?: string[];
-  issues?: MLSIssue[];
-  // message.outbound.ruleset_warning
-  ruleset?: string;
-  effectiveFrom?: string;
-  rules?: string[];
-}
-
-export interface FeedEvent extends WebhookEvent {
-  createdAt: string;
-}
-
 export interface ListEventsParams {
   /** The cursor from the previous page. Without it the feed starts at its oldest event (30 days back). */
   after?: string;
   companyId?: string;
-  type?: WebhookEvent["type"];
+  type?: EventType;
   limit?: number;
-}
-
-export interface EventPage {
-  events: FeedEvent[];
-  /** Always set: store it and pass it as `after` next time, even when `events` is empty. */
-  nextCursor: string;
-}
-
-export interface Ruleset {
-  name: string;
-  title: string;
-  effectiveFrom?: string;
-  status: "in_force" | "scheduled" | (string & {});
 }

@@ -9,6 +9,7 @@ import type {
   Message,
   Page,
   Ruleset,
+  Upload,
   SendInput,
   ValidateInput,
   ValidateResult,
@@ -193,12 +194,6 @@ class Events {
   }
 }
 
-interface UploadGrant {
-  payloadObjectKey: string;
-  uploadUrl: string;
-  expiresAt: string;
-  headers: Record<string, string>;
-}
 
 /**
  * Stages a document too large to send inline and answers its key. The upload
@@ -206,7 +201,7 @@ interface UploadGrant {
  * the length, so the PUT carries exactly those.
  */
 async function stage(t: Transport, fetchImpl: typeof fetch, bytes: Uint8Array, sender?: string, companyId?: string): Promise<string> {
-  const grant = await t.request<UploadGrant>({
+  const grant = await t.request<Upload>({
     method: "POST",
     path: "/v1/messages/uploads",
     body: compact({ bytes: bytes.byteLength, sender, companyId }),

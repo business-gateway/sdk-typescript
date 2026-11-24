@@ -108,7 +108,9 @@ npm install
 npm test          # vitest
 npm run typecheck
 npm run build     # dist/
-npm run sync-spec # copy ../docs/openapi.json; the tests check every route the client calls against it
+npm run sync-spec # copy ../docs/openapi.json and regenerate src/generated/openapi.ts
+npm run generate  # regenerate the types from spec/openapi.json alone
+node scripts/spec-drift.mjs # compare the copy with what the API publishes
 ```
 
-The response types in `src/types.ts` are written from the platform's own response structs: the OpenAPI document names the routes and parameters but describes most bodies only as `object`. The webhook test pins the signature to a vector computed by the platform's own signing code.
+The response types in `src/types.ts` are aliases of the schemas in the OpenAPI document, generated into `src/generated/openapi.ts` by openapi-typescript; the platform derives those schemas from the structs its handlers encode. The aliases only narrow strings to the documented values, and the build refuses a narrowing that names a field the schema does not have. CI fails when the generated file is stale, and the weekly spec-drift workflow fails when the API publishes a route or field the SDK's copy lacks. The webhook test pins the signature to a vector computed by the platform's own signing code.
