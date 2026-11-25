@@ -8,7 +8,17 @@
     "url": "git+https://github.com/business-gateway/sdk-typescript.git"
   },
   "homepage": "https://github.com/business-gateway/sdk-typescript#readme",
-  "private": true,
+  "bugs": {
+    "url": "https://github.com/business-gateway/sdk-typescript/issues"
+  },
+  "keywords": [
+    "peppol",
+    "e-invoicing",
+    "einvoice",
+    "ubl",
+    "business-gateway",
+    "sdk"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -38,5 +48,9 @@
     "openapi-typescript": "7.13.0",
     "typescript": "^5.9.2",
     "vitest": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }
