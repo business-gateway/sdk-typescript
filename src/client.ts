@@ -1,4 +1,4 @@
-import { BusinessGatewayError } from "./errors.js";
+import { BusinessGatewayError, type ResponseMeta } from "./errors.js";
 import { Transport, type TransportOptions } from "./http.js";
 import type {
   DryRunResult,
@@ -26,6 +26,12 @@ export interface ClientOptions {
   timeoutMs?: number;
   /** A fetch implementation; defaults to the global one. */
   fetch?: typeof fetch;
+  /**
+   * Called with every answer the API gives, each retry's included: status,
+   * request id and, where the call has a limit, its RateLimit-* headers. Use
+   * it rather than `lastResponse` when calls run concurrently.
+   */
+  onResponse?: (meta: ResponseMeta) => void;
 }
 
 /**
@@ -41,9 +47,11 @@ export class BusinessGateway {
   readonly events: Events;
   private readonly t: Transport;
   private readonly fetchImpl: typeof fetch;
+  private last?: ResponseMeta;
 
   constructor(options: ClientOptions) {
     if (!options?.apiKey) throw new Error("BusinessGateway: apiKey is required");
+    const onResponse = options.onResponse;
     const opts: TransportOptions = {
       apiKey: options.apiKey,
       baseUrl: options.baseUrl ?? "https://api.businessgateway.se",
@@ -51,11 +59,25 @@ export class BusinessGateway {
       maxRetries: options.maxRetries ?? 3,
       timeoutMs: options.timeoutMs ?? 30_000,
       sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+      onResponse: (meta) => {
+        this.last = meta;
+        onResponse?.(meta);
+      },
     };
     this.fetchImpl = opts.fetch;
     this.t = new Transport(opts);
     this.messages = new Messages(this.t, this.fetchImpl);
     this.events = new Events(this.t);
+  }
+
+  /**
+   * The latest answer this client received, from whichever call: undefined
+   * before the first. `lastResponse.rateLimit` after `validate()` tells how
+   * many calls are left this minute. With calls in flight concurrently it is
+   * whichever answered last; use `onResponse` then.
+   */
+  get lastResponse(): ResponseMeta | undefined {
+    return this.last;
   }
 
   /**
@@ -82,6 +104,7 @@ export class BusinessGateway {
       path: "/v1/validate",
       query: { ruleset: options.ruleset },
       body: compact(body),
+      safe: true,
     });
   }
 
@@ -131,7 +154,7 @@ class Messages {
   /** Every check send() makes and the validation, inline, with nothing stored or sent. */
   async dryRun(input: Omit<SendInput, "idempotencyKey" | "wait">): Promise<DryRunResult> {
     const body = await this.body(input);
-    return this.t.request<DryRunResult>({ method: "POST", path: "/v1/messages", query: { dryRun: true }, body });
+    return this.t.request<DryRunResult>({ method: "POST", path: "/v1/messages", query: { dryRun: true }, body, safe: true });
   }
 
   async get(id: string): Promise<Message> {

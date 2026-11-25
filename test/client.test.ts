@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BusinessGateway, INLINE_MAX_BYTES } from "../src/index.js";
-import { json, scriptedFetch } from "./fake.js";
+import { BusinessGateway, BusinessGatewayRateLimitError, INLINE_MAX_BYTES } from "../src/index.js";
+import { apiError, json, scriptedFetch } from "./fake.js";
 
 const message = { id: "m1", direction: "OUTBOUND", status: "QUEUED_VALIDATION", sender: "0007:5561234567", receiver: "0007:5569876542", documentTypeId: "d", processId: "p", payloadSha256: "x", payloadBytes: 4, createdAt: "2026-11-24T10:00:00Z" };
 
@@ -104,6 +104,40 @@ describe("validation and events", () => {
     const page = await bg.events.list({ after: "n1", type: "message.inbound.received" });
     expect(page).toEqual({ events: [], nextCursor: "n2" });
     expect(seen[1]!.url.search).toBe("?after=n1&type=message.inbound.received");
+  });
+});
+
+describe("rate limits", () => {
+  const headers = (remaining: number) => ({ "RateLimit-Limit": "120", "RateLimit-Remaining": String(remaining), "RateLimit-Reset": "42", "X-Request-Id": `r${remaining}` });
+
+  it("exposes the last answer's RateLimit headers and tells onResponse about each", async () => {
+    const f = scriptedFetch([json(200, { valid: true, findings: [] }, headers(119)), json(200, { rulesets: [] })]);
+    const metas: unknown[] = [];
+    const bg = new BusinessGateway({ apiKey: "k", baseUrl: "https://api.test", fetch: f.fetch, maxRetries: 0, onResponse: (m) => metas.push(m) });
+    expect(bg.lastResponse).toBeUndefined();
+    await bg.validate({ payload: "<Invoice/>" });
+    expect(bg.lastResponse).toEqual({ method: "POST", path: "/v1/validate", status: 200, requestId: "r119", rateLimit: { limit: 120, remaining: 119, resetSeconds: 42 } });
+    await bg.rulesets();
+    expect(bg.lastResponse).toEqual({ method: "GET", path: "/v1/validation/rulesets", status: 200 });
+    expect(metas).toHaveLength(2);
+  });
+
+  it("retries validate and dryRun after 429, which change nothing", async () => {
+    const limited = () => apiError(429, "RATE_LIMITED", true, { ...headers(0), "Retry-After": "0" });
+    const f = scriptedFetch([limited(), json(200, { valid: true, findings: [] }), limited(), json(200, { dryRun: true, valid: true, findings: [] })]);
+    const bg = new BusinessGateway({ apiKey: "k", baseUrl: "https://api.test", fetch: f.fetch, maxRetries: 1 });
+    await bg.validate({ payload: "<Invoice/>" });
+    await bg.messages.dryRun({ sender: "0007:1", payload: "<x/>" });
+    expect(f.seen).toHaveLength(4);
+  });
+
+  it("throws BusinessGatewayRateLimitError with retryAfter when retries are off", async () => {
+    const f = scriptedFetch([apiError(429, "RATE_LIMITED", true, { ...headers(0), "Retry-After": "9" })]);
+    const bg = new BusinessGateway({ apiKey: "k", baseUrl: "https://api.test", fetch: f.fetch, maxRetries: 0 });
+    const err = await bg.validate({ payload: "<Invoice/>" }).catch((e: BusinessGatewayRateLimitError) => e);
+    expect(err).toBeInstanceOf(BusinessGatewayRateLimitError);
+    expect(err).toMatchObject({ status: 429, retryAfter: 9, rateLimit: { limit: 120, remaining: 0, resetSeconds: 42 } });
+    expect(bg.lastResponse?.status).toBe(429);
   });
 });
 

@@ -92,16 +92,49 @@ await saveCursor(page.nextCursor); // always set, even when events is empty
 
 A failed request throws `BusinessGatewayError` with the API's `code`, `status`, `retryable` and `requestId` (quote it to support). `BusinessGatewayConnectionError` is a request that never got an answer.
 
-The client retries for you, at most `maxRetries` times (default 3), but only when repeating cannot do something twice:
-
-- a read (`GET`), or a write that carries an `Idempotency-Key`, after a dropped connection, a timeout or a retryable error;
-- any request after `429`, waiting the `Retry-After` the API gives.
-
-Everything else is tried once and its error is yours to judge.
+The client retries for you, at most `maxRetries` times (default 3), but only when repeating cannot do something twice: a read (`GET`), a call that stores and sends nothing (`validate()`, `messages.dryRun()`), or a write that carries an `Idempotency-Key` (every `send()`). Those are repeated after a dropped connection, a timeout or a retryable error, `429` included, waiting the `Retry-After` the API gives or else backing off. Everything else is tried once and its error is yours to judge.
 
 ```ts
 new BusinessGateway({ apiKey, maxRetries: 5, timeoutMs: 60_000, baseUrl: "https://api.businessgateway.se" });
 ```
+
+## Rate limits
+
+Sending is not rate limited. Validation is: `validate()` and `messages.dryRun()` share 120 calls a minute per account. Their answers carry `RateLimit-Limit`, `RateLimit-Remaining` and `RateLimit-Reset` (seconds until a call is freed), on success as on refusal, and the client reads them for you:
+
+```ts
+await bg.validate({ payload });
+bg.lastResponse?.rateLimit; // { limit: 120, remaining: 87, resetSeconds: 41 }
+```
+
+`lastResponse` is the latest answer this client got, from whichever call. When calls run concurrently, pass `onResponse` instead; it is told about every answer, each retry's included:
+
+```ts
+const bg = new BusinessGateway({
+  apiKey,
+  onResponse: ({ method, path, status, requestId, rateLimit }) => {
+    if (rateLimit && rateLimit.remaining < 10) log.warn("validation budget low", { path, rateLimit });
+  },
+});
+```
+
+Over the limit the API answers `429` with `Retry-After`. The client waits that long and tries again, within `maxRetries`, as long as the wait is at most a minute. When it gives up it throws `BusinessGatewayRateLimitError`, a `BusinessGatewayError` with `retryAfter` in seconds:
+
+```ts
+import { BusinessGatewayRateLimitError } from "@businessgateway/sdk";
+
+try {
+  await bg.validate({ payload });
+} catch (err) {
+  if (err instanceof BusinessGatewayRateLimitError) {
+    await queue.retryLater(payload, (err.retryAfter ?? 60) * 1000);
+  } else throw err;
+}
+```
+
+Every `BusinessGatewayError` carries `rateLimit` too, when its answer had the headers.
+
+Sign-in routes have per-address limits of their own, which answer `429` with `Retry-After` but no `RateLimit-*` headers.
 
 ## Development
 
