@@ -406,7 +406,9 @@ export interface paths {
          *
          *     id is the X-Peppol-Event-ID of the same event's webhook deliveries, so a client reading both deduplicates on it.
          *
-         *     nextCursor is always present: store it and ask again with ?after=; an empty page answers the same cursor back. Without ?after the feed starts at its oldest event. Events younger than 10 seconds are held back, so a page never skips one that commits late.
+         *     nextCursor is always present: store it and ask again with ?cursor=; an empty page answers the same cursor back. Without ?cursor the feed starts at its oldest event.
+         *
+         *     ?after is a deprecated alias of ?cursor, accepted until the next major version; both set to different values is 400 VALIDATION_FAILED. Events younger than 10 seconds are held back, so a page never skips one that commits late.
          *
          *     ?type is one of the six event types, ?companyId narrows to one company, ?limit is at most 100 (default 50). A cursor this feed did not return is 400 VALIDATION_FAILED. Confined to the companies the credential reaches.
          */
@@ -505,6 +507,8 @@ export interface paths {
          *     A document type with no rules to check, sent under a capability that allows unvalidated documents, skips that step and is 201 with status UNVALIDATED: queued for sending like QUEUED, named so that the status says no rules were checked. A document whose rules the validator reports unavailable later becomes UNVALIDATED the same way when the capability allows it. A replayed Idempotency-Key is 200 with the current status.
          *
          *     A key answers for 24 hours from its first use; after that it is unused, and the same key creates a new document. A payload that is a whole Standard Business Document is accepted: the envelope is taken off and the business document inside is what is stored and sent, under the platform's own SBDH. The envelope's sender, receiver, document type and process must then match the request's, or the request is 400 VALIDATION_FAILED.
+         *
+         *     The document is kept as UTF-8: a leading byte order mark is removed, an upload declared ISO-8859-1, ISO-8859-15, windows-1252 or US-ASCII is transcoded, an inline payload (already UTF-8, as JSON is) is only relabelled, and the XML declaration's encoding becomes UTF-8. That normalised document is what is stored, validated, hashed (payloadSha256), downloaded from /payload and sent; a UTF-8 document without a BOM is kept byte for byte.
          *
          *     type is a document type alias from the register (invoice, credit-note, order, …); pint-aunz-invoice and pint-aunz-credit-note are Peppol PINT A-NZ, the billing format for Australian and New Zealand receivers, whose documentTypeId is under the peppol-doctype-wildcard scheme rather than busdox-docid-qns. The business document must be what it is sent as: its root element and namespace, its cbc:CustomizationID (exactly) and, when present, its cbc:ProfileID must be the ones documentTypeId and processId name, or the request is 400 VALIDATION_FAILED before anything is stored — a BIS Billing 3.0 invoice sent as pint-aunz-invoice, a PINT invoice sent as invoice, a credit note sent as invoice. A documentTypeId ending in the wildcard indicator * matches no document (BR-PDW-02: * belongs in SMP registrations only).
          *
@@ -1159,7 +1163,9 @@ export interface paths {
          *
          *     ruleset and vesid say what the answer was reached under: the Peppol release in force now ("2026.5") and the exact validation artefacts the validator ran; Peppol publishes a new release twice a year, each mandatory from a set date, and the answer changes with it. While a release is scheduled, upcoming {ruleset, vesid, effectiveFrom, valid, findings} is the same document checked against it: what it will meet from effectiveFrom.
          *
-         *     ?ruleset=NAME checks against one release from GET /v1/validation/rulesets instead, in force or scheduled, and answers no upcoming; any other name is 400 VALIDATION_FAILED. 400 PEPPOL_DOCUMENT_NOT_SUPPORTED for a type without artefacts, 400 PEPPOL_VALIDATION_FAILED for unsafe XML, 413 PAYLOAD_TOO_LARGE for an upload over PAYLOAD_MAX_BYTES, 404 for a company the credential does not reach, 503 VALIDATION_UNAVAILABLE while the validator is down. Rate limited per account, 120 a minute shared with dry runs: every answer carries RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset (seconds until the oldest call in the window leaves it), and a refusal is 429 RATE_LIMITED with Retry-After.
+         *     ?ruleset=NAME checks against one release from GET /v1/validation/rulesets instead, in force or scheduled, and answers no upcoming; any other name is 400 VALIDATION_FAILED. The payload is prepared exactly as POST /v1/messages prepares it: a whole Standard Business Document has its envelope taken off and the business document inside is what is validated and inferred from, and the document is normalised to UTF-8 the same way. 400 INVALID_JSON for a body that is not JSON or not valid UTF-8, 400 VALIDATION_FAILED for a request that contradicts itself or an SBD that cannot be taken apart, 400 PEPPOL_DOCUMENT_NOT_SUPPORTED for a type without artefacts, 400 PEPPOL_VALIDATION_FAILED for a payload that is not one safe, well-formed XML document (empty, malformed, a DOCTYPE or entity declaration, an xml-stylesheet instruction, nesting deeper than 128, an unsupported charset, no single root element; base64 is not accepted), 413 PAYLOAD_TOO_LARGE for an upload over PAYLOAD_MAX_BYTES, 404 for a company the credential does not reach, 503 VALIDATION_UNAVAILABLE while the validator is down.
+         *
+         *     Rate limited per account, 120 a minute shared with dry runs: every answer carries RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset (seconds until the oldest call in the window leaves it), and a refusal is 429 RATE_LIMITED with Retry-After.
          */
         post: operations["post_v1_validate"];
         delete?: never;
@@ -1343,7 +1349,10 @@ export interface components {
              * @example https://exports.example/acme/5b6c7d8e.zip?X-Amz-Signature=…
              */
             downloadUrl?: string;
-            /** @description Why a FAILED export failed. */
+            /**
+             * @description Why a FAILED export failed.
+             * @example the export could not be written; request a new one
+             */
             error?: string;
             /**
              * Format: date-time
@@ -1436,7 +1445,10 @@ export interface components {
             createdAt: string;
             /** @example 9e8d7c6b-5a49-4382-a1b0-c9d8e7f6a5b4 */
             id: string;
-            /** @description The key itself, in the response to POST /v1/api-keys only, once. Store it then: it cannot be read again. */
+            /**
+             * @description The key itself, in the response to POST /v1/api-keys only, once. Store it then: it cannot be read again.
+             * @example pap_3k9x2m7q_Jx8vN2pL5rT9wQ4sZ7yB1cF6hK3mD0aE
+             */
             key?: string;
             /** @example ERP integration */
             name: string;
@@ -1483,6 +1495,7 @@ export interface components {
             /**
              * Format: int64
              * @description null when no price was set for the month.
+             * @example 14700
              */
             amountMinor: number | null;
             /** @example SEK */
@@ -1492,11 +1505,15 @@ export interface components {
              * @example company_month
              */
             lineType: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 3
+             */
             quantity: number;
             /**
              * Format: int64
              * @description null when no price was set for the month.
+             * @example 4900
              */
             unitPriceMinor: number | null;
         };
@@ -1504,7 +1521,12 @@ export interface components {
             /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             accountId: string;
             companies: components["schemas"]["BillingReportCompany"][];
-            /** @description Echoes a ?companyId selection; absent when none was made. */
+            /**
+             * @description Echoes a ?companyId selection; absent when none was made.
+             * @example [
+             *       "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f"
+             *     ]
+             */
             companyIds?: string[];
             /**
              * @description ISO 4217. Amounts are in minor units (öre for SEK).
@@ -1516,12 +1538,19 @@ export interface components {
             lines: components["schemas"]["BillingLine"][];
             months: components["schemas"]["BillingReportMonth"][];
             period: {
+                /** @example 2026-10 */
                 from: string;
+                /** @example 2026-10 */
                 key: string;
+                /** @example month */
                 kind: string;
+                /** @example 2026-10 */
                 to: string;
             };
-            /** @description account, or companies when every figure is a sum over some of the account's companies only. */
+            /**
+             * @description account, or companies when every figure is a sum over some of the account's companies only.
+             * @example account
+             */
             scope: string;
             totals: {
                 period: components["schemas"]["BillingReportTotal"];
@@ -1530,45 +1559,87 @@ export interface components {
             };
         };
         BillingReportCompany: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 24800
+             */
             amountMinor: number | null;
             /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
             companyId: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 1
+             */
             companyMonths: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 112
+             */
             inboundMessages: number | null;
             lines: components["schemas"]["BillingLine"][];
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 418
+             */
             messages: number;
             months: components["schemas"]["BillingReportCompanyMonth"][];
             /** @example Acme AB */
             name: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 306
+             */
             outboundMessages: number | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 2
+             */
             participantMonths: number;
             priceMissing: boolean;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 24800
+             */
             pricedAmountMinor: number;
         };
         BillingReportCompanyMonth: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 24800
+             */
             amountMinor: number | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 1
+             */
             companyMonths: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 112
+             */
             inboundMessages: number | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 418
+             */
             messages: number;
             /** @example 2026-10 */
             month: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 306
+             */
             outboundMessages: number | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 2
+             */
             participantMonths: number;
             priceMissing: boolean;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 24800
+             */
             pricedAmountMinor: number;
             /**
              * @description locked, draft, running, unmeasured or future.
@@ -1580,29 +1651,44 @@ export interface components {
             /**
              * Format: int64
              * @description null when priceMissing: some month behind the figure has no price. pricedAmountMinor is the priced part.
+             * @example 24800
              */
             amountMinor: number | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 1
+             */
             companyMonths: number;
             /**
              * Format: int64
              * @description null when the split by direction is not known.
+             * @example 112
              */
             inboundMessages: number | null;
             lines: components["schemas"]["BillingLine"][];
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 418
+             */
             messages: number;
             /** @example 2026-10 */
             month: string;
             /**
              * Format: int64
              * @description null when the split by direction is not known.
+             * @example 306
              */
             outboundMessages: number | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 2
+             */
             participantMonths: number;
             priceMissing: boolean;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 24800
+             */
             pricedAmountMinor: number;
             /**
              * @description locked (invoiced on), draft (measured, not locked), running (not ended), unmeasured or future.
@@ -1611,22 +1697,45 @@ export interface components {
             state: string;
         };
         BillingReportTotal: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 24800
+             */
             amountMinor: number | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 1
+             */
             companyMonths: number;
+            /** @example 2026-01 */
             from: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 112
+             */
             inboundMessages: number | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 418
+             */
             messages: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 306
+             */
             outboundMessages: number | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 2
+             */
             participantMonths: number;
             priceMissing: boolean;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 24800
+             */
             pricedAmountMinor: number;
+            /** @example 2026-10 */
             to: string;
         };
         BusinessCard: {
@@ -1734,7 +1843,10 @@ export interface components {
                  */
                 websites?: string[];
             }[];
-            /** @description Accepted and ignored, so a GET response can be sent back as is. */
+            /**
+             * @description Accepted and ignored, so a GET response can be sent back as is.
+             * @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c
+             */
             participantId?: string;
         };
         BusinessCardName: {
@@ -1785,9 +1897,15 @@ export interface components {
              * @example BOTH
              */
             direction: string;
-            /** @description A canonical Peppol document type identifier, or an alias with no processId. */
+            /**
+             * @description A canonical Peppol document type identifier, or an alias with no processId.
+             * @example busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1
+             */
             documentTypeId?: string;
-            /** @description A canonical Peppol process identifier. */
+            /**
+             * @description A canonical Peppol process identifier.
+             * @example cenbii-procid-ubl::urn:fdc:peppol.eu:2017:poacc:billing:01:1.0
+             */
             processId?: string;
             /**
              * @description A document type alias from GET /v1/document-types (invoice, credit-note, …), in place of documentTypeId and processId.
@@ -1805,7 +1923,10 @@ export interface components {
             countryCode: string;
             /** @example 2026-11-02T09:14:00Z */
             createdAt: string;
-            /** @description Always null here: a deleted company is no longer listed or returned. */
+            /**
+             * @description Always null here: a deleted company is no longer listed or returned.
+             * @example 2026-11-22T08:00:00Z
+             */
             deletedAt: string | null;
             /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
             id: string;
@@ -1898,21 +2019,44 @@ export interface components {
         };
         CompanyUpdated: {
             company: components["schemas"]["Company"];
-            /** @description Notes about a side effect of the change, such as participants that will now report under a new country. */
+            /**
+             * @description Notes about a side effect of the change, such as participants that will now report under a new country.
+             * @example [
+             *       "the VAT number does not match the registration number"
+             *     ]
+             */
             warnings?: string[];
         };
         DocumentTypes: {
             defaults: {
-                /** @description Aliases offered pre-checked to a new participant, by ISO 3166-1 alpha-2 country code. */
+                /**
+                 * @description Aliases offered pre-checked to a new participant, by ISO 3166-1 alpha-2 country code.
+                 * @example {
+                 *       "AU": [
+                 *         "pint-aunz-invoice",
+                 *         "pint-aunz-credit-note"
+                 *       ]
+                 *     }
+                 */
                 byCountry: {
                     [key: string]: string[];
                 };
-                /** @description The same, for every country not in byCountry. */
+                /**
+                 * @description The same, for every country not in byCountry.
+                 * @example [
+                 *       "invoice",
+                 *       "credit-note"
+                 *     ]
+                 */
                 otherwise: string[];
             };
             documentTypes: {
-                /** @description What a document of this type states in cbc:CustomizationID. */
+                /**
+                 * @description What a document of this type states in cbc:CustomizationID.
+                 * @example urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0
+                 */
                 customizationId: string;
+                /** @example urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1 */
                 documentTypeId: string;
                 /**
                  * @description One of families.
@@ -1924,8 +2068,12 @@ export interface components {
                  * @example Peppol BIS Billing 3.0 Invoice
                  */
                 label: string;
+                /** @example urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 */
                 processId: string;
-                /** @description What a document of this type states in cbc:ProfileID. */
+                /**
+                 * @description What a document of this type states in cbc:ProfileID.
+                 * @example urn:fdc:peppol.eu:2017:poacc:billing:01:1.0
+                 */
                 profileId: string;
                 /** @example Invoice */
                 rootElement: string;
@@ -1938,7 +2086,10 @@ export interface components {
                 shortName: string;
                 /** @description false: the canonical document model does not read this type. */
                 structured: boolean;
-                /** @description The part of documentTypeId after the customization: 2.1 for UBL, D16B for CII. */
+                /**
+                 * @description The part of documentTypeId after the customization: 2.1 for UBL, D16B for CII.
+                 * @example 2.1
+                 */
                 syntaxVersion: string;
                 /**
                  * @description The alias, as POST /v1/messages and a capability take it.
@@ -1948,62 +2099,117 @@ export interface components {
                 /** @description false: no validation artefacts, so a capability needs allowUnvalidated. */
                 validated: boolean;
             }[];
-            /** @description Display order of the families. */
+            /**
+             * @description Display order of the families.
+             * @example [
+             *       "Billing",
+             *       "PINT A-NZ",
+             *       "Ordering",
+             *       "Despatch",
+             *       "Catalogue"
+             *     ]
+             */
             families: string[];
         };
         DryRun: {
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
             companyId: string;
+            /** @example urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1 */
             documentTypeId: string;
             dryRun: boolean;
             findings: components["schemas"]["Finding"][];
+            /** @example urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 */
             processId: string;
+            /** @example 0007:5569876542 */
             receiver: string;
+            /** @example 2026.5 */
             ruleset?: string;
+            /** @example 0007:5561234567 */
             sender: string;
+            /** @example invoice */
             type: string;
             upcoming?: components["schemas"]["UpcomingCheck"];
             /** @description null when validated is false: a type with no rules that its capability lets go unvalidated. */
             valid: boolean | null;
             validated: boolean;
+            /** @example eu.peppol.bis3:invoice:2026.5 */
             vesid?: string;
         };
         Error: {
             error: {
-                /** @description Stable; branch on it. An operation's x-errors lists the codes it answers. */
+                /**
+                 * @description Stable; branch on it. An operation's x-errors lists the codes it answers.
+                 * @example VALIDATION_FAILED
+                 */
                 code: string;
-                /** @description For people; may change. */
+                /**
+                 * @description For people; may change.
+                 * @example sender is required
+                 */
                 message: string;
-                /** @description This request's X-Request-Id (yours if you sent one, ours otherwise). Quote it to support. */
+                /**
+                 * @description This request's X-Request-Id (yours if you sent one, ours otherwise). Quote it to support.
+                 * @example 0b9e4c2a-7d1f-4e3b-9a6c-5f8d2e1b4a70
+                 */
                 requestId?: string;
                 /** @description true when the same request may succeed if sent again unchanged: 429 and 5xx, except 501 and VALIDATION_ERROR, which name a state that does not pass. false for every other 4xx, which fails the same way until the request or the account changes. Retry a send with the same Idempotency-Key. */
                 retryable: boolean;
             };
         };
         Event: {
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             accountId?: string;
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
             companyId?: string;
             /** Format: date-time */
             createdAt: string;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             documentId: string;
+            /** @example 2026-12-01T00:00:00Z */
             effectiveFrom?: string;
+            /** @example INV-1001 */
             externalReference?: string;
+            /** @example 9c8b7a6f-5e4d-4c3b-8a29-1f0e9d8c7b6a */
             id: string;
             issues?: components["schemas"]["WebhookMLSIssue"][];
+            /**
+             * @example {
+             *       "erpId": "84211"
+             *     }
+             */
             metadata?: {
                 [key: string]: string;
             };
+            /** @example 5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b */
             mlsEventId?: string;
+            /**
+             * @example [
+             *       "BV"
+             *     ]
+             */
             reasons?: string[];
+            /** @example RE */
             responseCode?: string;
+            /**
+             * @example [
+             *       "PEPPOL-EN16931-R001"
+             *     ]
+             */
             rules?: string[];
+            /** @example 2026.11 */
             ruleset?: string;
+            /** @example AS4_ACCEPTED */
             status: string;
+            /** @example message.mls */
             type: string;
             unvalidated?: boolean;
         };
         EventPage: {
             events: components["schemas"]["Event"][];
-            /** @description Always present. Ask again with ?after= set to it. */
+            /**
+             * @description Always present. Ask again with ?cursor= set to it.
+             * @example ZTQyMTc
+             */
             nextCursor: string;
         };
         File: {
@@ -2095,12 +2301,21 @@ export interface components {
             nextCursor?: string;
         };
         Finding: {
-            /** @description schema (the document is not valid UBL, so Schematron did not run) or schematron. */
+            /**
+             * @description schema (the document is not valid UBL, so Schematron did not run) or schematron.
+             * @example schematron
+             */
             layer?: string;
+            /** @example /Invoice/cbc:ProfileID */
             location?: string;
+            /** @example Business process MUST be provided. */
             message: string;
+            /** @example PEPPOL-EN16931-R001 */
             rule?: string;
-            /** @description fatal, error or warning. A fatal finding makes valid false. */
+            /**
+             * @description fatal, error or warning. A fatal finding makes valid false.
+             * @example error
+             */
             severity: string;
         };
         KycAlternative: {
@@ -2177,7 +2392,10 @@ export interface components {
              * @example PENDING_SIGNATURES
              */
             status: string;
-            /** @description Why the case is in its status, such as a rejection reason. */
+            /**
+             * @description Why the case is in its status, such as a rejection reason.
+             * @example the register extract names a signatory the rule does not cover
+             */
             statusReason?: string;
             /**
              * Format: date-time
@@ -2361,7 +2579,10 @@ export interface components {
              * @example PENDING_SIGNATURES
              */
             status: string;
-            /** @description Why the case is in its status, such as a rejection reason. */
+            /**
+             * @description Why the case is in its status, such as a rejection reason.
+             * @example the register extract names a signatory the rule does not cover
+             */
             statusReason?: string;
             /**
              * Format: date-time
@@ -2437,7 +2658,12 @@ export interface components {
              * @description From when DELETE /v1/users/{id} erases the deactivated user; absent when erasure is not configured.
              */
             erasableAt?: string;
-            /** @description Rights on top of the role, today only billing.view. Always an array; always empty for an owner. */
+            /**
+             * @description Rights on top of the role, today only billing.view. Always an array; always empty for an owner.
+             * @example [
+             *       "billing.view"
+             *     ]
+             */
             grants: string[];
             /** @example 2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f */
             id: string;
@@ -2457,34 +2683,59 @@ export interface components {
              * @example member
              */
             role: string;
-            /** @description active or inactive. */
+            /**
+             * @description active or inactive.
+             * @example active
+             */
             status: string;
             /** @example Europe/Stockholm */
             timezone: string;
         };
         MLSEvent: {
+            /** @example 2026-11-25T09:16:40Z */
             createdAt: string;
+            /** @example Invoice rejected: the order reference is unknown. */
             description?: string;
+            /** @example INBOUND */
             direction: string;
+            /** @example 5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b */
             id: string;
             issues?: components["schemas"]["MLSIssue"][];
+            /** @example the sending participant could not be resolved */
             lastError?: string;
+            /** @example f1e2d3c4-b5a6-4978-8a9b-0c1d2e3f4a5b */
             mlsId?: string;
+            /**
+             * @example [
+             *       "BV"
+             *     ]
+             */
             reasons?: string[];
+            /** @example 2026-11-25T09:16:38Z */
             receivedAt?: string;
+            /** @example RE */
             responseCode?: string;
+            /** @example 0242:000123 */
             sender?: string;
+            /** @example RECEIVED */
             status: string;
         };
         MLSIssue: {
+            /** @example [BR-CO-16] Amount due for payment does not match the totals */
             description?: string;
+            /** @example /Invoice/cac:OrderReference/cbc:ID */
             location: string;
+            /** @example BV */
             reasonCode: string;
         };
         Message: {
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             accountId?: string;
+            /** @example Acme AB */
             accountName?: string;
+            /** @example 2026-11-25T09:14:10Z */
             as4AcceptedAt?: string;
+            /** @example c2f7e1a4-9b3d-4e6f-8a2c-5d1e0f9b7a36@businessgateway.se */
             as4MessageId?: string;
             /** @example 9d1c2b3a-4e5f-4a6b-8c7d-0e1f2a3b4c5d */
             companyId?: string;
@@ -2492,6 +2743,7 @@ export interface components {
             companyName?: string;
             /** @example 2026-11-25T09:14:02Z */
             createdAt: string;
+            /** @example 2026-11-25T09:15:02Z */
             deliveredToCustomerAt?: string;
             /** @description An outbound SEND_FAILED document whose send outcome is unknown: the receiver may have it. Never resend it. */
             deliveryUnconfirmed?: boolean;
@@ -2510,14 +2762,24 @@ export interface components {
             id: string;
             /** @example 2026-11-25 */
             issueDate?: string;
+            /** @example PEPPOL_TRANSPORT_FAILED */
             lastErrorCode?: string;
+            /** @example receiver refused */
             lastErrorMessage?: string;
+            /**
+             * @example {
+             *       "erpId": "84211"
+             *     }
+             */
             metadata?: {
                 [key: string]: string;
             };
             /** @description The Message Level Status trail, oldest first. GET /v1/messages/{id} only. */
             mlsEvents?: components["schemas"]["MLSEvent"][];
-            /** @description The business document, on GET /v1/messages/{id} only while it is under the inline limit. */
+            /**
+             * @description The business document, on GET /v1/messages/{id} only while it is under the inline limit.
+             * @example <?xml version="1.0" encoding="UTF-8"?><Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">…</Invoice>
+             */
             payload?: string;
             /**
              * Format: int64
@@ -2528,16 +2790,28 @@ export interface components {
             payloadSha256: string;
             /** @example urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 */
             processId: string;
+            /** @example 2026-11-25T09:14:03Z */
             queuedAt?: string;
+            /** @example 2026-11-25T09:14:10Z */
             receivedAt?: string;
             /** @example 0007:5569876542 */
             receiver: string;
-            /** @description CONFIRMED, DELIVERED or REJECTED, from the receiving Service Provider's MLS. Absent until one arrives. */
+            /**
+             * @description CONFIRMED, DELIVERED or REJECTED, from the receiving Service Provider's MLS. Absent until one arrives.
+             * @example REJECTED
+             */
             recipientStatus?: string;
+            /**
+             * @example [
+             *       "BV"
+             *     ]
+             */
             recipientStatusReasons?: string[];
+            /** @example 8e4b2d6f-1a3c-4f5e-9b7d-0c2e4a6f8b1d */
             sbdhInstanceId?: string;
             /** @example 0007:5561234567 */
             sender: string;
+            /** @example 2026-11-25T09:14:09Z */
             sentAt?: string;
             /**
              * @description The document status.
@@ -2562,6 +2836,7 @@ export interface components {
          *     }
          */
         MessageInput: {
+            /** @example urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1 */
             documentTypeId?: string;
             /**
              * @description Your own reference, returned on the message and its webhooks.
@@ -2582,8 +2857,12 @@ export interface components {
              * @example <?xml version="1.0" encoding="UTF-8"?><Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">…</Invoice>
              */
             payload?: string;
-            /** @description The key from POST /v1/messages/uploads, for a document too large to send inline. */
+            /**
+             * @description The key from POST /v1/messages/uploads, for a document too large to send inline.
+             * @example uploads/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d
+             */
             payloadObjectKey?: string;
+            /** @example urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 */
             processId?: string;
             /**
              * @description Read off the document when left out; when given, it must be one of the document's EndpointIDs.
@@ -2602,28 +2881,48 @@ export interface components {
             type?: string;
         };
         MessagePage: {
+            /**
+             * @example {
+             *       "DELIVERED": 412,
+             *       "SEND_FAILED": 3
+             *     }
+             */
             counts?: {
                 [key: string]: number;
             };
             messages: components["schemas"]["Message"][];
+            /** @example eyJ0IjoiMjAyNi0xMS0yNVQwOToxNDowMloiLCJpZCI6IjNmMmIifQ */
             nextCursor?: string;
+            /** @example eyJ0IjoiMjAyNi0xMS0yNVQxMDowMjoxNVoiLCJpZCI6IjhhMWQifQ */
             prevCursor?: string;
         };
         MessageUpcomingValidation: {
-            /** @description When the release becomes mandatory, RFC 3339 UTC. */
+            /**
+             * @description When the release becomes mandatory, RFC 3339 UTC.
+             * @example 2026-12-01T00:00:00Z
+             */
             effectiveFrom: string;
             findings: components["schemas"]["ValidationError"][];
+            /** @example 2026.11 */
             ruleset: string;
             valid: boolean;
+            /** @example eu.peppol.bis3:invoice:2026.11 */
             vesid?: string;
         };
         MessageValidation: {
-            /** @description The Peppol release, as GET /v1/validation/rulesets names it. */
+            /**
+             * @description The Peppol release, as GET /v1/validation/rulesets names it.
+             * @example 2026.5
+             */
             ruleset: string;
             /** @description The document checked against the release scheduled next; shown until it takes effect. */
             upcoming?: components["schemas"]["MessageUpcomingValidation"];
+            /** @example 2026-11-25T09:14:05Z */
             validatedAt: string;
-            /** @description The exact validation artefacts the engine ran. */
+            /**
+             * @description The exact validation artefacts the engine ran.
+             * @example eu.peppol.bis3:invoice:2026.5
+             */
             vesid: string;
         };
         NetworkCapabilities: {
@@ -2793,11 +3092,16 @@ export interface components {
             id: string;
             /** @example user:2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f */
             injectedBy?: string;
+            /** @example 2026-11-25T10:02:00Z */
             lastReplayAt?: string;
+            /** @example capability added */
             lastReplayReason?: string;
             /** @example 9f2c4e1a7b3d5f6e8a0c2b4d6f8e0a1c3b5d7f9e1a3c5b7d9f1e3a5c7b9d1f3e */
             payloadSha256: string;
-            /** @description The operator API's route for the payload; not reachable with customer credentials. */
+            /**
+             * @description The operator API's route for the payload; not reachable with customer credentials.
+             * @example https://files.businessgateway.se/parked/1b2c3d4e.xml?X-Amz-Signature=…
+             */
             payloadUrl: string;
             /** @example cenbii-procid-ubl::urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 */
             processId: string;
@@ -2806,6 +3110,7 @@ export interface components {
              * @example NO_CAPABILITY
              */
             reason: string;
+            /** @example 0007:5561234567 does not receive this document type */
             reasonDetail?: string;
             /** @example 0007:5561234567 */
             receiver: string;
@@ -2819,9 +3124,14 @@ export interface components {
             receiverCompanyName?: string;
             /** @example 0e1f2a3b-4c5d-4e6f-8a7b-9c0d1e2f3a4b */
             receiverParticipantId?: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 1
+             */
             replayCount: number;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             replayedDocumentId?: string;
+            /** @example 8e4b2d6f-1a3c-4f5e-9b7d-0c2e4a6f8b1d */
             sbdhInstanceId?: string;
             /** @example 0007:5569876542 */
             sender: string;
@@ -2829,11 +3139,20 @@ export interface components {
             source: string;
         };
         Participant: {
-            /** @description The account the company belongs to. Operator API only; never on /v1. */
+            /**
+             * @description The account the company belongs to. Operator API only; never on /v1.
+             * @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c
+             */
             accountId?: string;
-            /** @description required or exempt. Operator API only; never on /v1. */
+            /**
+             * @description required or exempt. Operator API only; never on /v1.
+             * @example required
+             */
             accountKycPolicy?: string;
-            /** @description The account's name. Operator API only; never on /v1. */
+            /**
+             * @description The account's name. Operator API only; never on /v1.
+             * @example Acme AB
+             */
             accountName?: string;
             /**
              * @description When it became reachable on the network.
@@ -2847,11 +3166,17 @@ export interface components {
             canonicalId: string;
             /** @example 8c1d4e2a-6b3f-4a7e-9d5c-2f1e0a9b8c7d */
             companyId: string;
-            /** @description The company's KYC status. Operator API only; never on /v1. */
+            /**
+             * @description The company's KYC status. Operator API only; never on /v1.
+             * @example VERIFIED
+             */
             companyKycStatus?: string;
             /** @description Whether the company is KYC verified. Operator API only; never on /v1. */
             companyKycVerified?: boolean;
-            /** @description The company's name. Operator API only; never on /v1. */
+            /**
+             * @description The company's name. Operator API only; never on /v1.
+             * @example Acme AB
+             */
             companyName?: string;
             /**
              * @description ISO 3166-1 alpha-2. Absent for a scheme that implies no country (GLN, DUNS) when none was given.
@@ -2863,16 +3188,23 @@ export interface components {
             /**
              * Format: int64
              * @description The configured unpublish grace. Operator API only; never on /v1.
+             * @example 86400
              */
             deactivateGraceSeconds?: number;
-            /** @description When an operator waived the grace. Operator API only; never on /v1. */
+            /**
+             * @description When an operator waived the grace. Operator API only; never on /v1.
+             * @example 2026-11-20T16:05:00Z
+             */
             deactivateGraceSkippedAt?: string;
             /**
              * @description When it was deactivated.
              * @example 2026-11-20T16:03:12Z
              */
             deactivatedAt?: string;
-            /** @description Always null on /v1: a deleted participant is 404 there. */
+            /**
+             * @description Always null on /v1: a deleted participant is 404 there.
+             * @example 2026-11-22T08:00:00Z
+             */
             deletedAt: string | null;
             /**
              * @description The participant's id on this platform, used in every /v1/participants/{id} path.
@@ -2904,7 +3236,10 @@ export interface components {
              * @example 0007
              */
             scheme: string;
-            /** @description What the SMP worker last failed on. Operator API only; never on /v1. */
+            /**
+             * @description What the SMP worker last failed on. Operator API only; never on /v1.
+             * @example the SML did not list the participant within 10 minutes
+             */
             smpLastError?: string;
             /**
              * @description REGISTERING, PUBLISHED, ERROR or UNPUBLISHED: where its entry in our SMP stands.
@@ -2916,7 +3251,10 @@ export interface components {
              * @example ACTIVE
              */
             status: string;
-            /** @description While DEACTIVATING, when the SMP entry is removed. Operator API only; never on /v1. */
+            /**
+             * @description While DEACTIVATING, when the SMP entry is removed. Operator API only; never on /v1.
+             * @example 2026-11-21T16:03:12Z
+             */
             unpublishAfter?: string;
             /** @example 2026-11-02T09:15:41Z */
             updatedAt: string;
@@ -2971,13 +3309,19 @@ export interface components {
             };
             /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             participantId?: string;
-            /** @description A link to the target's page. Operator API only; never on /v1. */
+            /**
+             * @description A link to the target's page. Operator API only; never on /v1.
+             * @example /participants/3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c
+             */
             targetHref?: string;
             /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             targetId?: string;
             /** @example Acme AB */
             targetName?: string;
-            /** @description A line of context under targetName, such as a participant's company. */
+            /**
+             * @description A line of context under targetName, such as a participant's company.
+             * @example Acme AB
+             */
             targetSub?: string;
             /**
              * @description participant, company, account, login or certificate, where the event has a target.
@@ -3028,8 +3372,11 @@ export interface components {
             value: string;
         };
         ParticipantMigration: {
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             accountId?: string;
+            /** @example required */
             accountKycPolicy?: string;
+            /** @example Acme AB */
             accountName?: string;
             /** @example 2026-11-02T09:15:41Z */
             activatedAt?: string;
@@ -3037,18 +3384,25 @@ export interface components {
             canonicalId: string;
             /** @example 8c1d4e2a-6b3f-4a7e-9d5c-2f1e0a9b8c7d */
             companyId: string;
+            /** @example VERIFIED */
             companyKycStatus?: string;
             companyKycVerified?: boolean;
+            /** @example Acme AB */
             companyName?: string;
             /** @example SE */
             countryCode?: string;
             /** @example 2026-11-02T09:12:30Z */
             createdAt: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 86400
+             */
             deactivateGraceSeconds?: number;
+            /** @example 2026-11-20T16:05:00Z */
             deactivateGraceSkippedAt?: string;
             /** @example 2026-11-20T16:03:12Z */
             deactivatedAt?: string;
+            /** @example 2026-11-22T08:00:00Z */
             deletedAt: string | null;
             /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             id: string;
@@ -3067,11 +3421,13 @@ export interface components {
             networkRegistration: string;
             /** @example 0007 */
             scheme: string;
+            /** @example the SML did not list the participant within 10 minutes */
             smpLastError?: string;
             /** @example PUBLISHED */
             smpStatus?: string;
             /** @example ACTIVE */
             status: string;
+            /** @example 2026-11-21T16:03:12Z */
             unpublishAfter?: string;
             /** @example 2026-11-02T09:15:41Z */
             updatedAt: string;
@@ -3118,11 +3474,19 @@ export interface components {
             name?: string;
         };
         Ruleset: {
-            /** @description When the release takes effect; absent on one in force since before the platform recorded dates. */
+            /**
+             * @description When the release takes effect; absent on one in force since before the platform recorded dates.
+             * @example 2026-12-01T00:00:00Z
+             */
             effectiveFrom?: string;
+            /** @example 2026.11 */
             name: string;
-            /** @description in_force or scheduled. */
+            /**
+             * @description in_force or scheduled.
+             * @example scheduled
+             */
             status: string;
+            /** @example Peppol post-award release 2026 Q4 (November 2026) */
             title: string;
         };
         Rulesets: {
@@ -3289,13 +3653,19 @@ export interface components {
             logins: components["schemas"]["SftpLogin"][];
         };
         SftpLoginUpdate: {
-            /** @description Operator-managed: any value is refused with 400 OPERATOR_MANAGED. */
+            /**
+             * @description Operator-managed: any value is refused with 400 OPERATOR_MANAGED.
+             * @example password
+             */
             authMethod?: string;
             /** @description Operator-managed: any value is refused with 400 OPERATOR_MANAGED. */
             companyId?: unknown;
             /** @description Operator-managed: any value is refused with 400 OPERATOR_MANAGED. */
             disabled?: boolean;
-            /** @description Operator-managed: any value is refused with 400 OPERATOR_MANAGED. */
+            /**
+             * @description Operator-managed: any value is refused with 400 OPERATOR_MANAGED.
+             * @example Rm3$tq9Lw2Vz
+             */
             password?: string;
             /**
              * @description true generates a new password and returns it once. The only change a customer may make.
@@ -3372,12 +3742,14 @@ export interface components {
              * @example test-0c4f7a2e-5b1d-4e8a-9f3c-6d2b1a0e9f8c
              */
             as4MessageId?: string;
+            /** @example urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1 */
             documentTypeId?: string;
             /**
              * @description The document, or an SBD carrying it, as a UTF-8 string.
              * @example <?xml version="1.0" encoding="UTF-8"?><Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">…</Invoice>
              */
             payload: string;
+            /** @example urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 */
             processId?: string;
             /**
              * @description One of this company's participants. Read off the payload when it is an SBD and this is left out.
@@ -3426,20 +3798,33 @@ export interface components {
             status: string;
         };
         UpcomingCheck: {
-            /** @description When the release becomes mandatory, RFC 3339 UTC. */
+            /**
+             * @description When the release becomes mandatory, RFC 3339 UTC.
+             * @example 2026-12-01T00:00:00Z
+             */
             effectiveFrom: string;
             findings: components["schemas"]["Finding"][];
+            /** @example 2026.11 */
             ruleset: string;
             valid: boolean;
+            /** @example eu.peppol.bis3:invoice:2026.11 */
             vesid?: string;
         };
         Upload: {
+            /** @example 2026-11-25T09:29:00Z */
             expiresAt: string;
-            /** @description PUT the document to uploadUrl with exactly these headers. */
+            /**
+             * @description PUT the document to uploadUrl with exactly these headers.
+             * @example {
+             *       "Content-Type": "application/xml"
+             *     }
+             */
             headers: {
                 [key: string]: string;
             };
+            /** @example uploads/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d */
             payloadObjectKey: string;
+            /** @example https://uploads.businessgateway.se/uploads/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d?X-Amz-Signature=… */
             uploadUrl: string;
         };
         /**
@@ -3455,6 +3840,7 @@ export interface components {
              * @example 2400000
              */
             bytes: number;
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
             companyId?: string;
             /**
              * @description The participant the document will be sent from, so the upload lands under its company.
@@ -3473,17 +3859,31 @@ export interface components {
             usage: components["schemas"]["UsageCount"][];
         };
         UsageCompanyCount: {
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             accountId: string;
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
             companyId: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 306
+             */
             count: number;
-            /** @description MESSAGE_OUTBOUND, MESSAGE_INBOUND or PARTICIPANT_ACTIVE. */
+            /**
+             * @description MESSAGE_OUTBOUND, MESSAGE_INBOUND or PARTICIPANT_ACTIVE.
+             * @example MESSAGE_OUTBOUND
+             */
             kind: string;
         };
         UsageCount: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 306
+             */
             count: number;
-            /** @description MESSAGE_OUTBOUND, MESSAGE_INBOUND or PARTICIPANT_ACTIVE. */
+            /**
+             * @description MESSAGE_OUTBOUND, MESSAGE_INBOUND or PARTICIPANT_ACTIVE.
+             * @example MESSAGE_OUTBOUND
+             */
             kind: string;
         };
         User: {
@@ -3510,7 +3910,12 @@ export interface components {
              * @description From when DELETE /v1/users/{id} erases the deactivated user; absent when erasure is not configured.
              */
             erasableAt?: string;
-            /** @description Rights on top of the role, today only billing.view. Always an array; always empty for an owner. */
+            /**
+             * @description Rights on top of the role, today only billing.view. Always an array; always empty for an owner.
+             * @example [
+             *       "billing.view"
+             *     ]
+             */
             grants: string[];
             /** @example 2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f */
             id: string;
@@ -3523,14 +3928,20 @@ export interface components {
              * @example member
              */
             role: string;
-            /** @description active or inactive. */
+            /**
+             * @description active or inactive.
+             * @example active
+             */
             status: string;
             /** @example Europe/Stockholm */
             timezone: string;
         };
         UserCompany: {
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
             id: string;
+            /** @example acme-ab */
             identifier: string;
+            /** @example Acme AB */
             name: string;
         };
         UserInput: {
@@ -3548,7 +3959,10 @@ export interface components {
              * @example Anna Lind
              */
             name?: string;
-            /** @description Leave out: a random one is generated and a set-password link mailed. */
+            /**
+             * @description Leave out: a random one is generated and a set-password link mailed.
+             * @example vT7#qL2m9xRw
+             */
             password?: string;
             /**
              * @description owner, company_admin or member; member when left out.
@@ -3575,7 +3989,10 @@ export interface components {
              *     ]
              */
             companyIds?: string[];
-            /** @description Your current password, when changing your own. */
+            /**
+             * @description Your current password, when changing your own.
+             * @example vT7#qL2m9xRw
+             */
             currentPassword?: string;
             /** @example YYYY-MM-DD */
             dateFormat?: string;
@@ -3588,7 +4005,10 @@ export interface components {
             grants?: string[];
             /** @example Anna Lind */
             name?: string;
-            /** @description A new password. Changing your own needs currentPassword. */
+            /**
+             * @description A new password. Changing your own needs currentPassword.
+             * @example Kp4!wZ8nR2sx
+             */
             password?: string;
             /** @description Mail a fresh invite link to a user who never set their own password. */
             resendInvite?: boolean;
@@ -3605,15 +4025,20 @@ export interface components {
          *     }
          */
         ValidateInput: {
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
             companyId?: string;
+            /** @example urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1 */
             documentTypeId?: string;
             /**
              * @description The document as a UTF-8 string. Exactly one of payload and payloadObjectKey.
              * @example <?xml version="1.0" encoding="UTF-8"?><Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">…</Invoice>
              */
             payload?: string;
+            /** @example uploads/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d */
             payloadObjectKey?: string;
+            /** @example urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 */
             processId?: string;
+            /** @example 0007:5561234567 */
             sender?: string;
             /** @example invoice */
             type?: string;
@@ -3622,21 +4047,31 @@ export interface components {
             /**
              * Format: int64
              * @description How many times the finding occurred; 0 or absent means once.
+             * @example 1
              */
             count?: number;
+            /** @example /Invoice/cbc:ProfileID */
             location?: string;
+            /** @example Business process MUST be provided. */
             message: string;
+            /** @example PEPPOL-EN16931-R001 */
             rule?: string;
+            /** @example error */
             severity: string;
         };
         ValidationResult: {
+            /** @example urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1 */
             documentTypeId: string;
             findings: components["schemas"]["Finding"][];
+            /** @example urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 */
             processId: string;
+            /** @example 2026.5 */
             ruleset?: string;
+            /** @example invoice */
             type: string;
             upcoming?: components["schemas"]["UpcomingCheck"];
             valid: boolean;
+            /** @example eu.peppol.bis3:invoice:2026.5 */
             vesid?: string;
         };
         Webhook: {
@@ -3730,17 +4165,37 @@ export interface components {
             webhookId: string;
         };
         WebhookDeliveryDetail: {
-            /** @description message.outbound.ruleset_warning: when that release takes effect, RFC 3339 UTC. */
+            /**
+             * @description message.outbound.ruleset_warning: when that release takes effect, RFC 3339 UTC.
+             * @example 2026-12-01T00:00:00Z
+             */
             effectiveFrom?: string;
             issues?: components["schemas"]["WebhookMLSIssue"][];
+            /** @example 5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b */
             mlsEventId?: string;
-            /** @description message.mls: the distinct reason codes of its line responses. */
+            /**
+             * @description message.mls: the distinct reason codes of its line responses.
+             * @example [
+             *       "BV"
+             *     ]
+             */
             reasons?: string[];
-            /** @description message.mls: AP, AB or RE. */
+            /**
+             * @description message.mls: AP, AB or RE.
+             * @example RE
+             */
             responseCode?: string;
-            /** @description message.outbound.ruleset_warning: the distinct rules it breaks there. */
+            /**
+             * @description message.outbound.ruleset_warning: the distinct rules it breaks there.
+             * @example [
+             *       "PEPPOL-EN16931-R001"
+             *     ]
+             */
             rules?: string[];
-            /** @description message.outbound.ruleset_warning: the scheduled release the document would fail. */
+            /**
+             * @description message.outbound.ruleset_warning: the scheduled release the document would fail.
+             * @example 2026.11
+             */
             ruleset?: string;
         };
         WebhookDeliveryPage: {
@@ -3752,27 +4207,61 @@ export interface components {
             nextCursor?: string;
         };
         WebhookEvent: {
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             accountId?: string;
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
             companyId?: string;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             documentId: string;
+            /** @example 2026-12-01T00:00:00Z */
             effectiveFrom?: string;
+            /** @example INV-1001 */
             externalReference?: string;
-            /** @description The X-Peppol-Event-ID; the same on every delivery of the event and in GET /v1/events. */
+            /**
+             * @description The X-Peppol-Event-ID; the same on every delivery of the event and in GET /v1/events.
+             * @example 9c8b7a6f-5e4d-4c3b-8a29-1f0e9d8c7b6a
+             */
             id: string;
             issues?: components["schemas"]["WebhookMLSIssue"][];
+            /**
+             * @example {
+             *       "erpId": "84211"
+             *     }
+             */
             metadata?: {
                 [key: string]: string;
             };
+            /** @example 5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b */
             mlsEventId?: string;
+            /**
+             * @example [
+             *       "BV"
+             *     ]
+             */
             reasons?: string[];
-            /** @description message.mls: AP, AB or RE. */
+            /**
+             * @description message.mls: AP, AB or RE.
+             * @example RE
+             */
             responseCode?: string;
-            /** @description message.outbound.ruleset_warning: the distinct rules it breaks there. */
+            /**
+             * @description message.outbound.ruleset_warning: the distinct rules it breaks there.
+             * @example [
+             *       "PEPPOL-EN16931-R001"
+             *     ]
+             */
             rules?: string[];
-            /** @description message.outbound.ruleset_warning: the scheduled release the document would fail. */
+            /**
+             * @description message.outbound.ruleset_warning: the scheduled release the document would fail.
+             * @example 2026.11
+             */
             ruleset?: string;
+            /** @example AS4_ACCEPTED */
             status: string;
-            /** @description One of the six event types. */
+            /**
+             * @description One of the six event types.
+             * @example message.mls
+             */
             type: string;
             unvalidated?: boolean;
         };
@@ -3809,8 +4298,11 @@ export interface components {
             webhooks: components["schemas"]["Webhook"][];
         };
         WebhookMLSIssue: {
+            /** @example [BR-CO-16] Amount due for payment does not match the totals */
             description?: string;
+            /** @example /Invoice/cac:OrderReference/cbc:ID */
             location: string;
+            /** @example BV */
             reasonCode: string;
         };
         WebhookUpdate: {
@@ -4420,10 +4912,15 @@ export interface operations {
     get_v1_events: {
         parameters: {
             query?: {
-                after?: string;
+                cursor?: string;
                 limit?: string;
                 companyId?: string;
                 type?: string;
+                /**
+                 * @deprecated
+                 * @description Deprecated alias of cursor, accepted until the next major version. Setting both to different values is 400 VALIDATION_FAILED.
+                 */
+                after?: string;
             };
             header?: never;
             path?: never;
@@ -4576,7 +5073,7 @@ export interface operations {
                     "application/json": components["schemas"]["Message"];
                 };
             };
-            /** @description VALIDATION_FAILED, PARTY_MISMATCH, SENDER_NOT_FOUND, PEPPOL_LOCAL_PARTICIPANT, PEPPOL_DOCUMENT_NOT_SUPPORTED, NO_VALIDATION_RULES, PEPPOL_VALIDATION_FAILED */
+            /** @description INVALID_JSON, VALIDATION_FAILED, PARTY_MISMATCH, SENDER_NOT_FOUND, PEPPOL_LOCAL_PARTICIPANT, PEPPOL_DOCUMENT_NOT_SUPPORTED, NO_VALIDATION_RULES, PEPPOL_VALIDATION_FAILED */
             400: {
                 headers: {
                     [name: string]: unknown;

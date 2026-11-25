@@ -101,9 +101,9 @@ describe("validation and events", () => {
       json(200, { events: [], nextCursor: "n2" }),
     ]);
     expect((await bg.rulesets())[0]!.name).toBe("2026.5");
-    const page = await bg.events.list({ after: "n1", type: "message.inbound.received" });
+    const page = await bg.events.list({ cursor: "n1", type: "message.inbound.received" });
     expect(page).toEqual({ events: [], nextCursor: "n2" });
-    expect(seen[1]!.url.search).toBe("?after=n1&type=message.inbound.received");
+    expect(seen[1]!.url.search).toBe("?cursor=n1&type=message.inbound.received");
   });
 });
 

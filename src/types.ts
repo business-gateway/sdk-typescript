@@ -149,6 +149,8 @@ export interface Page<T> {
 
 export interface ListEventsParams {
   /** The cursor from the previous page. Without it the feed starts at its oldest event (30 days back). */
+  cursor?: string;
+  /** @deprecated Use `cursor`. The API still accepts it as an alias. */
   after?: string;
   companyId?: string;
   type?: EventType;

@@ -88,6 +88,7 @@
           },
           "error": {
             "description": "Why a FAILED export failed.",
+            "example": "the export could not be written; request a new one",
             "type": "string"
           },
           "expiresAt": {
@@ -253,6 +254,7 @@
           },
           "key": {
             "description": "The key itself, in the response to POST /v1/api-keys only, once. Store it then: it cannot be read again.",
+            "example": "pap_3k9x2m7q_Jx8vN2pL5rT9wQ4sZ7yB1cF6hK3mD0aE",
             "type": "string"
           },
           "name": {
@@ -333,6 +335,7 @@
         "properties": {
           "amountMinor": {
             "description": "null when no price was set for the month.",
+            "example": 14700,
             "format": "int64",
             "nullable": true,
             "type": "integer"
@@ -347,11 +350,13 @@
             "type": "string"
           },
           "quantity": {
+            "example": 3,
             "format": "int64",
             "type": "integer"
           },
           "unitPriceMinor": {
             "description": "null when no price was set for the month.",
+            "example": 4900,
             "format": "int64",
             "nullable": true,
             "type": "integer"
@@ -380,6 +385,9 @@
           },
           "companyIds": {
             "description": "Echoes a ?companyId selection; absent when none was made.",
+            "example": [
+              "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f"
+            ],
             "items": {
               "type": "string"
             },
@@ -409,15 +417,19 @@
           "period": {
             "properties": {
               "from": {
+                "example": "2026-10",
                 "type": "string"
               },
               "key": {
+                "example": "2026-10",
                 "type": "string"
               },
               "kind": {
+                "example": "month",
                 "type": "string"
               },
               "to": {
+                "example": "2026-10",
                 "type": "string"
               }
             },
@@ -431,6 +443,7 @@
           },
           "scope": {
             "description": "account, or companies when every figure is a sum over some of the account's companies only.",
+            "example": "account",
             "type": "string"
           },
           "totals": {
@@ -469,6 +482,7 @@
       "BillingReportCompany": {
         "properties": {
           "amountMinor": {
+            "example": 24800,
             "format": "int64",
             "nullable": true,
             "type": "integer"
@@ -478,10 +492,12 @@
             "type": "string"
           },
           "companyMonths": {
+            "example": 1,
             "format": "int64",
             "type": "integer"
           },
           "inboundMessages": {
+            "example": 112,
             "format": "int64",
             "nullable": true,
             "type": "integer"
@@ -493,6 +509,7 @@
             "type": "array"
           },
           "messages": {
+            "example": 418,
             "format": "int64",
             "type": "integer"
           },
@@ -507,11 +524,13 @@
             "type": "string"
           },
           "outboundMessages": {
+            "example": 306,
             "format": "int64",
             "nullable": true,
             "type": "integer"
           },
           "participantMonths": {
+            "example": 2,
             "format": "int64",
             "type": "integer"
           },
@@ -519,6 +538,7 @@
             "type": "boolean"
           },
           "pricedAmountMinor": {
+            "example": 24800,
             "format": "int64",
             "type": "integer"
           }
@@ -542,20 +562,24 @@
       "BillingReportCompanyMonth": {
         "properties": {
           "amountMinor": {
+            "example": 24800,
             "format": "int64",
             "nullable": true,
             "type": "integer"
           },
           "companyMonths": {
+            "example": 1,
             "format": "int64",
             "type": "integer"
           },
           "inboundMessages": {
+            "example": 112,
             "format": "int64",
             "nullable": true,
             "type": "integer"
           },
           "messages": {
+            "example": 418,
             "format": "int64",
             "type": "integer"
           },
@@ -564,11 +588,13 @@
             "type": "string"
           },
           "outboundMessages": {
+            "example": 306,
             "format": "int64",
             "nullable": true,
             "type": "integer"
           },
           "participantMonths": {
+            "example": 2,
             "format": "int64",
             "type": "integer"
           },
@@ -576,6 +602,7 @@
             "type": "boolean"
           },
           "pricedAmountMinor": {
+            "example": 24800,
             "format": "int64",
             "type": "integer"
           },
@@ -603,16 +630,19 @@
         "properties": {
           "amountMinor": {
             "description": "null when priceMissing: some month behind the figure has no price. pricedAmountMinor is the priced part.",
+            "example": 24800,
             "format": "int64",
             "nullable": true,
             "type": "integer"
           },
           "companyMonths": {
+            "example": 1,
             "format": "int64",
             "type": "integer"
           },
           "inboundMessages": {
             "description": "null when the split by direction is not known.",
+            "example": 112,
             "format": "int64",
             "nullable": true,
             "type": "integer"
@@ -624,6 +654,7 @@
             "type": "array"
           },
           "messages": {
+            "example": 418,
             "format": "int64",
             "type": "integer"
           },
@@ -633,11 +664,13 @@
           },
           "outboundMessages": {
             "description": "null when the split by direction is not known.",
+            "example": 306,
             "format": "int64",
             "nullable": true,
             "type": "integer"
           },
           "participantMonths": {
+            "example": 2,
             "format": "int64",
             "type": "integer"
           },
@@ -645,6 +678,7 @@
             "type": "boolean"
           },
           "pricedAmountMinor": {
+            "example": 24800,
             "format": "int64",
             "type": "integer"
           },
@@ -672,32 +706,39 @@
       "BillingReportTotal": {
         "properties": {
           "amountMinor": {
+            "example": 24800,
             "format": "int64",
             "nullable": true,
             "type": "integer"
           },
           "companyMonths": {
+            "example": 1,
             "format": "int64",
             "type": "integer"
           },
           "from": {
+            "example": "2026-01",
             "type": "string"
           },
           "inboundMessages": {
+            "example": 112,
             "format": "int64",
             "nullable": true,
             "type": "integer"
           },
           "messages": {
+            "example": 418,
             "format": "int64",
             "type": "integer"
           },
           "outboundMessages": {
+            "example": 306,
             "format": "int64",
             "nullable": true,
             "type": "integer"
           },
           "participantMonths": {
+            "example": 2,
             "format": "int64",
             "type": "integer"
           },
@@ -705,10 +746,12 @@
             "type": "boolean"
           },
           "pricedAmountMinor": {
+            "example": 24800,
             "format": "int64",
             "type": "integer"
           },
           "to": {
+            "example": "2026-10",
             "type": "string"
           }
         },
@@ -968,6 +1011,7 @@
           },
           "participantId": {
             "description": "Accepted and ignored, so a GET response can be sent back as is.",
+            "example": "3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           }
         },
@@ -1054,10 +1098,12 @@
           },
           "documentTypeId": {
             "description": "A canonical Peppol document type identifier, or an alias with no processId.",
+            "example": "busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1",
             "type": "string"
           },
           "processId": {
             "description": "A canonical Peppol process identifier.",
+            "example": "cenbii-procid-ubl::urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
             "type": "string"
           },
           "type": {
@@ -1101,6 +1147,7 @@
           },
           "deletedAt": {
             "description": "Always null here: a deleted company is no longer listed or returned.",
+            "example": "2026-11-22T08:00:00Z",
             "nullable": true,
             "type": "string"
           },
@@ -1282,6 +1329,9 @@
           },
           "warnings": {
             "description": "Notes about a side effect of the change, such as participants that will now report under a new country.",
+            "example": [
+              "the VAT number does not match the registration number"
+            ],
             "items": {
               "type": "string"
             },
@@ -1305,10 +1355,20 @@
                   "type": "array"
                 },
                 "description": "Aliases offered pre-checked to a new participant, by ISO 3166-1 alpha-2 country code.",
+                "example": {
+                  "AU": [
+                    "pint-aunz-invoice",
+                    "pint-aunz-credit-note"
+                  ]
+                },
                 "type": "object"
               },
               "otherwise": {
                 "description": "The same, for every country not in byCountry.",
+                "example": [
+                  "invoice",
+                  "credit-note"
+                ],
                 "items": {
                   "type": "string"
                 },
@@ -1326,9 +1386,11 @@
               "properties": {
                 "customizationId": {
                   "description": "What a document of this type states in cbc:CustomizationID.",
+                  "example": "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0",
                   "type": "string"
                 },
                 "documentTypeId": {
+                  "example": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1",
                   "type": "string"
                 },
                 "family": {
@@ -1342,10 +1404,12 @@
                   "type": "string"
                 },
                 "processId": {
+                  "example": "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
                   "type": "string"
                 },
                 "profileId": {
                   "description": "What a document of this type states in cbc:ProfileID.",
+                  "example": "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
                   "type": "string"
                 },
                 "rootElement": {
@@ -1367,6 +1431,7 @@
                 },
                 "syntaxVersion": {
                   "description": "The part of documentTypeId after the customization: 2.1 for UBL, D16B for CII.",
+                  "example": "2.1",
                   "type": "string"
                 },
                 "type": {
@@ -1400,6 +1465,13 @@
           },
           "families": {
             "description": "Display order of the families.",
+            "example": [
+              "Billing",
+              "PINT A-NZ",
+              "Ordering",
+              "Despatch",
+              "Catalogue"
+            ],
             "items": {
               "type": "string"
             },
@@ -1416,9 +1488,11 @@
       "DryRun": {
         "properties": {
           "companyId": {
+            "example": "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f",
             "type": "string"
           },
           "documentTypeId": {
+            "example": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1",
             "type": "string"
           },
           "dryRun": {
@@ -1431,18 +1505,23 @@
             "type": "array"
           },
           "processId": {
+            "example": "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
             "type": "string"
           },
           "receiver": {
+            "example": "0007:5569876542",
             "type": "string"
           },
           "ruleset": {
+            "example": "2026.5",
             "type": "string"
           },
           "sender": {
+            "example": "0007:5561234567",
             "type": "string"
           },
           "type": {
+            "example": "invoice",
             "type": "string"
           },
           "upcoming": {
@@ -1457,6 +1536,7 @@
             "type": "boolean"
           },
           "vesid": {
+            "example": "eu.peppol.bis3:invoice:2026.5",
             "type": "string"
           }
         },
@@ -1480,14 +1560,17 @@
             "properties": {
               "code": {
                 "description": "Stable; branch on it. An operation's x-errors lists the codes it answers.",
+                "example": "VALIDATION_FAILED",
                 "type": "string"
               },
               "message": {
                 "description": "For people; may change.",
+                "example": "sender is required",
                 "type": "string"
               },
               "requestId": {
                 "description": "This request's X-Request-Id (yours if you sent one, ours otherwise). Quote it to support.",
+                "example": "0b9e4c2a-7d1f-4e3b-9a6c-5f8d2e1b4a70",
                 "type": "string"
               },
               "retryable": {
@@ -1511,9 +1594,11 @@
       "Event": {
         "properties": {
           "accountId": {
+            "example": "3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           },
           "companyId": {
+            "example": "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f",
             "type": "string"
           },
           "createdAt": {
@@ -1521,15 +1606,19 @@
             "type": "string"
           },
           "documentId": {
+            "example": "3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           },
           "effectiveFrom": {
+            "example": "2026-12-01T00:00:00Z",
             "type": "string"
           },
           "externalReference": {
+            "example": "INV-1001",
             "type": "string"
           },
           "id": {
+            "example": "9c8b7a6f-5e4d-4c3b-8a29-1f0e9d8c7b6a",
             "type": "string"
           },
           "issues": {
@@ -1542,33 +1631,47 @@
             "additionalProperties": {
               "type": "string"
             },
+            "example": {
+              "erpId": "84211"
+            },
             "type": "object"
           },
           "mlsEventId": {
+            "example": "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b",
             "type": "string"
           },
           "reasons": {
+            "example": [
+              "BV"
+            ],
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "responseCode": {
+            "example": "RE",
             "type": "string"
           },
           "rules": {
+            "example": [
+              "PEPPOL-EN16931-R001"
+            ],
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "ruleset": {
+            "example": "2026.11",
             "type": "string"
           },
           "status": {
+            "example": "AS4_ACCEPTED",
             "type": "string"
           },
           "type": {
+            "example": "message.mls",
             "type": "string"
           },
           "unvalidated": {
@@ -1593,7 +1696,8 @@
             "type": "array"
           },
           "nextCursor": {
-            "description": "Always present. Ask again with ?after= set to it.",
+            "description": "Always present. Ask again with ?cursor= set to it.",
+            "example": "ZTQyMTc",
             "type": "string"
           }
         },
@@ -1729,19 +1833,24 @@
         "properties": {
           "layer": {
             "description": "schema (the document is not valid UBL, so Schematron did not run) or schematron.",
+            "example": "schematron",
             "type": "string"
           },
           "location": {
+            "example": "/Invoice/cbc:ProfileID",
             "type": "string"
           },
           "message": {
+            "example": "Business process MUST be provided.",
             "type": "string"
           },
           "rule": {
+            "example": "PEPPOL-EN16931-R001",
             "type": "string"
           },
           "severity": {
             "description": "fatal, error or warning. A fatal finding makes valid false.",
+            "example": "error",
             "type": "string"
           }
         },
@@ -1873,6 +1982,7 @@
           },
           "statusReason": {
             "description": "Why the case is in its status, such as a rejection reason.",
+            "example": "the register extract names a signatory the rule does not cover",
             "type": "string"
           },
           "updatedAt": {
@@ -2224,6 +2334,7 @@
           },
           "statusReason": {
             "description": "Why the case is in its status, such as a rejection reason.",
+            "example": "the register extract names a signatory the rule does not cover",
             "type": "string"
           },
           "updatedAt": {
@@ -2366,6 +2477,9 @@
           },
           "grants": {
             "description": "Rights on top of the role, today only billing.view. Always an array; always empty for an owner.",
+            "example": [
+              "billing.view"
+            ],
             "items": {
               "type": "string"
             },
@@ -2399,6 +2513,7 @@
           },
           "status": {
             "description": "active or inactive.",
+            "example": "active",
             "type": "string"
           },
           "timezone": {
@@ -2425,15 +2540,19 @@
       "MLSEvent": {
         "properties": {
           "createdAt": {
+            "example": "2026-11-25T09:16:40Z",
             "type": "string"
           },
           "description": {
+            "example": "Invoice rejected: the order reference is unknown.",
             "type": "string"
           },
           "direction": {
+            "example": "INBOUND",
             "type": "string"
           },
           "id": {
+            "example": "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b",
             "type": "string"
           },
           "issues": {
@@ -2443,27 +2562,36 @@
             "type": "array"
           },
           "lastError": {
+            "example": "the sending participant could not be resolved",
             "type": "string"
           },
           "mlsId": {
+            "example": "f1e2d3c4-b5a6-4978-8a9b-0c1d2e3f4a5b",
             "type": "string"
           },
           "reasons": {
+            "example": [
+              "BV"
+            ],
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "receivedAt": {
+            "example": "2026-11-25T09:16:38Z",
             "type": "string"
           },
           "responseCode": {
+            "example": "RE",
             "type": "string"
           },
           "sender": {
+            "example": "0242:000123",
             "type": "string"
           },
           "status": {
+            "example": "RECEIVED",
             "type": "string"
           }
         },
@@ -2478,12 +2606,15 @@
       "MLSIssue": {
         "properties": {
           "description": {
+            "example": "[BR-CO-16] Amount due for payment does not match the totals",
             "type": "string"
           },
           "location": {
+            "example": "/Invoice/cac:OrderReference/cbc:ID",
             "type": "string"
           },
           "reasonCode": {
+            "example": "BV",
             "type": "string"
           }
         },
@@ -2496,15 +2627,19 @@
       "Message": {
         "properties": {
           "accountId": {
+            "example": "3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           },
           "accountName": {
+            "example": "Acme AB",
             "type": "string"
           },
           "as4AcceptedAt": {
+            "example": "2026-11-25T09:14:10Z",
             "type": "string"
           },
           "as4MessageId": {
+            "example": "c2f7e1a4-9b3d-4e6f-8a2c-5d1e0f9b7a36@businessgateway.se",
             "type": "string"
           },
           "companyId": {
@@ -2520,6 +2655,7 @@
             "type": "string"
           },
           "deliveredToCustomerAt": {
+            "example": "2026-11-25T09:15:02Z",
             "type": "string"
           },
           "deliveryUnconfirmed": {
@@ -2552,14 +2688,19 @@
             "type": "string"
           },
           "lastErrorCode": {
+            "example": "PEPPOL_TRANSPORT_FAILED",
             "type": "string"
           },
           "lastErrorMessage": {
+            "example": "receiver refused",
             "type": "string"
           },
           "metadata": {
             "additionalProperties": {
               "type": "string"
+            },
+            "example": {
+              "erpId": "84211"
             },
             "type": "object"
           },
@@ -2572,6 +2713,7 @@
           },
           "payload": {
             "description": "The business document, on GET /v1/messages/{id} only while it is under the inline limit.",
+            "example": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Invoice xmlns=\"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2\">…</Invoice>",
             "type": "string"
           },
           "payloadBytes": {
@@ -2588,9 +2730,11 @@
             "type": "string"
           },
           "queuedAt": {
+            "example": "2026-11-25T09:14:03Z",
             "type": "string"
           },
           "receivedAt": {
+            "example": "2026-11-25T09:14:10Z",
             "type": "string"
           },
           "receiver": {
@@ -2599,15 +2743,20 @@
           },
           "recipientStatus": {
             "description": "CONFIRMED, DELIVERED or REJECTED, from the receiving Service Provider's MLS. Absent until one arrives.",
+            "example": "REJECTED",
             "type": "string"
           },
           "recipientStatusReasons": {
+            "example": [
+              "BV"
+            ],
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "sbdhInstanceId": {
+            "example": "8e4b2d6f-1a3c-4f5e-9b7d-0c2e4a6f8b1d",
             "type": "string"
           },
           "sender": {
@@ -2615,6 +2764,7 @@
             "type": "string"
           },
           "sentAt": {
+            "example": "2026-11-25T09:14:09Z",
             "type": "string"
           },
           "status": {
@@ -2665,6 +2815,7 @@
         },
         "properties": {
           "documentTypeId": {
+            "example": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1",
             "type": "string"
           },
           "externalReference": {
@@ -2689,9 +2840,11 @@
           },
           "payloadObjectKey": {
             "description": "The key from POST /v1/messages/uploads, for a document too large to send inline.",
+            "example": "uploads/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d",
             "type": "string"
           },
           "processId": {
+            "example": "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
             "type": "string"
           },
           "receiver": {
@@ -2722,6 +2875,10 @@
               "format": "int64",
               "type": "integer"
             },
+            "example": {
+              "DELIVERED": 412,
+              "SEND_FAILED": 3
+            },
             "type": "object"
           },
           "messages": {
@@ -2731,9 +2888,11 @@
             "type": "array"
           },
           "nextCursor": {
+            "example": "eyJ0IjoiMjAyNi0xMS0yNVQwOToxNDowMloiLCJpZCI6IjNmMmIifQ",
             "type": "string"
           },
           "prevCursor": {
+            "example": "eyJ0IjoiMjAyNi0xMS0yNVQxMDowMjoxNVoiLCJpZCI6IjhhMWQifQ",
             "type": "string"
           }
         },
@@ -2746,6 +2905,7 @@
         "properties": {
           "effectiveFrom": {
             "description": "When the release becomes mandatory, RFC 3339 UTC.",
+            "example": "2026-12-01T00:00:00Z",
             "type": "string"
           },
           "findings": {
@@ -2755,12 +2915,14 @@
             "type": "array"
           },
           "ruleset": {
+            "example": "2026.11",
             "type": "string"
           },
           "valid": {
             "type": "boolean"
           },
           "vesid": {
+            "example": "eu.peppol.bis3:invoice:2026.11",
             "type": "string"
           }
         },
@@ -2776,6 +2938,7 @@
         "properties": {
           "ruleset": {
             "description": "The Peppol release, as GET /v1/validation/rulesets names it.",
+            "example": "2026.5",
             "type": "string"
           },
           "upcoming": {
@@ -2787,10 +2950,12 @@
             "description": "The document checked against the release scheduled next; shown until it takes effect."
           },
           "validatedAt": {
+            "example": "2026-11-25T09:14:05Z",
             "type": "string"
           },
           "vesid": {
             "description": "The exact validation artefacts the engine ran.",
+            "example": "eu.peppol.bis3:invoice:2026.5",
             "type": "string"
           }
         },
@@ -3084,9 +3249,11 @@
             "type": "string"
           },
           "lastReplayAt": {
+            "example": "2026-11-25T10:02:00Z",
             "type": "string"
           },
           "lastReplayReason": {
+            "example": "capability added",
             "type": "string"
           },
           "payloadSha256": {
@@ -3095,6 +3262,7 @@
           },
           "payloadUrl": {
             "description": "The operator API's route for the payload; not reachable with customer credentials.",
+            "example": "https://files.businessgateway.se/parked/1b2c3d4e.xml?X-Amz-Signature=…",
             "type": "string"
           },
           "processId": {
@@ -3107,6 +3275,7 @@
             "type": "string"
           },
           "reasonDetail": {
+            "example": "0007:5561234567 does not receive this document type",
             "type": "string"
           },
           "receiver": {
@@ -3134,13 +3303,16 @@
             "type": "string"
           },
           "replayCount": {
+            "example": 1,
             "format": "int64",
             "type": "integer"
           },
           "replayedDocumentId": {
+            "example": "3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           },
           "sbdhInstanceId": {
+            "example": "8e4b2d6f-1a3c-4f5e-9b7d-0c2e4a6f8b1d",
             "type": "string"
           },
           "sender": {
@@ -3172,14 +3344,17 @@
         "properties": {
           "accountId": {
             "description": "The account the company belongs to. Operator API only; never on /v1.",
+            "example": "3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           },
           "accountKycPolicy": {
             "description": "required or exempt. Operator API only; never on /v1.",
+            "example": "required",
             "type": "string"
           },
           "accountName": {
             "description": "The account's name. Operator API only; never on /v1.",
+            "example": "Acme AB",
             "type": "string"
           },
           "activatedAt": {
@@ -3198,6 +3373,7 @@
           },
           "companyKycStatus": {
             "description": "The company's KYC status. Operator API only; never on /v1.",
+            "example": "VERIFIED",
             "type": "string"
           },
           "companyKycVerified": {
@@ -3206,6 +3382,7 @@
           },
           "companyName": {
             "description": "The company's name. Operator API only; never on /v1.",
+            "example": "Acme AB",
             "type": "string"
           },
           "countryCode": {
@@ -3219,11 +3396,13 @@
           },
           "deactivateGraceSeconds": {
             "description": "The configured unpublish grace. Operator API only; never on /v1.",
+            "example": 86400,
             "format": "int64",
             "type": "integer"
           },
           "deactivateGraceSkippedAt": {
             "description": "When an operator waived the grace. Operator API only; never on /v1.",
+            "example": "2026-11-20T16:05:00Z",
             "type": "string"
           },
           "deactivatedAt": {
@@ -3233,6 +3412,7 @@
           },
           "deletedAt": {
             "description": "Always null on /v1: a deleted participant is 404 there.",
+            "example": "2026-11-22T08:00:00Z",
             "nullable": true,
             "type": "string"
           },
@@ -3268,6 +3448,7 @@
           },
           "smpLastError": {
             "description": "What the SMP worker last failed on. Operator API only; never on /v1.",
+            "example": "the SML did not list the participant within 10 minutes",
             "type": "string"
           },
           "smpStatus": {
@@ -3282,6 +3463,7 @@
           },
           "unpublishAfter": {
             "description": "While DEACTIVATING, when the SMP entry is removed. Operator API only; never on /v1.",
+            "example": "2026-11-21T16:03:12Z",
             "type": "string"
           },
           "updatedAt": {
@@ -3369,6 +3551,7 @@
           },
           "targetHref": {
             "description": "A link to the target's page. Operator API only; never on /v1.",
+            "example": "/participants/3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           },
           "targetId": {
@@ -3381,6 +3564,7 @@
           },
           "targetSub": {
             "description": "A line of context under targetName, such as a participant's company.",
+            "example": "Acme AB",
             "type": "string"
           },
           "targetType": {
@@ -3465,12 +3649,15 @@
       "ParticipantMigration": {
         "properties": {
           "accountId": {
+            "example": "3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           },
           "accountKycPolicy": {
+            "example": "required",
             "type": "string"
           },
           "accountName": {
+            "example": "Acme AB",
             "type": "string"
           },
           "activatedAt": {
@@ -3486,12 +3673,14 @@
             "type": "string"
           },
           "companyKycStatus": {
+            "example": "VERIFIED",
             "type": "string"
           },
           "companyKycVerified": {
             "type": "boolean"
           },
           "companyName": {
+            "example": "Acme AB",
             "type": "string"
           },
           "countryCode": {
@@ -3503,10 +3692,12 @@
             "type": "string"
           },
           "deactivateGraceSeconds": {
+            "example": 86400,
             "format": "int64",
             "type": "integer"
           },
           "deactivateGraceSkippedAt": {
+            "example": "2026-11-20T16:05:00Z",
             "type": "string"
           },
           "deactivatedAt": {
@@ -3514,6 +3705,7 @@
             "type": "string"
           },
           "deletedAt": {
+            "example": "2026-11-22T08:00:00Z",
             "nullable": true,
             "type": "string"
           },
@@ -3547,6 +3739,7 @@
             "type": "string"
           },
           "smpLastError": {
+            "example": "the SML did not list the participant within 10 minutes",
             "type": "string"
           },
           "smpStatus": {
@@ -3558,6 +3751,7 @@
             "type": "string"
           },
           "unpublishAfter": {
+            "example": "2026-11-21T16:03:12Z",
             "type": "string"
           },
           "updatedAt": {
@@ -3652,16 +3846,20 @@
         "properties": {
           "effectiveFrom": {
             "description": "When the release takes effect; absent on one in force since before the platform recorded dates.",
+            "example": "2026-12-01T00:00:00Z",
             "type": "string"
           },
           "name": {
+            "example": "2026.11",
             "type": "string"
           },
           "status": {
             "description": "in_force or scheduled.",
+            "example": "scheduled",
             "type": "string"
           },
           "title": {
+            "example": "Peppol post-award release 2026 Q4 (November 2026)",
             "type": "string"
           }
         },
@@ -3976,6 +4174,7 @@
         "properties": {
           "authMethod": {
             "description": "Operator-managed: any value is refused with 400 OPERATOR_MANAGED.",
+            "example": "password",
             "type": "string"
           },
           "companyId": {
@@ -3987,6 +4186,7 @@
           },
           "password": {
             "description": "Operator-managed: any value is refused with 400 OPERATOR_MANAGED.",
+            "example": "Rm3$tq9Lw2Vz",
             "type": "string"
           },
           "resetPassword": {
@@ -4111,6 +4311,7 @@
             "type": "string"
           },
           "documentTypeId": {
+            "example": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1",
             "type": "string"
           },
           "payload": {
@@ -4119,6 +4320,7 @@
             "type": "string"
           },
           "processId": {
+            "example": "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
             "type": "string"
           },
           "receiver": {
@@ -4218,6 +4420,7 @@
         "properties": {
           "effectiveFrom": {
             "description": "When the release becomes mandatory, RFC 3339 UTC.",
+            "example": "2026-12-01T00:00:00Z",
             "type": "string"
           },
           "findings": {
@@ -4227,12 +4430,14 @@
             "type": "array"
           },
           "ruleset": {
+            "example": "2026.11",
             "type": "string"
           },
           "valid": {
             "type": "boolean"
           },
           "vesid": {
+            "example": "eu.peppol.bis3:invoice:2026.11",
             "type": "string"
           }
         },
@@ -4247,6 +4452,7 @@
       "Upload": {
         "properties": {
           "expiresAt": {
+            "example": "2026-11-25T09:29:00Z",
             "type": "string"
           },
           "headers": {
@@ -4254,12 +4460,17 @@
               "type": "string"
             },
             "description": "PUT the document to uploadUrl with exactly these headers.",
+            "example": {
+              "Content-Type": "application/xml"
+            },
             "type": "object"
           },
           "payloadObjectKey": {
+            "example": "uploads/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d",
             "type": "string"
           },
           "uploadUrl": {
+            "example": "https://uploads.businessgateway.se/uploads/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d?X-Amz-Signature=…",
             "type": "string"
           }
         },
@@ -4284,6 +4495,7 @@
             "type": "integer"
           },
           "companyId": {
+            "example": "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f",
             "type": "string"
           },
           "sender": {
@@ -4333,17 +4545,21 @@
       "UsageCompanyCount": {
         "properties": {
           "accountId": {
+            "example": "3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           },
           "companyId": {
+            "example": "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f",
             "type": "string"
           },
           "count": {
+            "example": 306,
             "format": "int64",
             "type": "integer"
           },
           "kind": {
             "description": "MESSAGE_OUTBOUND, MESSAGE_INBOUND or PARTICIPANT_ACTIVE.",
+            "example": "MESSAGE_OUTBOUND",
             "type": "string"
           }
         },
@@ -4358,11 +4574,13 @@
       "UsageCount": {
         "properties": {
           "count": {
+            "example": 306,
             "format": "int64",
             "type": "integer"
           },
           "kind": {
             "description": "MESSAGE_OUTBOUND, MESSAGE_INBOUND or PARTICIPANT_ACTIVE.",
+            "example": "MESSAGE_OUTBOUND",
             "type": "string"
           }
         },
@@ -4410,6 +4628,9 @@
           },
           "grants": {
             "description": "Rights on top of the role, today only billing.view. Always an array; always empty for an owner.",
+            "example": [
+              "billing.view"
+            ],
             "items": {
               "type": "string"
             },
@@ -4434,6 +4655,7 @@
           },
           "status": {
             "description": "active or inactive.",
+            "example": "active",
             "type": "string"
           },
           "timezone": {
@@ -4458,12 +4680,15 @@
       "UserCompany": {
         "properties": {
           "id": {
+            "example": "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f",
             "type": "string"
           },
           "identifier": {
+            "example": "acme-ab",
             "type": "string"
           },
           "name": {
+            "example": "Acme AB",
             "type": "string"
           }
         },
@@ -4497,6 +4722,7 @@
           },
           "password": {
             "description": "Leave out: a random one is generated and a set-password link mailed.",
+            "example": "vT7#qL2m9xRw",
             "type": "string"
           },
           "role": {
@@ -4554,6 +4780,7 @@
           },
           "currentPassword": {
             "description": "Your current password, when changing your own.",
+            "example": "vT7#qL2m9xRw",
             "type": "string"
           },
           "dateFormat": {
@@ -4576,6 +4803,7 @@
           },
           "password": {
             "description": "A new password. Changing your own needs currentPassword.",
+            "example": "Kp4!wZ8nR2sx",
             "type": "string"
           },
           "resendInvite": {
@@ -4603,9 +4831,11 @@
         },
         "properties": {
           "companyId": {
+            "example": "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f",
             "type": "string"
           },
           "documentTypeId": {
+            "example": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1",
             "type": "string"
           },
           "payload": {
@@ -4614,12 +4844,15 @@
             "type": "string"
           },
           "payloadObjectKey": {
+            "example": "uploads/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d",
             "type": "string"
           },
           "processId": {
+            "example": "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
             "type": "string"
           },
           "sender": {
+            "example": "0007:5561234567",
             "type": "string"
           },
           "type": {
@@ -4633,19 +4866,24 @@
         "properties": {
           "count": {
             "description": "How many times the finding occurred; 0 or absent means once.",
+            "example": 1,
             "format": "int64",
             "type": "integer"
           },
           "location": {
+            "example": "/Invoice/cbc:ProfileID",
             "type": "string"
           },
           "message": {
+            "example": "Business process MUST be provided.",
             "type": "string"
           },
           "rule": {
+            "example": "PEPPOL-EN16931-R001",
             "type": "string"
           },
           "severity": {
+            "example": "error",
             "type": "string"
           }
         },
@@ -4658,6 +4896,7 @@
       "ValidationResult": {
         "properties": {
           "documentTypeId": {
+            "example": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1",
             "type": "string"
           },
           "findings": {
@@ -4667,12 +4906,15 @@
             "type": "array"
           },
           "processId": {
+            "example": "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
             "type": "string"
           },
           "ruleset": {
+            "example": "2026.5",
             "type": "string"
           },
           "type": {
+            "example": "invoice",
             "type": "string"
           },
           "upcoming": {
@@ -4682,6 +4924,7 @@
             "type": "boolean"
           },
           "vesid": {
+            "example": "eu.peppol.bis3:invoice:2026.5",
             "type": "string"
           }
         },
@@ -4831,6 +5074,7 @@
         "properties": {
           "effectiveFrom": {
             "description": "message.outbound.ruleset_warning: when that release takes effect, RFC 3339 UTC.",
+            "example": "2026-12-01T00:00:00Z",
             "type": "string"
           },
           "issues": {
@@ -4840,10 +5084,14 @@
             "type": "array"
           },
           "mlsEventId": {
+            "example": "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b",
             "type": "string"
           },
           "reasons": {
             "description": "message.mls: the distinct reason codes of its line responses.",
+            "example": [
+              "BV"
+            ],
             "items": {
               "type": "string"
             },
@@ -4851,10 +5099,14 @@
           },
           "responseCode": {
             "description": "message.mls: AP, AB or RE.",
+            "example": "RE",
             "type": "string"
           },
           "rules": {
             "description": "message.outbound.ruleset_warning: the distinct rules it breaks there.",
+            "example": [
+              "PEPPOL-EN16931-R001"
+            ],
             "items": {
               "type": "string"
             },
@@ -4862,6 +5114,7 @@
           },
           "ruleset": {
             "description": "message.outbound.ruleset_warning: the scheduled release the document would fail.",
+            "example": "2026.11",
             "type": "string"
           }
         },
@@ -4889,22 +5142,28 @@
       "WebhookEvent": {
         "properties": {
           "accountId": {
+            "example": "3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           },
           "companyId": {
+            "example": "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f",
             "type": "string"
           },
           "documentId": {
+            "example": "3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c",
             "type": "string"
           },
           "effectiveFrom": {
+            "example": "2026-12-01T00:00:00Z",
             "type": "string"
           },
           "externalReference": {
+            "example": "INV-1001",
             "type": "string"
           },
           "id": {
             "description": "The X-Peppol-Event-ID; the same on every delivery of the event and in GET /v1/events.",
+            "example": "9c8b7a6f-5e4d-4c3b-8a29-1f0e9d8c7b6a",
             "type": "string"
           },
           "issues": {
@@ -4917,12 +5176,19 @@
             "additionalProperties": {
               "type": "string"
             },
+            "example": {
+              "erpId": "84211"
+            },
             "type": "object"
           },
           "mlsEventId": {
+            "example": "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b",
             "type": "string"
           },
           "reasons": {
+            "example": [
+              "BV"
+            ],
             "items": {
               "type": "string"
             },
@@ -4930,10 +5196,14 @@
           },
           "responseCode": {
             "description": "message.mls: AP, AB or RE.",
+            "example": "RE",
             "type": "string"
           },
           "rules": {
             "description": "message.outbound.ruleset_warning: the distinct rules it breaks there.",
+            "example": [
+              "PEPPOL-EN16931-R001"
+            ],
             "items": {
               "type": "string"
             },
@@ -4941,13 +5211,16 @@
           },
           "ruleset": {
             "description": "message.outbound.ruleset_warning: the scheduled release the document would fail.",
+            "example": "2026.11",
             "type": "string"
           },
           "status": {
+            "example": "AS4_ACCEPTED",
             "type": "string"
           },
           "type": {
             "description": "One of the six event types.",
+            "example": "message.mls",
             "type": "string"
           },
           "unvalidated": {
@@ -5014,12 +5287,15 @@
       "WebhookMLSIssue": {
         "properties": {
           "description": {
+            "example": "[BR-CO-16] Amount due for payment does not match the totals",
             "type": "string"
           },
           "location": {
+            "example": "/Invoice/cac:OrderReference/cbc:ID",
             "type": "string"
           },
           "reasonCode": {
+            "example": "BV",
             "type": "string"
           }
         },
@@ -6045,12 +6321,12 @@
     },
     "/v1/events": {
       "get": {
-        "description": "Every event a webhook would carry, oldest first, kept 30 days, whether or not the account has a webhook. Returns {events, nextCursor}; each event is the webhook body (id, type, accountId, companyId, documentId, status, and externalReference, metadata, unvalidated, the message.mls fields and the message.outbound.ruleset_warning fields (ruleset, effectiveFrom, rules) when they apply) plus createdAt.\n\nid is the X-Peppol-Event-ID of the same event's webhook deliveries, so a client reading both deduplicates on it.\n\nnextCursor is always present: store it and ask again with ?after=; an empty page answers the same cursor back. Without ?after the feed starts at its oldest event. Events younger than 10 seconds are held back, so a page never skips one that commits late.\n\n?type is one of the six event types, ?companyId narrows to one company, ?limit is at most 100 (default 50). A cursor this feed did not return is 400 VALIDATION_FAILED. Confined to the companies the credential reaches.",
+        "description": "Every event a webhook would carry, oldest first, kept 30 days, whether or not the account has a webhook. Returns {events, nextCursor}; each event is the webhook body (id, type, accountId, companyId, documentId, status, and externalReference, metadata, unvalidated, the message.mls fields and the message.outbound.ruleset_warning fields (ruleset, effectiveFrom, rules) when they apply) plus createdAt.\n\nid is the X-Peppol-Event-ID of the same event's webhook deliveries, so a client reading both deduplicates on it.\n\nnextCursor is always present: store it and ask again with ?cursor=; an empty page answers the same cursor back. Without ?cursor the feed starts at its oldest event.\n\n?after is a deprecated alias of ?cursor, accepted until the next major version; both set to different values is 400 VALIDATION_FAILED. Events younger than 10 seconds are held back, so a page never skips one that commits late.\n\n?type is one of the six event types, ?companyId narrows to one company, ?limit is at most 100 (default 50). A cursor this feed did not return is 400 VALIDATION_FAILED. Confined to the companies the credential reaches.",
         "operationId": "get_v1_events",
         "parameters": [
           {
             "in": "query",
-            "name": "after",
+            "name": "cursor",
             "schema": {
               "type": "string"
             }
@@ -6072,6 +6348,15 @@
           {
             "in": "query",
             "name": "type",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated alias of cursor, accepted until the next major version. Setting both to different values is 400 VALIDATION_FAILED.",
+            "in": "query",
+            "name": "after",
             "schema": {
               "type": "string"
             }
@@ -6362,7 +6647,7 @@
         ]
       },
       "post": {
-        "description": "Optional externalReference (your own name for the document, at most 128 characters, compared exactly) and metadata (at most 16 string values, keys up to 40 characters, values up to 256) are stored and returned as given on GET /v1/messages/{id}, the lists and every webhook body about the document; outside those bounds the request is 400 VALIDATION_FAILED. 202 with status QUEUED_VALIDATION is the usual answer: the document is checked against the Peppol rules after this request returns, not inside it, so the verdict is on a later GET rather than here: a passed document moves straight on to QUEUED and sending; VALIDATION_FAILED raises message.outbound.failed on the account's webhooks and is mailed to the company's notification contacts, with the findings on GET /v1/messages/{id}. VALIDATION_ERROR (a validator answer that cannot be read) and VALIDATION_UNAVAILABLE (no rules for the document and unvalidated sending not allowed) raise message.outbound.failed too, without the mail.\n\nA document type with no rules to check, sent under a capability that allows unvalidated documents, skips that step and is 201 with status UNVALIDATED: queued for sending like QUEUED, named so that the status says no rules were checked. A document whose rules the validator reports unavailable later becomes UNVALIDATED the same way when the capability allows it. A replayed Idempotency-Key is 200 with the current status.\n\nA key answers for 24 hours from its first use; after that it is unused, and the same key creates a new document. A payload that is a whole Standard Business Document is accepted: the envelope is taken off and the business document inside is what is stored and sent, under the platform's own SBDH. The envelope's sender, receiver, document type and process must then match the request's, or the request is 400 VALIDATION_FAILED.\n\ntype is a document type alias from the register (invoice, credit-note, order, …); pint-aunz-invoice and pint-aunz-credit-note are Peppol PINT A-NZ, the billing format for Australian and New Zealand receivers, whose documentTypeId is under the peppol-doctype-wildcard scheme rather than busdox-docid-qns. The business document must be what it is sent as: its root element and namespace, its cbc:CustomizationID (exactly) and, when present, its cbc:ProfileID must be the ones documentTypeId and processId name, or the request is 400 VALIDATION_FAILED before anything is stored — a BIS Billing 3.0 invoice sent as pint-aunz-invoice, a PINT invoice sent as invoice, a credit note sent as invoice. A documentTypeId ending in the wildcard indicator * matches no document (BR-PDW-02: * belongs in SMP registrations only).\n\nA document that states no CustomizationID among the root's children (CII, non-UBL) is not checked on that point.\n\nsender and receiver must both be among the business document's cbc:EndpointID values (schemeID:value; an organisation number written with a hyphen and a difference in case still match), or the request is 400 PARTY_MISMATCH before anything is stored, with a message naming the request's value and the document's endpoints. To send for a customer, send from the customer's own participant. A document that names no EndpointID (CII, non-UBL) is not checked on that point.\n\nOnly sender and the payload are required.\n\nreceiver left out is read off the document: the one cbc:EndpointID that is not the sender; a document that names no other party, or more than one (a delivery party, say), is 400 VALIDATION_FAILED asking for receiver.\n\ntype, documentTypeId and processId all left out are read off the document as POST /v1/validate does — root element and namespace, cbc:CustomizationID and cbc:ProfileID — and a document that does not state them (CII, non-UBL) is 400 VALIDATION_FAILED asking for type. Whatever is stated is held to the document as above; the response's receiver, documentTypeId and processId say what was used.\n\n?dryRun=true tries the send: every check above, by the same code, and then the Peppol validation the send would run later, inline — with nothing stored, queued or sent. The Idempotency-Key is neither looked up nor taken, and a payloadObjectKey upload is left in place, so the same request without dryRun is the real send. A refusal is the error and code the send would answer.\n\nOtherwise 200 {dryRun: true, companyId, sender, receiver, type, documentTypeId, processId, validated, valid, findings, ruleset, vesid, upcoming}, the findings, ruleset, vesid and upcoming as POST /v1/validate answers them: valid false is a document the send would accept and then fail as VALIDATION_FAILED.\n\nvalidated false and valid null is a type with no rules that its capability allows to go unvalidated.\n\ndryRun accepts only true or false; any other value is 400 VALIDATION_FAILED and sends nothing. It shares POST /v1/validate's rate limit.\n\n?wait=N (whole seconds, 0 to 30) holds the answer until the document's validation is decided, or N seconds pass: a verdict in time is 201 with that status (QUEUED, VALIDATION_FAILED, …), a wait that runs out the usual 202 QUEUED_VALIDATION, a replay 200 either way. Any other wait value is 400 VALIDATION_FAILED and sends nothing. Two test receivers take a real send that never leaves the platform: 0007:0000000000 accepts it (AS4_ACCEPTED, then an MLS AP, recipientStatus CONFIRMED) and 0007:0000000018 rejects it (AS4_ACCEPTED, then an MLS RE with one BV issue).\n\nName one as the document's buyer EndpointID. Every check and the validation run as usual; any sender may use them, a sandbox's local participants included; the document is source test and never billed.",
+        "description": "Optional externalReference (your own name for the document, at most 128 characters, compared exactly) and metadata (at most 16 string values, keys up to 40 characters, values up to 256) are stored and returned as given on GET /v1/messages/{id}, the lists and every webhook body about the document; outside those bounds the request is 400 VALIDATION_FAILED. 202 with status QUEUED_VALIDATION is the usual answer: the document is checked against the Peppol rules after this request returns, not inside it, so the verdict is on a later GET rather than here: a passed document moves straight on to QUEUED and sending; VALIDATION_FAILED raises message.outbound.failed on the account's webhooks and is mailed to the company's notification contacts, with the findings on GET /v1/messages/{id}. VALIDATION_ERROR (a validator answer that cannot be read) and VALIDATION_UNAVAILABLE (no rules for the document and unvalidated sending not allowed) raise message.outbound.failed too, without the mail.\n\nA document type with no rules to check, sent under a capability that allows unvalidated documents, skips that step and is 201 with status UNVALIDATED: queued for sending like QUEUED, named so that the status says no rules were checked. A document whose rules the validator reports unavailable later becomes UNVALIDATED the same way when the capability allows it. A replayed Idempotency-Key is 200 with the current status.\n\nA key answers for 24 hours from its first use; after that it is unused, and the same key creates a new document. A payload that is a whole Standard Business Document is accepted: the envelope is taken off and the business document inside is what is stored and sent, under the platform's own SBDH. The envelope's sender, receiver, document type and process must then match the request's, or the request is 400 VALIDATION_FAILED.\n\nThe document is kept as UTF-8: a leading byte order mark is removed, an upload declared ISO-8859-1, ISO-8859-15, windows-1252 or US-ASCII is transcoded, an inline payload (already UTF-8, as JSON is) is only relabelled, and the XML declaration's encoding becomes UTF-8. That normalised document is what is stored, validated, hashed (payloadSha256), downloaded from /payload and sent; a UTF-8 document without a BOM is kept byte for byte.\n\ntype is a document type alias from the register (invoice, credit-note, order, …); pint-aunz-invoice and pint-aunz-credit-note are Peppol PINT A-NZ, the billing format for Australian and New Zealand receivers, whose documentTypeId is under the peppol-doctype-wildcard scheme rather than busdox-docid-qns. The business document must be what it is sent as: its root element and namespace, its cbc:CustomizationID (exactly) and, when present, its cbc:ProfileID must be the ones documentTypeId and processId name, or the request is 400 VALIDATION_FAILED before anything is stored — a BIS Billing 3.0 invoice sent as pint-aunz-invoice, a PINT invoice sent as invoice, a credit note sent as invoice. A documentTypeId ending in the wildcard indicator * matches no document (BR-PDW-02: * belongs in SMP registrations only).\n\nA document that states no CustomizationID among the root's children (CII, non-UBL) is not checked on that point.\n\nsender and receiver must both be among the business document's cbc:EndpointID values (schemeID:value; an organisation number written with a hyphen and a difference in case still match), or the request is 400 PARTY_MISMATCH before anything is stored, with a message naming the request's value and the document's endpoints. To send for a customer, send from the customer's own participant. A document that names no EndpointID (CII, non-UBL) is not checked on that point.\n\nOnly sender and the payload are required.\n\nreceiver left out is read off the document: the one cbc:EndpointID that is not the sender; a document that names no other party, or more than one (a delivery party, say), is 400 VALIDATION_FAILED asking for receiver.\n\ntype, documentTypeId and processId all left out are read off the document as POST /v1/validate does — root element and namespace, cbc:CustomizationID and cbc:ProfileID — and a document that does not state them (CII, non-UBL) is 400 VALIDATION_FAILED asking for type. Whatever is stated is held to the document as above; the response's receiver, documentTypeId and processId say what was used.\n\n?dryRun=true tries the send: every check above, by the same code, and then the Peppol validation the send would run later, inline — with nothing stored, queued or sent. The Idempotency-Key is neither looked up nor taken, and a payloadObjectKey upload is left in place, so the same request without dryRun is the real send. A refusal is the error and code the send would answer.\n\nOtherwise 200 {dryRun: true, companyId, sender, receiver, type, documentTypeId, processId, validated, valid, findings, ruleset, vesid, upcoming}, the findings, ruleset, vesid and upcoming as POST /v1/validate answers them: valid false is a document the send would accept and then fail as VALIDATION_FAILED.\n\nvalidated false and valid null is a type with no rules that its capability allows to go unvalidated.\n\ndryRun accepts only true or false; any other value is 400 VALIDATION_FAILED and sends nothing. It shares POST /v1/validate's rate limit.\n\n?wait=N (whole seconds, 0 to 30) holds the answer until the document's validation is decided, or N seconds pass: a verdict in time is 201 with that status (QUEUED, VALIDATION_FAILED, …), a wait that runs out the usual 202 QUEUED_VALIDATION, a replay 200 either way. Any other wait value is 400 VALIDATION_FAILED and sends nothing. Two test receivers take a real send that never leaves the platform: 0007:0000000000 accepts it (AS4_ACCEPTED, then an MLS AP, recipientStatus CONFIRMED) and 0007:0000000018 rejects it (AS4_ACCEPTED, then an MLS RE with one BV issue).\n\nName one as the document's buyer EndpointID. Every check and the validation run as usual; any sender may use them, a sandbox's local participants included; the document is source test and never billed.",
         "operationId": "post_v1_messages",
         "parameters": [
           {
@@ -6436,7 +6721,7 @@
                 }
               }
             },
-            "description": "VALIDATION_FAILED, PARTY_MISMATCH, SENDER_NOT_FOUND, PEPPOL_LOCAL_PARTICIPANT, PEPPOL_DOCUMENT_NOT_SUPPORTED, NO_VALIDATION_RULES, PEPPOL_VALIDATION_FAILED"
+            "description": "INVALID_JSON, VALIDATION_FAILED, PARTY_MISMATCH, SENDER_NOT_FOUND, PEPPOL_LOCAL_PARTICIPANT, PEPPOL_DOCUMENT_NOT_SUPPORTED, NO_VALIDATION_RULES, PEPPOL_VALIDATION_FAILED"
           },
           "409": {
             "content": {
@@ -6513,6 +6798,12 @@
         ],
         "x-errors": [
           {
+            "code": "INVALID_JSON",
+            "retryable": false,
+            "status": 400,
+            "when": "The body is not JSON, or not valid UTF-8 (RFC 8259 requires UTF-8; bytes that are not would otherwise be read as U+FFFD into the document). Fix the request."
+          },
+          {
             "code": "VALIDATION_FAILED",
             "retryable": false,
             "status": 400,
@@ -6552,7 +6843,7 @@
             "code": "PEPPOL_VALIDATION_FAILED",
             "retryable": false,
             "status": 400,
-            "when": "The payload is unsafe XML (a DOCTYPE or an entity)."
+            "when": "The payload is not one safe, well-formed XML document: empty, malformed, a DOCTYPE or entity declaration, an xml-stylesheet instruction, elements nested deeper than 128, a declared charset other than UTF-8, US-ASCII, ISO-8859-1, ISO-8859-15 or windows-1252, or not exactly one root element with nothing but whitespace and comments around it. The payload is the XML itself: base64 or any other encoding of it is refused, and the message says so when it looks like base64."
           },
           {
             "code": "INVALID_STATE",
@@ -6737,6 +7028,7 @@
             "content": {
               "application/xml": {
                 "schema": {
+                  "example": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Invoice xmlns=\"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2\">…</Invoice>",
                   "type": "string"
                 }
               }
@@ -8004,7 +8296,7 @@
     },
     "/v1/validate": {
       "post": {
-        "description": "Runs a document through the same Peppol validation an outbound message gets — XML safety, then XSD and Schematron in the validator — and answers every finding, warnings included. Nothing is stored and nothing is sent. Body {type?, documentTypeId?, processId?, payload} or, for a document over the 1 MiB JSON body limit, {payloadObjectKey, sender?\n\nor companyId?} naming an upload from POST /v1/messages/uploads and the sender or company it was uploaded with; the upload is read and left in place, so the same key can be sent next.\n\ntype is an alias (\"invoice\", …); with neither type nor ids the identifiers are read off the document (root element, CustomizationID, ProfileID). A stated type the document contradicts (as POST /v1/messages would refuse with 400) is answered here as the first finding — severity fatal, rule DOCUMENT_TYPE_MISMATCH, no layer — followed by the validator's own, with valid false. Answers {valid, documentTypeId, processId, type, findings: [{severity, rule, location, message, layer}]}: valid is false only on a fatal finding; layer \"schema\" means the document is not valid UBL and Schematron did not run.\n\nruleset and vesid say what the answer was reached under: the Peppol release in force now (\"2026.5\") and the exact validation artefacts the validator ran; Peppol publishes a new release twice a year, each mandatory from a set date, and the answer changes with it. While a release is scheduled, upcoming {ruleset, vesid, effectiveFrom, valid, findings} is the same document checked against it: what it will meet from effectiveFrom.\n\n?ruleset=NAME checks against one release from GET /v1/validation/rulesets instead, in force or scheduled, and answers no upcoming; any other name is 400 VALIDATION_FAILED. 400 PEPPOL_DOCUMENT_NOT_SUPPORTED for a type without artefacts, 400 PEPPOL_VALIDATION_FAILED for unsafe XML, 413 PAYLOAD_TOO_LARGE for an upload over PAYLOAD_MAX_BYTES, 404 for a company the credential does not reach, 503 VALIDATION_UNAVAILABLE while the validator is down. Rate limited per account, 120 a minute shared with dry runs: every answer carries RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset (seconds until the oldest call in the window leaves it), and a refusal is 429 RATE_LIMITED with Retry-After.",
+        "description": "Runs a document through the same Peppol validation an outbound message gets — XML safety, then XSD and Schematron in the validator — and answers every finding, warnings included. Nothing is stored and nothing is sent. Body {type?, documentTypeId?, processId?, payload} or, for a document over the 1 MiB JSON body limit, {payloadObjectKey, sender?\n\nor companyId?} naming an upload from POST /v1/messages/uploads and the sender or company it was uploaded with; the upload is read and left in place, so the same key can be sent next.\n\ntype is an alias (\"invoice\", …); with neither type nor ids the identifiers are read off the document (root element, CustomizationID, ProfileID). A stated type the document contradicts (as POST /v1/messages would refuse with 400) is answered here as the first finding — severity fatal, rule DOCUMENT_TYPE_MISMATCH, no layer — followed by the validator's own, with valid false. Answers {valid, documentTypeId, processId, type, findings: [{severity, rule, location, message, layer}]}: valid is false only on a fatal finding; layer \"schema\" means the document is not valid UBL and Schematron did not run.\n\nruleset and vesid say what the answer was reached under: the Peppol release in force now (\"2026.5\") and the exact validation artefacts the validator ran; Peppol publishes a new release twice a year, each mandatory from a set date, and the answer changes with it. While a release is scheduled, upcoming {ruleset, vesid, effectiveFrom, valid, findings} is the same document checked against it: what it will meet from effectiveFrom.\n\n?ruleset=NAME checks against one release from GET /v1/validation/rulesets instead, in force or scheduled, and answers no upcoming; any other name is 400 VALIDATION_FAILED. The payload is prepared exactly as POST /v1/messages prepares it: a whole Standard Business Document has its envelope taken off and the business document inside is what is validated and inferred from, and the document is normalised to UTF-8 the same way. 400 INVALID_JSON for a body that is not JSON or not valid UTF-8, 400 VALIDATION_FAILED for a request that contradicts itself or an SBD that cannot be taken apart, 400 PEPPOL_DOCUMENT_NOT_SUPPORTED for a type without artefacts, 400 PEPPOL_VALIDATION_FAILED for a payload that is not one safe, well-formed XML document (empty, malformed, a DOCTYPE or entity declaration, an xml-stylesheet instruction, nesting deeper than 128, an unsupported charset, no single root element; base64 is not accepted), 413 PAYLOAD_TOO_LARGE for an upload over PAYLOAD_MAX_BYTES, 404 for a company the credential does not reach, 503 VALIDATION_UNAVAILABLE while the validator is down.\n\nRate limited per account, 120 a minute shared with dry runs: every answer carries RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset (seconds until the oldest call in the window leaves it), and a refusal is 429 RATE_LIMITED with Retry-After.",
         "operationId": "post_v1_validate",
         "parameters": [
           {

@@ -83,7 +83,7 @@ Everything a webhook would carry, kept 30 days, whether or not you have a webhoo
 
 ```ts
 let cursor = await loadCursor(); // undefined the first time: starts at the oldest event
-const page = await bg.events.list({ after: cursor });
+const page = await bg.events.list({ cursor });
 for (const event of page.events) await handle(event);
 await saveCursor(page.nextCursor); // always set, even when events is empty
 ```
