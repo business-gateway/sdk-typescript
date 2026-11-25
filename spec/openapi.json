@@ -133,6 +133,67 @@
         ],
         "type": "object"
       },
+      "DryRun": {
+        "properties": {
+          "companyId": {
+            "type": "string"
+          },
+          "documentTypeId": {
+            "type": "string"
+          },
+          "dryRun": {
+            "type": "boolean"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "array"
+          },
+          "processId": {
+            "type": "string"
+          },
+          "receiver": {
+            "type": "string"
+          },
+          "ruleset": {
+            "type": "string"
+          },
+          "sender": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "upcoming": {
+            "$ref": "#/components/schemas/UpcomingCheck"
+          },
+          "valid": {
+            "description": "null when validated is false: a type with no rules that its capability lets go unvalidated.",
+            "nullable": true,
+            "type": "boolean"
+          },
+          "validated": {
+            "type": "boolean"
+          },
+          "vesid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dryRun",
+          "companyId",
+          "sender",
+          "receiver",
+          "type",
+          "documentTypeId",
+          "processId",
+          "validated",
+          "valid",
+          "findings"
+        ],
+        "type": "object"
+      },
       "Error": {
         "properties": {
           "error": {
@@ -164,6 +225,686 @@
         },
         "required": [
           "error"
+        ],
+        "type": "object"
+      },
+      "Event": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "effectiveFrom": {
+            "type": "string"
+          },
+          "externalReference": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/WebhookMLSIssue"
+            },
+            "type": "array"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "mlsEventId": {
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "responseCode": {
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ruleset": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "unvalidated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "documentId",
+          "status",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "EventPage": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "description": "Always present. Ask again with ?after= set to it.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "events",
+          "nextCursor"
+        ],
+        "type": "object"
+      },
+      "Finding": {
+        "properties": {
+          "layer": {
+            "description": "schema (the document is not valid UBL, so Schematron did not run) or schematron.",
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "rule": {
+            "type": "string"
+          },
+          "severity": {
+            "description": "fatal, error or warning. A fatal finding makes valid false.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "severity",
+          "message"
+        ],
+        "type": "object"
+      },
+      "MLSEvent": {
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/MLSIssue"
+            },
+            "type": "array"
+          },
+          "lastError": {
+            "type": "string"
+          },
+          "mlsId": {
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "receivedAt": {
+            "type": "string"
+          },
+          "responseCode": {
+            "type": "string"
+          },
+          "sender": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "direction",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "MLSIssue": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "reasonCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "location",
+          "reasonCode"
+        ],
+        "type": "object"
+      },
+      "Message": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "as4AcceptedAt": {
+            "type": "string"
+          },
+          "as4MessageId": {
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "companyName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "deliveredToCustomerAt": {
+            "type": "string"
+          },
+          "deliveryUnconfirmed": {
+            "description": "An outbound SEND_FAILED document whose send outcome is unknown: the receiver may have it. Never resend it.",
+            "type": "boolean"
+          },
+          "direction": {
+            "description": "INBOUND or OUTBOUND.",
+            "type": "string"
+          },
+          "documentNumber": {
+            "type": "string"
+          },
+          "documentTypeId": {
+            "type": "string"
+          },
+          "externalReference": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": "string"
+          },
+          "lastErrorCode": {
+            "type": "string"
+          },
+          "lastErrorMessage": {
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "mlsEvents": {
+            "description": "The Message Level Status trail, oldest first. GET /v1/messages/{id} only.",
+            "items": {
+              "$ref": "#/components/schemas/MLSEvent"
+            },
+            "type": "array"
+          },
+          "payload": {
+            "description": "The business document, on GET /v1/messages/{id} only while it is under the inline limit.",
+            "type": "string"
+          },
+          "payloadBytes": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "payloadSha256": {
+            "type": "string"
+          },
+          "processId": {
+            "type": "string"
+          },
+          "queuedAt": {
+            "type": "string"
+          },
+          "receivedAt": {
+            "type": "string"
+          },
+          "receiver": {
+            "type": "string"
+          },
+          "recipientStatus": {
+            "description": "CONFIRMED, DELIVERED or REJECTED, from the receiving Service Provider's MLS. Absent until one arrives.",
+            "type": "string"
+          },
+          "recipientStatusReasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sbdhInstanceId": {
+            "type": "string"
+          },
+          "sender": {
+            "type": "string"
+          },
+          "sentAt": {
+            "type": "string"
+          },
+          "status": {
+            "description": "The document status.",
+            "type": "string"
+          },
+          "type": {
+            "description": "The register alias for documentTypeId and processId; absent for a pair the register does not know.",
+            "type": "string"
+          },
+          "validation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MessageValidation"
+              }
+            ],
+            "description": "Which Peppol rules decided the validation status. GET /v1/messages/{id} only."
+          },
+          "validationErrors": {
+            "description": "The findings of a failed validation, grouped. GET /v1/messages/{id} only.",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "direction",
+          "sender",
+          "receiver",
+          "documentTypeId",
+          "processId",
+          "payloadSha256",
+          "payloadBytes",
+          "status",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "MessagePage": {
+        "properties": {
+          "counts": {
+            "additionalProperties": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "type": "string"
+          },
+          "prevCursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "messages"
+        ],
+        "type": "object"
+      },
+      "MessageUpcomingValidation": {
+        "properties": {
+          "effectiveFrom": {
+            "description": "When the release becomes mandatory, RFC 3339 UTC.",
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array"
+          },
+          "ruleset": {
+            "type": "string"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "vesid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ruleset",
+          "effectiveFrom",
+          "valid",
+          "findings"
+        ],
+        "type": "object"
+      },
+      "MessageValidation": {
+        "properties": {
+          "ruleset": {
+            "description": "The Peppol release, as GET /v1/validation/rulesets names it.",
+            "type": "string"
+          },
+          "upcoming": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MessageUpcomingValidation"
+              }
+            ],
+            "description": "The document checked against the release scheduled next; shown until it takes effect."
+          },
+          "validatedAt": {
+            "type": "string"
+          },
+          "vesid": {
+            "description": "The exact validation artefacts the engine ran.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ruleset",
+          "vesid",
+          "validatedAt"
+        ],
+        "type": "object"
+      },
+      "Ruleset": {
+        "properties": {
+          "effectiveFrom": {
+            "description": "When the release takes effect; absent on one in force since before the platform recorded dates.",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "description": "in_force or scheduled.",
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "title",
+          "status"
+        ],
+        "type": "object"
+      },
+      "Rulesets": {
+        "properties": {
+          "rulesets": {
+            "items": {
+              "$ref": "#/components/schemas/Ruleset"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "rulesets"
+        ],
+        "type": "object"
+      },
+      "UpcomingCheck": {
+        "properties": {
+          "effectiveFrom": {
+            "description": "When the release becomes mandatory, RFC 3339 UTC.",
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "array"
+          },
+          "ruleset": {
+            "type": "string"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "vesid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ruleset",
+          "effectiveFrom",
+          "valid",
+          "findings"
+        ],
+        "type": "object"
+      },
+      "Upload": {
+        "properties": {
+          "expiresAt": {
+            "type": "string"
+          },
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "PUT the document to uploadUrl with exactly these headers.",
+            "type": "object"
+          },
+          "payloadObjectKey": {
+            "type": "string"
+          },
+          "uploadUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "payloadObjectKey",
+          "uploadUrl",
+          "expiresAt",
+          "headers"
+        ],
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "count": {
+            "description": "How many times the finding occurred; 0 or absent means once.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "location": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "rule": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "severity",
+          "message"
+        ],
+        "type": "object"
+      },
+      "ValidationResult": {
+        "properties": {
+          "documentTypeId": {
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "array"
+          },
+          "processId": {
+            "type": "string"
+          },
+          "ruleset": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "upcoming": {
+            "$ref": "#/components/schemas/UpcomingCheck"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "vesid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "valid",
+          "documentTypeId",
+          "processId",
+          "type",
+          "findings"
+        ],
+        "type": "object"
+      },
+      "WebhookEvent": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "effectiveFrom": {
+            "type": "string"
+          },
+          "externalReference": {
+            "type": "string"
+          },
+          "id": {
+            "description": "The X-Peppol-Event-ID; the same on every delivery of the event and in GET /v1/events.",
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/WebhookMLSIssue"
+            },
+            "type": "array"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "mlsEventId": {
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "responseCode": {
+            "description": "message.mls: AP, AB or RE.",
+            "type": "string"
+          },
+          "rules": {
+            "description": "message.outbound.ruleset_warning: the distinct rules it breaks there.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ruleset": {
+            "description": "message.outbound.ruleset_warning: the scheduled release the document would fail.",
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "description": "One of the six event types.",
+            "type": "string"
+          },
+          "unvalidated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "documentId",
+          "status"
+        ],
+        "type": "object"
+      },
+      "WebhookMLSIssue": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "reasonCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "location",
+          "reasonCode"
         ],
         "type": "object"
       }
@@ -1492,7 +2233,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/EventPage"
                 }
               }
             },
@@ -2026,7 +2767,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/MessagePage"
                 }
               }
             },
@@ -2047,12 +2788,19 @@
         ]
       },
       "post": {
-        "description": "Optional externalReference (your own name for the document, at most 128 characters, compared exactly) and metadata (at most 16 string values, keys up to 40 characters, values up to 256) are stored and returned as given on GET /v1/messages/{id}, the lists and every webhook body about the document; outside those bounds the request is 400 VALIDATION_FAILED. 202 with status QUEUED_VALIDATION is the usual answer: the document is checked against the Peppol rules after this request returns, not inside it, so the verdict is on a later GET rather than here: a passed document moves straight on to QUEUED and sending; VALIDATION_FAILED raises message.outbound.failed on the account's webhooks and is mailed to the company's notification contacts, with the findings on GET /v1/messages/{id}. VALIDATION_ERROR (a validator answer that cannot be read) and VALIDATION_UNAVAILABLE (no rules for the document and unvalidated sending not allowed) raise message.outbound.failed too, without the mail. A document type with no rules to check, sent under a capability that allows unvalidated documents, skips that step and is 201 with status UNVALIDATED: queued for sending like QUEUED, named so that the status says no rules were checked. A document whose rules the validator reports unavailable later becomes UNVALIDATED the same way when the capability allows it. A replayed Idempotency-Key is 200 with the current status. A key answers for 24 hours from its first use; after that it is unused, and the same key creates a new document. A payload that is a whole Standard Business Document is accepted: the envelope is taken off and the business document inside is what is stored and sent, under the platform's own SBDH. The envelope's sender, receiver, document type and process must then match the request's, or the request is 400 VALIDATION_FAILED. type is a document type alias from the register (invoice, credit-note, order, …); pint-aunz-invoice and pint-aunz-credit-note are Peppol PINT A-NZ, the billing format for Australian and New Zealand receivers, whose documentTypeId is under the peppol-doctype-wildcard scheme rather than busdox-docid-qns. The business document must be what it is sent as: its root element and namespace, its cbc:CustomizationID (exactly) and, when present, its cbc:ProfileID must be the ones documentTypeId and processId name, or the request is 400 VALIDATION_FAILED before anything is stored — a BIS Billing 3.0 invoice sent as pint-aunz-invoice, a PINT invoice sent as invoice, a credit note sent as invoice. A documentTypeId ending in the wildcard indicator * matches no document (BR-PDW-02: * belongs in SMP registrations only). A document that states no CustomizationID among the root's children (CII, non-UBL) is not checked on that point. sender and receiver must both be among the business document's cbc:EndpointID values (schemeID:value; an organisation number written with a hyphen and a difference in case still match), or the request is 400 PARTY_MISMATCH before anything is stored, with a message naming the request's value and the document's endpoints. To send for a customer, send from the customer's own participant. A document that names no EndpointID (CII, non-UBL) is not checked on that point. Only sender and the payload are required. receiver left out is read off the document: the one cbc:EndpointID that is not the sender; a document that names no other party, or more than one (a delivery party, say), is 400 VALIDATION_FAILED asking for receiver. type, documentTypeId and processId all left out are read off the document as POST /v1/validate does — root element and namespace, cbc:CustomizationID and cbc:ProfileID — and a document that does not state them (CII, non-UBL) is 400 VALIDATION_FAILED asking for type. Whatever is stated is held to the document as above; the response's receiver, documentTypeId and processId say what was used. ?dryRun=true tries the send: every check above, by the same code, and then the Peppol validation the send would run later, inline — with nothing stored, queued or sent. The Idempotency-Key is neither looked up nor taken, and a payloadObjectKey upload is left in place, so the same request without dryRun is the real send. A refusal is the error and code the send would answer. Otherwise 200 {dryRun: true, companyId, sender, receiver, type, documentTypeId, processId, validated, valid, findings, ruleset, vesid, upcoming}, the findings, ruleset, vesid and upcoming as POST /v1/validate answers them: valid false is a document the send would accept and then fail as VALIDATION_FAILED. validated false and valid null is a type with no rules that its capability allows to go unvalidated. dryRun accepts only true or false; any other value is 400 VALIDATION_FAILED and sends nothing. It shares POST /v1/validate's rate limit. Two test receivers take a real send that never leaves the platform: 0007:0000000000 accepts it (AS4_ACCEPTED, then an MLS AP, recipientStatus CONFIRMED) and 0007:0000000018 rejects it (AS4_ACCEPTED, then an MLS RE with one BV issue). Name one as the document's buyer EndpointID. Every check and the validation run as usual; any sender may use them, a sandbox's local participants included; the document is source test and never billed.",
+        "description": "Optional externalReference (your own name for the document, at most 128 characters, compared exactly) and metadata (at most 16 string values, keys up to 40 characters, values up to 256) are stored and returned as given on GET /v1/messages/{id}, the lists and every webhook body about the document; outside those bounds the request is 400 VALIDATION_FAILED. 202 with status QUEUED_VALIDATION is the usual answer: the document is checked against the Peppol rules after this request returns, not inside it, so the verdict is on a later GET rather than here: a passed document moves straight on to QUEUED and sending; VALIDATION_FAILED raises message.outbound.failed on the account's webhooks and is mailed to the company's notification contacts, with the findings on GET /v1/messages/{id}. VALIDATION_ERROR (a validator answer that cannot be read) and VALIDATION_UNAVAILABLE (no rules for the document and unvalidated sending not allowed) raise message.outbound.failed too, without the mail. A document type with no rules to check, sent under a capability that allows unvalidated documents, skips that step and is 201 with status UNVALIDATED: queued for sending like QUEUED, named so that the status says no rules were checked. A document whose rules the validator reports unavailable later becomes UNVALIDATED the same way when the capability allows it. A replayed Idempotency-Key is 200 with the current status. A key answers for 24 hours from its first use; after that it is unused, and the same key creates a new document. A payload that is a whole Standard Business Document is accepted: the envelope is taken off and the business document inside is what is stored and sent, under the platform's own SBDH. The envelope's sender, receiver, document type and process must then match the request's, or the request is 400 VALIDATION_FAILED. type is a document type alias from the register (invoice, credit-note, order, …); pint-aunz-invoice and pint-aunz-credit-note are Peppol PINT A-NZ, the billing format for Australian and New Zealand receivers, whose documentTypeId is under the peppol-doctype-wildcard scheme rather than busdox-docid-qns. The business document must be what it is sent as: its root element and namespace, its cbc:CustomizationID (exactly) and, when present, its cbc:ProfileID must be the ones documentTypeId and processId name, or the request is 400 VALIDATION_FAILED before anything is stored — a BIS Billing 3.0 invoice sent as pint-aunz-invoice, a PINT invoice sent as invoice, a credit note sent as invoice. A documentTypeId ending in the wildcard indicator * matches no document (BR-PDW-02: * belongs in SMP registrations only). A document that states no CustomizationID among the root's children (CII, non-UBL) is not checked on that point. sender and receiver must both be among the business document's cbc:EndpointID values (schemeID:value; an organisation number written with a hyphen and a difference in case still match), or the request is 400 PARTY_MISMATCH before anything is stored, with a message naming the request's value and the document's endpoints. To send for a customer, send from the customer's own participant. A document that names no EndpointID (CII, non-UBL) is not checked on that point. Only sender and the payload are required. receiver left out is read off the document: the one cbc:EndpointID that is not the sender; a document that names no other party, or more than one (a delivery party, say), is 400 VALIDATION_FAILED asking for receiver. type, documentTypeId and processId all left out are read off the document as POST /v1/validate does — root element and namespace, cbc:CustomizationID and cbc:ProfileID — and a document that does not state them (CII, non-UBL) is 400 VALIDATION_FAILED asking for type. Whatever is stated is held to the document as above; the response's receiver, documentTypeId and processId say what was used. ?dryRun=true tries the send: every check above, by the same code, and then the Peppol validation the send would run later, inline — with nothing stored, queued or sent. The Idempotency-Key is neither looked up nor taken, and a payloadObjectKey upload is left in place, so the same request without dryRun is the real send. A refusal is the error and code the send would answer. Otherwise 200 {dryRun: true, companyId, sender, receiver, type, documentTypeId, processId, validated, valid, findings, ruleset, vesid, upcoming}, the findings, ruleset, vesid and upcoming as POST /v1/validate answers them: valid false is a document the send would accept and then fail as VALIDATION_FAILED. validated false and valid null is a type with no rules that its capability allows to go unvalidated. dryRun accepts only true or false; any other value is 400 VALIDATION_FAILED and sends nothing. It shares POST /v1/validate's rate limit. ?wait=N (whole seconds, 0 to 30) holds the answer until the document's validation is decided, or N seconds pass: a verdict in time is 201 with that status (QUEUED, VALIDATION_FAILED, …), a wait that runs out the usual 202 QUEUED_VALIDATION, a replay 200 either way. Any other wait value is 400 VALIDATION_FAILED and sends nothing. Two test receivers take a real send that never leaves the platform: 0007:0000000000 accepts it (AS4_ACCEPTED, then an MLS AP, recipientStatus CONFIRMED) and 0007:0000000018 rejects it (AS4_ACCEPTED, then an MLS RE with one BV issue). Name one as the document's buyer EndpointID. Every check and the validation run as usual; any sender may use them, a sandbox's local participants included; the document is source test and never billed.",
         "operationId": "post_v1_messages",
         "parameters": [
           {
             "in": "query",
             "name": "dryRun",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "wait",
             "schema": {
               "type": "string"
             }
@@ -2069,11 +2817,38 @@
           "required": true
         },
         "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Message"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DryRun"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "A replayed Idempotency-Key (the document as it is now), or ?dryRun=true (DryRun)."
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Created with status UNVALIDATED (a type with no rules, under a capability that allows unvalidated documents), or ?wait= reached the validation verdict in time."
+          },
           "202": {
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Message"
                 }
               }
             },
@@ -2227,7 +3002,7 @@
             "code": "RATE_LIMITED",
             "retryable": true,
             "status": 429,
-            "when": "Too many requests for this account. Retry later with the same Idempotency-Key."
+            "when": "dryRun only: over POST /v1/validate's limit for this account (RateLimit-* headers). Wait Retry-After seconds. A send without dryRun is not rate limited."
           },
           {
             "code": "PEPPOL_INTERNAL_ERROR",
@@ -2269,7 +3044,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Upload"
                 }
               }
             },
@@ -2309,7 +3084,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Message"
                 }
               }
             },
@@ -2348,7 +3123,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Message"
                 }
               }
             },
@@ -4072,7 +4847,7 @@
     },
     "/v1/validate": {
       "post": {
-        "description": "Runs a document through the same Peppol validation an outbound message gets — XML safety, then XSD and Schematron in the validator — and answers every finding, warnings included. Nothing is stored and nothing is sent. Body {type?, documentTypeId?, processId?, payload} or, for a document over the 1 MiB JSON body limit, {payloadObjectKey, sender? or companyId?} naming an upload from POST /v1/messages/uploads and the sender or company it was uploaded with; the upload is read and left in place, so the same key can be sent next. type is an alias (\"invoice\", …); with neither type nor ids the identifiers are read off the document (root element, CustomizationID, ProfileID). A stated type the document contradicts (as POST /v1/messages would refuse with 400) is answered here as the first finding — severity fatal, rule DOCUMENT_TYPE_MISMATCH, no layer — followed by the validator's own, with valid false. Answers {valid, documentTypeId, processId, type, findings: [{severity, rule, location, message, layer}]}: valid is false only on a fatal finding; layer \"schema\" means the document is not valid UBL and Schematron did not run. ruleset and vesid say what the answer was reached under: the Peppol release in force now (\"2026.5\") and the exact validation artefacts the validator ran; Peppol publishes a new release twice a year, each mandatory from a set date, and the answer changes with it. While a release is scheduled, upcoming {ruleset, vesid, effectiveFrom, valid, findings} is the same document checked against it: what it will meet from effectiveFrom. ?ruleset=NAME checks against one release from GET /v1/validation/rulesets instead, in force or scheduled, and answers no upcoming; any other name is 400 VALIDATION_FAILED. 400 PEPPOL_DOCUMENT_NOT_SUPPORTED for a type without artefacts, 400 PEPPOL_VALIDATION_FAILED for unsafe XML, 413 PAYLOAD_TOO_LARGE for an upload over PAYLOAD_MAX_BYTES, 404 for a company the credential does not reach, 503 VALIDATION_UNAVAILABLE while the validator is down. Rate limited per account.",
+        "description": "Runs a document through the same Peppol validation an outbound message gets — XML safety, then XSD and Schematron in the validator — and answers every finding, warnings included. Nothing is stored and nothing is sent. Body {type?, documentTypeId?, processId?, payload} or, for a document over the 1 MiB JSON body limit, {payloadObjectKey, sender? or companyId?} naming an upload from POST /v1/messages/uploads and the sender or company it was uploaded with; the upload is read and left in place, so the same key can be sent next. type is an alias (\"invoice\", …); with neither type nor ids the identifiers are read off the document (root element, CustomizationID, ProfileID). A stated type the document contradicts (as POST /v1/messages would refuse with 400) is answered here as the first finding — severity fatal, rule DOCUMENT_TYPE_MISMATCH, no layer — followed by the validator's own, with valid false. Answers {valid, documentTypeId, processId, type, findings: [{severity, rule, location, message, layer}]}: valid is false only on a fatal finding; layer \"schema\" means the document is not valid UBL and Schematron did not run. ruleset and vesid say what the answer was reached under: the Peppol release in force now (\"2026.5\") and the exact validation artefacts the validator ran; Peppol publishes a new release twice a year, each mandatory from a set date, and the answer changes with it. While a release is scheduled, upcoming {ruleset, vesid, effectiveFrom, valid, findings} is the same document checked against it: what it will meet from effectiveFrom. ?ruleset=NAME checks against one release from GET /v1/validation/rulesets instead, in force or scheduled, and answers no upcoming; any other name is 400 VALIDATION_FAILED. 400 PEPPOL_DOCUMENT_NOT_SUPPORTED for a type without artefacts, 400 PEPPOL_VALIDATION_FAILED for unsafe XML, 413 PAYLOAD_TOO_LARGE for an upload over PAYLOAD_MAX_BYTES, 404 for a company the credential does not reach, 503 VALIDATION_UNAVAILABLE while the validator is down. Rate limited per account, 120 a minute shared with dry runs: every answer carries RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset (seconds until the oldest call in the window leaves it), and a refusal is 429 RATE_LIMITED with Retry-After.",
         "operationId": "post_v1_validate",
         "parameters": [
           {
@@ -4098,7 +4873,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ValidationResult"
                 }
               }
             },
@@ -4128,7 +4903,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Rulesets"
                 }
               }
             },

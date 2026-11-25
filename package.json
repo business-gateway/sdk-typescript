@@ -29,10 +29,13 @@
     "build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "sync-spec": "cp ../docs/openapi.json spec/openapi.json"
+    "sync-spec": "cp ../docs/openapi.json spec/openapi.json && npm run generate",
+    "generate": "openapi-typescript spec/openapi.json -o src/generated/openapi.ts",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^26.4.1",
+    "openapi-typescript": "7.13.0",
     "typescript": "^5.9.2",
     "vitest": "^5.0.0"
   }

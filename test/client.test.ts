@@ -45,6 +45,18 @@ describe("messages", () => {
     expect(send!.body).toEqual({ sender: "0007:5561234567", payloadObjectKey: "uploads/c1/k" });
   });
 
+  it("asks the server to wait for the verdict, and only when told to", async () => {
+    const { bg, seen } = client([json(201, { ...message, status: "QUEUED" }), json(202, message)]);
+    const m = await bg.messages.send({ sender: "0007:1", payload: "<x/>", wait: 20 });
+    expect(m.status).toBe("QUEUED");
+    expect(seen[0]!.url.search).toBe("?wait=20");
+    expect(seen[0]!.body).toEqual({ sender: "0007:1", payload: "<x/>" });
+    await bg.messages.send({ sender: "0007:1", payload: "<x/>" });
+    expect(seen[1]!.url.search).toBe("");
+    await expect(bg.messages.send({ sender: "0007:1", payload: "<x/>", wait: 31 })).rejects.toThrow(RangeError);
+    await expect(bg.messages.send({ sender: "0007:1", payload: "<x/>", wait: 1.5 })).rejects.toThrow(RangeError);
+  });
+
   it("dry-runs without an Idempotency-Key", async () => {
     const { bg, seen } = client([json(200, { dryRun: true, valid: true, findings: [] })]);
     await bg.messages.dryRun({ sender: "0007:1", payload: "<x/>" });
