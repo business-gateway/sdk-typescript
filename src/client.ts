@@ -217,7 +217,7 @@ class Events {
 
   /**
    * One page of the event feed, oldest first: every event a webhook would
-   * carry, kept 30 days. Store nextCursor and pass it as `after` next time.
+   * carry, kept 30 days. Store nextCursor and pass it as `cursor` next time.
    * An event appears about ten seconds after it happens.
    */
   async list(params: ListEventsParams = {}): Promise<EventPage> {
