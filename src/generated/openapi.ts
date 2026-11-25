@@ -4,23 +4,6 @@
  */
 
 export interface paths {
-    "/healthz": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Liveness */
-        get: operations["get_healthz"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/account": {
         parameters: {
             query?: never;
@@ -29,8 +12,12 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get account and reachable companies
-         * @description The account this credential belongs to, plus the companies it reaches. restricted is true for a credential confined to particular companies; such a credential reads the account's id, name and status only, because the remaining fields describe the account holder's own corporate identity and billing rather than anything about the companies under it. mfaRequired says whether the owner requires every user to hold a second factor (PATCH /v1/account).
+         * Get the account
+         * @description The account this credential belongs to, plus the companies it reaches.
+         *
+         *     restricted is true for a credential confined to particular companies; such a credential reads the account's id, name and status only, because the remaining fields describe the account holder's own corporate identity and billing rather than anything about the companies under it.
+         *
+         *     mfaRequired says whether the owner requires every user to hold a second factor (PATCH /v1/account).
          */
         get: operations["get_v1_account"];
         put?: never;
@@ -39,8 +26,12 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Update account settings
-         * @description Owner only. Body {mfaRequired: true|false}: require every user of the account to hold a second factor — an authenticator app, a passkey they sign in with, or single sign-on. It applies from each user's next request: a password session of a user with neither is answered 403 MFA_ENROLLMENT_REQUIRED everywhere except GET /v1/me, their own PATCH /v1/users/{id}, POST /v1/mfa/enroll and /confirm, and the passkey registration routes; a password session of a user who has a passkey is answered 403 MFA_PASSKEY_SIGNIN_REQUIRED everywhere except GET /v1/me, since its only way out is signing in with that passkey. API keys and desk sessions are never affected. Turning it on answers 409 INVALID_STATE unless your own session already satisfies it; turning it off needs nothing. Answers {account}. 400 VALIDATION_FAILED without mfaRequired; 403 FORBIDDEN for anyone but an owner.
+         * Update the account
+         * @description Owner only. Body {mfaRequired: true|false}: require every user of the account to hold a second factor — an authenticator app, a passkey they sign in with, or single sign-on. It applies from each user's next request: a password session of a user with neither is answered 403 MFA_ENROLLMENT_REQUIRED everywhere except GET /v1/me, their own PATCH /v1/users/{id}, POST /v1/mfa/enroll and /confirm, and the passkey registration routes; a password session of a user who has a passkey is answered 403 MFA_PASSKEY_SIGNIN_REQUIRED everywhere except GET /v1/me, since its only way out is signing in with that passkey.
+         *
+         *     API keys and desk sessions are never affected. Turning it on answers 409 INVALID_STATE unless your own session already satisfies it; turning it off needs nothing. Answers {account}.
+         *
+         *     400 VALIDATION_FAILED without mfaRequired; 403 FORBIDDEN for anyone but an owner.
          */
         patch: operations["patch_v1_account"];
         trace?: never;
@@ -56,7 +47,9 @@ export interface paths {
         put?: never;
         /**
          * Request a data export
-         * @description Owner only. Starts building a zip of everything the account holds: companies, participants, document metadata and payloads, and the audit trail. Returns {export: {id, status}}; poll GET .../export/{exportId} until it carries a download link. Large accounts take a while.
+         * @description Owner only. Starts building a zip of everything the account holds: companies, participants, document metadata and payloads, and the audit trail. Returns {export: {id, status}}; poll GET .../export/{exportId} until it carries a download link.
+         *
+         *     Large accounts take a while.
          */
         post: operations["post_v1_account_export"];
         delete?: never;
@@ -73,8 +66,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get export status
-         * @description Owner only. {export: {id, status, downloadUrl?, expiresAt?, error?}}. downloadUrl is present only once status is DONE and within its 24h TTL.
+         * Get a data export
+         * @description Owner only. {export: {id, status, downloadUrl?, expiresAt?, error?}}.
+         *
+         *     downloadUrl is present only once status is DONE and within its 24h TTL.
          */
         get: operations["get_v1_account_export_exportId"];
         put?: never;
@@ -94,13 +89,19 @@ export interface paths {
         };
         /**
          * List API keys
-         * @description Owner or company admin; an ordinary member is refused. Each key carries permissions: an array of read/send/receive/manage. A company admin sees only the keys confined to its own companies, never the account-wide ones. ?companyId narrows to one company; a key confined to no company reaches the whole account and stays in view whichever company is asked for.
+         * @description Owner or company admin; an ordinary member is refused. Each key carries permissions: an array of read/send/receive/manage. A company admin sees only the keys confined to its own companies, never the account-wide ones.
+         *
+         *     ?companyId narrows to one company; a key confined to no company reaches the whole account and stays in view whichever company is asked for.
          */
         get: operations["get_v1_api-keys"];
         put?: never;
         /**
-         * Create API key
-         * @description Owner or company admin. companyId confines the key to one company; leaving it out produces a key that reaches every company under the account, which only an owner may create. permissions is an array of read/send/receive/manage; omitted or empty means all four. Calling a route the key lacks the permission for is 403 PERMISSION_DENIED. The key itself is in the response and is never shown again.
+         * Create an API key
+         * @description Owner or company admin.
+         *
+         *     companyId confines the key to one company; leaving it out produces a key that reaches every company under the account, which only an owner may create.
+         *
+         *     permissions is an array of read/send/receive/manage; omitted or empty means all four. Calling a route the key lacks the permission for is 403 PERMISSION_DENIED. The key itself is in the response and is never shown again.
          */
         post: operations["post_v1_api-keys"];
         delete?: never;
@@ -120,187 +121,10 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Revoke API key
+         * Revoke an API key
          * @description Owner or company admin, the latter only for a key confined to one of its own companies. Revoking is immediate and cannot be undone.
          */
         delete: operations["delete_v1_api-keys_id"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/forgot": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Request password reset
-         * @description {email}. Always 204, whether or not the address belongs to a user, so that the response cannot be used to discover who has an account.
-         */
-        post: operations["post_v1_auth_forgot"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Log in
-         * @description {email, password}. Answers {token, expiresAt, user}. For a user with an authenticator app the password is only the first step: the answer also carries mfaRequired: true, and the token is a pending session that reaches nothing but POST /v1/auth/mfa. A user without one gets a full session, exactly as before.
-         */
-        post: operations["post_v1_auth_login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Log out */
-        post: operations["post_v1_auth_logout"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/mfa": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Verify customer MFA challenge
-         * @description Completes the pending session POST /v1/auth/login answers with mfaRequired: true when the user has an authenticator app (S-30). Bearer is that pending token; until this succeeds it is refused everywhere else with 403 MFA_REQUIRED, and it lapses after five minutes. Body {code}: a 6-digit code from the app or one of the unused recovery codes, each accepted once. Answers the login shape, {token, expiresAt, user}, with the same token now complete. 401 UNAUTHORIZED for a wrong code, 401 MFA_CHALLENGE_EXPIRED when the bearer is missing, unknown or lapsed (sign in again; the message text is unchanged), 409 INVALID_STATE when no challenge is outstanding (the session is complete, or the user's two-factor was turned off meanwhile), 429 RATE_LIMITED after repeated wrong codes.
-         */
-        post: operations["post_v1_auth_mfa"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/oidc": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Customer OIDC login
-         * @description Signs in with an OIDC token from the account's identity provider. 401 SSO_NOT_LINKED — distinct from the generic UNAUTHORIZED — means the token is valid but no user here is linked to it yet; link the identity after signing in with a password.
-         */
-        post: operations["post_v1_auth_oidc"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/passkey/challenge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Begin a passkey sign-in
-         * @description Unauthenticated. Returns {publicKey}, the options the browser passes to navigator.credentials.get(), with the challenge and every credential id base64url-encoded. The challenge is single-use and lives five minutes. allowCredentials is empty by design: passkeys here are discoverable, so the authenticator names the account and this route reveals nothing about who has one.
-         */
-        post: operations["post_v1_auth_passkey_challenge"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/passkey/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Finish a passkey sign-in
-         * @description Unauthenticated: {id, authenticatorData, clientDataJSON, signature, userHandle}, all base64url. Returns the same {token, expiresAt, user} a password login does. Every verification failure is one 401 UNAUTHORIZED, except 401 PASSKEY_CLONE_DETECTED — the authenticator's signature counter went backwards, and the passkey should be removed rather than retried.
-         */
-        post: operations["post_v1_auth_passkey_login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/reset": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reset password
-         * @description {token, password}. A token that is unknown, expired, already used, or whose user can no longer sign in is 400 RESET_TOKEN_INVALID — its own code, so a client can offer a fresh link without reading the message.
-         */
-        post: operations["post_v1_auth_reset"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/signup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sign up
-         * @description Creates an account (the contract party), its first company (the account's own legal entity unless a company object says otherwise) and the first owner: {account:{name?,legalName,countryCode,registrationNumber?,vatNumber?}, company?:{name?,identifier?,countryCode?,registrationNumber?,vatNumber?}, owner:{name?,email,password}, bootstrapToken?}.
-         */
-        post: operations["post_v1_auth_signup"];
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -314,8 +138,22 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Billing report
-         * @description What the account's companies cost, per month. Answers the owner, a user holding the billing.view grant (PATCH /v1/users/{id}) and a desk session; everyone else, every API key included, gets 403 FORBIDDEN. A user confined to some companies sees only those companies, and every month, line and total is summed over them alone (scope: "companies"). ?companyId narrows the report further to the companies named — repeated (?companyId=a&companyId=b) or comma-separated (?companyId=a,b) — and every month, line and total (yearToDate and sinceStart included) is then summed over those alone, with scope: "companies" and companyIds echoing the selection; an empty ?companyId= is no filter. It only narrows what the caller already sees: a company outside the caller's scope, or one that does not exist, is 404 NOT_FOUND, as on every customer route that takes a companyId. ?period=2026-09 or 2026-Q3, or ?from=2026-01&to=2026-09 (at most 120 months); with none of them, the year to date. months[] has one entry per month with state locked (frozen when the basis was taken out), draft (ended and measured, not yet locked), running (this month, counted live), unmeasured (ended before anything measured it: no numbers) or future, and companyMonths, participantMonths, messages, outboundMessages, inboundMessages, amountMinor, pricedAmountMinor and priceMissing. companies[] gives the same per company and per company and month; lines[] the period's price lines, unit price × quantity = amount. totals has period, yearToDate and sinceStart (from the first measured month), each with its from and to. Amounts are integer minor units of currency. A month without a price keeps its counts and has priceMissing: true with amountMinor null — never 0 — and so does every sum that includes it; pricedAmountMinor is the priced part. outboundMessages and inboundMessages are null where the split is not known (the metering rows behind an old month may have been archived), and always in the yearToDate and sinceStart totals. Sandbox companies are free and appear nowhere. ?format=csv gives one row per month and company: month,state,companyId,company,companyMonths,participantMonths,messages,outboundMessages,inboundMessages,amountMinor,amount,priceMissing,currency.
+         * Get the billing report
+         * @description What the account's companies cost, per month. Answers the owner, a user holding the billing.view grant (PATCH /v1/users/{id}) and a desk session; everyone else, every API key included, gets 403 FORBIDDEN. A user confined to some companies sees only those companies, and every month, line and total is summed over them alone (scope: "companies").
+         *
+         *     ?companyId narrows the report further to the companies named — repeated (?companyId=a&companyId=b) or comma-separated (?companyId=a,b) — and every month, line and total (yearToDate and sinceStart included) is then summed over those alone, with scope: "companies" and companyIds echoing the selection; an empty ?companyId= is no filter. It only narrows what the caller already sees: a company outside the caller's scope, or one that does not exist, is 404 NOT_FOUND, as on every customer route that takes a companyId.
+         *
+         *     ?period=2026-09 or 2026-Q3, or ?from=2026-01&to=2026-09 (at most 120 months); with none of them, the year to date.
+         *
+         *     months[] has one entry per month with state locked (frozen when the basis was taken out), draft (ended and measured, not yet locked), running (this month, counted live), unmeasured (ended before anything measured it: no numbers) or future, and companyMonths, participantMonths, messages, outboundMessages, inboundMessages, amountMinor, pricedAmountMinor and priceMissing.
+         *
+         *     companies[] gives the same per company and per company and month; lines[] the period's price lines, unit price × quantity = amount.
+         *
+         *     totals has period, yearToDate and sinceStart (from the first measured month), each with its from and to. Amounts are integer minor units of currency. A month without a price keeps its counts and has priceMissing: true with amountMinor null — never 0 — and so does every sum that includes it; pricedAmountMinor is the priced part.
+         *
+         *     outboundMessages and inboundMessages are null where the split is not known (the metering rows behind an old month may have been archived), and always in the yearToDate and sinceStart totals. Sandbox companies are free and appear nowhere.
+         *
+         *     ?format=csv gives one row per month and company: month,state,companyId,company,companyMonths,participantMonths,messages,outboundMessages,inboundMessages,amountMinor,amount,priceMissing,currency.
          */
         get: operations["get_v1_billing"];
         put?: never;
@@ -340,8 +178,12 @@ export interface paths {
         get: operations["get_v1_companies"];
         put?: never;
         /**
-         * Create company
-         * @description Owner, or an account-wide API key with manage. Adds a legal entity under the account. Empty countryCode inherits the account's; an omitted identifier is derived from the name. When the account is expected to do KYC the response carries onboarding: {url, expiresAt}, a hosted onboarding link to hand the company — see POST /v1/companies/{id}/kyc/onboarding-link. Participants under a company that has not completed KYC wait for operator approval. sandbox: true makes a sandbox company: its participants are local only (never on the Peppol network) and are created READY without operator approval, it gets no KYC onboarding link, and POST /v1/companies/{id}/test-inbound may simulate documents arriving at it; only an operator changes the flag afterwards.
+         * Create a company
+         * @description Owner, or an account-wide API key with manage. Adds a legal entity under the account. Empty countryCode inherits the account's; an omitted identifier is derived from the name.
+         *
+         *     When the account is expected to do KYC the response carries onboarding: {url, expiresAt}, a hosted onboarding link to hand the company — see POST /v1/companies/{id}/kyc/onboarding-link. Participants under a company that has not completed KYC wait for operator approval.
+         *
+         *     sandbox: true makes a sandbox company: its participants are local only (never on the Peppol network) and are created READY without operator approval, it gets no KYC onboarding link, and POST /v1/companies/{id}/test-inbound may simulate documents arriving at it; only an operator changes the flag afterwards.
          */
         post: operations["post_v1_companies"];
         delete?: never;
@@ -357,20 +199,26 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get company */
+        /** Get a company */
         get: operations["get_v1_companies_id"];
         put?: never;
         post?: never;
         /**
-         * Delete company
-         * @description Owner, or an account-wide API key with manage — the same callers as POST and PATCH. Allowed once every participant of the company is DEACTIVATED (deactivate them with DELETE /v1/participants/{id} first), and always for a company that has none; otherwise 409 COMPANY_NOT_DEREGISTERED. The company is closed and its queued outbound and inbound are dropped (a close only pauses them; a deleted company cannot be reopened), its DEACTIVATED participants are deleted with it, API keys confined to it are revoked and SFTP logins confined to it disabled, and it frees its identifier for a new company. It then disappears from GET /v1/companies and every other list, and GET /v1/companies/{id} answers 404 — as does a second DELETE. The deletion is soft: documents, usage and billing keep naming the company, and audit records COMPANY_DELETED plus PARTICIPANT_DELETED per participant. 204 No Content.
+         * Delete a company
+         * @description Owner, or an account-wide API key with manage — the same callers as POST and PATCH. Allowed once every participant of the company is DEACTIVATED (deactivate them with DELETE /v1/participants/{id} first), and always for a company that has none; otherwise 409 COMPANY_NOT_DEREGISTERED. The company is closed and its queued outbound and inbound are dropped (a close only pauses them; a deleted company cannot be reopened), its DEACTIVATED participants are deleted with it, API keys confined to it are revoked and SFTP logins confined to it disabled, and it frees its identifier for a new company.
+         *
+         *     It then disappears from GET /v1/companies and every other list, and GET /v1/companies/{id} answers 404 — as does a second DELETE. The deletion is soft: documents, usage and billing keep naming the company, and audit records COMPANY_DELETED plus PARTICIPANT_DELETED per participant. 204 No Content.
          */
         delete: operations["delete_v1_companies_id"];
         options?: never;
         head?: never;
         /**
-         * Update company
-         * @description Owner, or an account-wide API key with manage. name, identifier (409 IDENTIFIER_TAKEN on collision), countryCode, registrationNumber, vatNumber. A company verified through KYC refuses a new registrationNumber or countryCode with 409 KYC_LOCKED. sandbox cannot be changed here.
+         * Update a company
+         * @description Owner, or an account-wide API key with manage.
+         *
+         *     name, identifier (409 IDENTIFIER_TAKEN on collision), countryCode, registrationNumber, vatNumber. A company verified through KYC refuses a new registrationNumber or countryCode with 409 KYC_LOCKED.
+         *
+         *     sandbox cannot be changed here.
          */
         patch: operations["patch_v1_companies_id"];
         trace?: never;
@@ -383,14 +231,24 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get company KYC
-         * @description The company's latest KYC case: {kyc: {id, status, method, source, orgNumber, legalName, persons, signatoryRule, signatures, requiresReview, companyVerified, ...}}. status is NOT_STARTED, PENDING_SIGNATURES, MANUAL_REVIEW, VERIFIED, REJECTED, EXPIRED or WITHDRAWN; a company that never started has only companyId, status, method, countryCode, required and companyVerified. required is false when the account is exempt from KYC: offer it as optional rather than as a step to finish. Nothing is blocked either way. method is "register" where a register extract is uploaded (Sweden: a Bolagsverket registreringsbevis) and "manual" elsewhere. companyVerified stays true while a newer case is in progress. 501 KYC_NOT_CONFIGURED when the deployment has no KYC.
+         * Get the verification
+         * @description The company's latest KYC case: {kyc: {id, status, method, source, orgNumber, legalName, persons, signatoryRule, signatures, requiresReview, companyVerified, ...}}.
+         *
+         *     status is NOT_STARTED, PENDING_SIGNATURES, MANUAL_REVIEW, VERIFIED, REJECTED, EXPIRED or WITHDRAWN; a company that never started has only companyId, status, method, countryCode, required and companyVerified.
+         *
+         *     required is false when the account is exempt from KYC: offer it as optional rather than as a step to finish. Nothing is blocked either way.
+         *
+         *     method is "register" where a register extract is uploaded (Sweden: a Bolagsverket registreringsbevis) and "manual" elsewhere.
+         *
+         *     companyVerified stays true while a newer case is in progress. 501 KYC_NOT_CONFIGURED when the deployment has no KYC.
          */
         get: operations["get_v1_companies_id_kyc"];
         put?: never;
         /**
-         * Start company KYC
-         * @description Owner session only; an API key gets 403 KYC_USE_ONBOARDING_LINK. {objectKey} for a country with a register (method "register"), or {manual: {orgNumber, legalName, address?, signatoryText?}} for any other. A Swedish extract must be the PDF Bolagsverket issued, sealed by Bolagsverket over every byte and sealed within the last 90 days: 400 KYC_DOCUMENT_NOT_SEALED (no seal, or the file was changed after sealing — a scan or a re-saved copy), KYC_DOCUMENT_NOT_FROM_REGISTER, KYC_DOCUMENT_TOO_OLD, and KYC_ORG_NUMBER_MISMATCH when it is for another registration number than the company's. An authentic extract whose firmateckning cannot be read with confidence is accepted with requiresReview true. Starting a case ends any case still open; a verified company stays verified until the new case is. 400 KYC_MANUAL_REQUIRED for objectKey in a country without a register.
+         * Start verification
+         * @description Owner session only; an API key gets 403 KYC_USE_ONBOARDING_LINK. {objectKey} for a country with a register (method "register"), or {manual: {orgNumber, legalName, address?, signatoryText?}} for any other. A Swedish extract must be the PDF Bolagsverket issued, sealed by Bolagsverket over every byte and sealed within the last 90 days: 400 KYC_DOCUMENT_NOT_SEALED (no seal, or the file was changed after sealing — a scan or a re-saved copy), KYC_DOCUMENT_NOT_FROM_REGISTER, KYC_DOCUMENT_TOO_OLD, and KYC_ORG_NUMBER_MISMATCH when it is for another registration number than the company's.
+         *
+         *     An authentic extract whose firmateckning cannot be read with confidence is accepted with requiresReview true. Starting a case ends any case still open; a verified company stays verified until the new case is. 400 KYC_MANUAL_REQUIRED for objectKey in a country without a register.
          */
         post: operations["post_v1_companies_id_kyc"];
         delete?: never;
@@ -407,8 +265,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Download the company's agreement
-         * @description Owner, or an account-wide API key with manage. kind is agreement (the version the signatories were sent) or signed-agreement (that agreement followed by the signature appendix: who signed, when, from which address). From the case that verified the company, or else its latest case; 404 until there is one. The PDF comes back as an attachment with its SHA-256 in X-Content-SHA256, and the read is audited as KYC_DOCUMENT_READ.
+         * Download the agreement
+         * @description Owner, or an account-wide API key with manage.
+         *
+         *     kind is agreement (the version the signatories were sent) or signed-agreement (that agreement followed by the signature appendix: who signed, when, from which address). From the case that verified the company, or else its latest case; 404 until there is one. The PDF comes back as an attachment with its SHA-256 in X-Content-SHA256, and the read is audited as KYC_DOCUMENT_READ.
          */
         get: operations["get_v1_companies_id_kyc_documents_kind"];
         put?: never;
@@ -429,8 +289,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Issue a hosted onboarding link
-         * @description Owner, or an account-wide API key with manage. Returns {onboarding: {url, expiresAt}}: a link, valid 30 days, that lets whoever holds it do the company's KYC on our hosted page — upload the registreringsbevis (or enter a foreign company), choose who signs — without an account here. Issuing one ends the previous link for the company. This is how a platform integrating through an API key gets its customers through KYC: the key itself is refused on the KYC routes with 403 KYC_USE_ONBOARDING_LINK.
+         * Create an onboarding link
+         * @description Owner, or an account-wide API key with manage. Returns {onboarding: {url, expiresAt}}: a link, valid 30 days, that lets whoever holds it do the company's KYC on our hosted page — upload the registreringsbevis (or enter a foreign company), choose who signs — without an account here. Issuing one ends the previous link for the company.
+         *
+         *     This is how a platform integrating through an API key gets its customers through KYC: the key itself is refused on the KYC routes with 403 KYC_USE_ONBOARDING_LINK.
          */
         post: operations["post_v1_companies_id_kyc_onboarding-link"];
         delete?: never;
@@ -449,8 +311,12 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Choose who signs the agreement
-         * @description Owner session only (an API key gets 403 KYC_USE_ONBOARDING_LINK), on a case in PENDING_SIGNATURES. With a signatory rule: {alternative, signers: [{personId, email}]}, where alternative indexes signatoryRule.alternatives (clauses naming individuals are listed in signatoryRule.notOffered and cannot be chosen) and the chosen persons must bind the company under it (400 KYC_SIGNATORIES_INSUFFICIENT otherwise). Without one (requiresReview): {signers: [{name, role?, email}]}. Every signer needs their own email address. Each gets a personal link valid 14 days; calling again replaces the earlier choice and ends its unsigned links, and someone who already signed is not asked again. 409 KYC_NO_AGREEMENT when no agreement version is published. When mail cannot be sent, unsentLinks carries the links to pass on another way.
+         * Choose who signs
+         * @description Owner session only (an API key gets 403 KYC_USE_ONBOARDING_LINK), on a case in PENDING_SIGNATURES. With a signatory rule: {alternative, signers: [{personId, email}]}, where alternative indexes signatoryRule.alternatives (clauses naming individuals are listed in signatoryRule.notOffered and cannot be chosen) and the chosen persons must bind the company under it (400 KYC_SIGNATORIES_INSUFFICIENT otherwise). Without one (requiresReview): {signers: [{name, role?, email}]}.
+         *
+         *     Every signer needs their own email address. Each gets a personal link valid 14 days; calling again replaces the earlier choice and ends its unsigned links, and someone who already signed is not asked again. 409 KYC_NO_AGREEMENT when no agreement version is published.
+         *
+         *     When mail cannot be sent, unsentLinks carries the links to pass on another way.
          */
         post: operations["post_v1_companies_id_kyc_signatories"];
         delete?: never;
@@ -469,8 +335,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Upload URL for a register extract
-         * @description Owner session only; an API key gets 403 KYC_USE_ONBOARDING_LINK. {size} in bytes, at most 5 MiB. Returns {objectKey, uploadUrl, expiresAt, headers}: PUT the PDF to uploadUrl with exactly the headers in headers (Content-Type: application/pdf) and a body of exactly size bytes (the URL is signed over both), then pass objectKey to POST /v1/companies/{id}/kyc. An upload not submitted within a day is deleted, and so is one that is refused; an accepted one is filed with the case.
+         * Upload a register extract
+         * @description Owner session only; an API key gets 403 KYC_USE_ONBOARDING_LINK. {size} in bytes, at most 5 MiB. Returns {objectKey, uploadUrl, expiresAt, headers}: PUT the PDF to uploadUrl with exactly the headers in headers (Content-Type: application/pdf) and a body of exactly size bytes (the URL is signed over both), then pass objectKey to POST /v1/companies/{id}/kyc.
+         *
+         *     An upload not submitted within a day is deleted, and so is one that is refused; an accepted one is filed with the case.
          */
         post: operations["post_v1_companies_id_kyc_uploads"];
         delete?: never;
@@ -489,30 +357,12 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Simulate an inbound document to a sandbox company
-         * @description Owner, or an account-wide API key with manage. For a company created with sandbox: true only (409 NOT_SANDBOX otherwise), in production as well. {receiver, sender?, type | documentTypeId+processId, payload, as4MessageId?}: the document runs the real inbound path — validation, storage, webhooks, pull — as a test injection (TEST_INBOUND_INJECTED). receiver must be one of this company's participants; a sandbox company's participants are always local, so a simulated document never shares a mailbox with a real one. Sender, receiver and type may be left out when the payload is an SBD that carries them. Rate limited per account.
+         * Send a test document to a sandbox company
+         * @description Owner, or an account-wide API key with manage. For a company created with sandbox: true only (409 NOT_SANDBOX otherwise), in production as well. {receiver, sender?, type | documentTypeId+processId, payload, as4MessageId?}: the document runs the real inbound path — validation, storage, webhooks, pull — as a test injection (TEST_INBOUND_INJECTED).
+         *
+         *     receiver must be one of this company's participants; a sandbox company's participants are always local, so a simulated document never shares a mailbox with a real one. Sender, receiver and type may be left out when the payload is an SBD that carries them. Rate limited per account.
          */
         post: operations["post_v1_companies_id_test-inbound"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/desk-sessions/exchange": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Exchange a desk handoff token
-         * @description Unauthenticated: a single-use handoff token is itself the credential. A reused or expired token is 401 UNAUTHORIZED.
-         */
-        post: operations["post_v1_desk-sessions_exchange"];
         delete?: never;
         options?: never;
         head?: never;
@@ -527,8 +377,12 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The document-type register
-         * @description Unauthenticated. Every document type the platform sends and receives, with the alias that names it on POST /v1/messages and in a capability (type), its labels, its family, both Peppol identifiers, and those identifiers already taken apart into what a document states: rootElement, rootNamespace, customizationId, profileId and syntaxVersion. validated is false for a type with no validation artefacts, whose capability needs allowUnvalidated; structured is false for a type the canonical model does not read. families is the display order, and defaults the types a new participant is offered pre-checked, per country with otherwise for every other country. The register is code, so the answer changes only with a deploy: it carries an ETag and Cache-Control: public, max-age=300, and If-None-Match with that ETag answers 304 Not Modified with no body. New types and new fields are additive.
+         * List document types
+         * @description Unauthenticated. Every document type the platform sends and receives, with the alias that names it on POST /v1/messages and in a capability (type), its labels, its family, both Peppol identifiers, and those identifiers already taken apart into what a document states: rootElement, rootNamespace, customizationId, profileId and syntaxVersion.
+         *
+         *     validated is false for a type with no validation artefacts, whose capability needs allowUnvalidated; structured is false for a type the canonical model does not read.
+         *
+         *     families is the display order, and defaults the types a new participant is offered pre-checked, per country with otherwise for every other country. The register is code, so the answer changes only with a deploy: it carries an ETag and Cache-Control: public, max-age=300, and If-None-Match with that ETag answers 304 Not Modified with no body. New types and new fields are additive.
          */
         get: operations["get_v1_document-types"];
         put?: never;
@@ -548,7 +402,13 @@ export interface paths {
         };
         /**
          * Read the event feed
-         * @description Every event a webhook would carry, oldest first, kept 30 days, whether or not the account has a webhook. Returns {events, nextCursor}; each event is the webhook body (id, type, accountId, companyId, documentId, status, and externalReference, metadata, unvalidated, the message.mls fields and the message.outbound.ruleset_warning fields (ruleset, effectiveFrom, rules) when they apply) plus createdAt. id is the X-Peppol-Event-ID of the same event's webhook deliveries, so a client reading both deduplicates on it. nextCursor is always present: store it and ask again with ?after=; an empty page answers the same cursor back. Without ?after the feed starts at its oldest event. Events younger than 10 seconds are held back, so a page never skips one that commits late. ?type is one of the six event types, ?companyId narrows to one company, ?limit is at most 100 (default 50). A cursor this feed did not return is 400 VALIDATION_FAILED. Confined to the companies the credential reaches.
+         * @description Every event a webhook would carry, oldest first, kept 30 days, whether or not the account has a webhook. Returns {events, nextCursor}; each event is the webhook body (id, type, accountId, companyId, documentId, status, and externalReference, metadata, unvalidated, the message.mls fields and the message.outbound.ruleset_warning fields (ruleset, effectiveFrom, rules) when they apply) plus createdAt.
+         *
+         *     id is the X-Peppol-Event-ID of the same event's webhook deliveries, so a client reading both deduplicates on it.
+         *
+         *     nextCursor is always present: store it and ask again with ?after=; an empty page answers the same cursor back. Without ?after the feed starts at its oldest event. Events younger than 10 seconds are held back, so a page never skips one that commits late.
+         *
+         *     ?type is one of the six event types, ?companyId narrows to one company, ?limit is at most 100 (default 50). A cursor this feed did not return is 400 VALIDATION_FAILED. Confined to the companies the credential reaches.
          */
         get: operations["get_v1_events"];
         put?: never;
@@ -568,7 +428,11 @@ export interface paths {
         };
         /**
          * List uploaded files
-         * @description Every file uploaded to out/ over SFTP for the companies this credential reaches, newest first, and what became of it — including the ones that were refused and so never became a message. Returns {files: [{id, accountId, companyId, companyName?, accountName?, path, fileName, sizeBytes, sha256, status, reason?, detail?, documentId?, attempts, createdAt, updatedAt}], nextCursor?}. status is queued (waiting, possibly after a transient failure that reason names), processing, sent (became a message and was filed under out/sent/; the message's own status says how far it got) or failed (filed under out/failed/). A failed file carries reason and detail, the same two things written to its .error.json; when it became a message that will not be sent — it failed validation — documentId names it too. path is relative to the account's SFTP root and is where the file was uploaded, not where it was moved. Filter with ?status (one of the four; anything else is 400 VALIDATION_FAILED), ?companyId, ?from and ?to (on createdAt); page with ?cursor and ?limit (default 50, at most 100).
+         * @description Every file uploaded to out/ over SFTP for the companies this credential reaches, newest first, and what became of it — including the ones that were refused and so never became a message. Returns {files: [{id, accountId, companyId, companyName?, accountName?, path, fileName, sizeBytes, sha256, status, reason?, detail?, documentId?, attempts, createdAt, updatedAt}], nextCursor?}.
+         *
+         *     status is queued (waiting, possibly after a transient failure that reason names), processing, sent (became a message and was filed under out/sent/; the message's own status says how far it got) or failed (filed under out/failed/). A failed file carries reason and detail, the same two things written to its .error.json; when it became a message that will not be sent — it failed validation — documentId names it too.
+         *
+         *     path is relative to the account's SFTP root and is where the file was uploaded, not where it was moved. Filter with ?status (one of the four; anything else is 400 VALIDATION_FAILED), ?companyId, ?from and ?to (on createdAt); page with ?cursor and ?limit (default 50, at most 100).
          */
         get: operations["get_v1_files"];
         put?: never;
@@ -587,170 +451,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get uploaded file
+         * Get an uploaded file
          * @description One entry of GET /v1/files. A file of a company this credential does not reach is 404, like an id that does not exist.
          */
         get: operations["get_v1_files_id"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/kyc/onboarding/signatories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Choose who signs, by onboarding link
-         * @description Unauthenticated: {token, alternative?, signers}. Same as POST /v1/companies/{id}/kyc/signatories.
-         */
-        post: operations["post_v1_kyc_onboarding_signatories"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/kyc/onboarding/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Start company KYC, by onboarding link
-         * @description Unauthenticated: {token, objectKey} or {token, manual: {…}}. Same validation and responses as POST /v1/companies/{id}/kyc.
-         */
-        post: operations["post_v1_kyc_onboarding_submit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/kyc/onboarding/uploads": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Upload URL for a register extract, by onboarding link
-         * @description Unauthenticated: {token, size}. Same as POST /v1/companies/{id}/kyc/uploads for the link's company.
-         */
-        post: operations["post_v1_kyc_onboarding_uploads"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/kyc/onboarding/view": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Open a company onboarding link
-         * @description Unauthenticated: {token} from a hosted onboarding link is the credential, for the one company it was issued for. Returns {company: {name, countryCode, registrationNumber}, kyc: …}, the same kyc object as GET /v1/companies/{id}/kyc. An unknown, replaced or expired link is 400 KYC_ONBOARDING_LINK_INVALID.
-         */
-        post: operations["post_v1_kyc_onboarding_view"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/kyc/signing/decline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Decline a signing request
-         * @description Unauthenticated: {token}. The case stays open; the company's owner can choose other signatories. 204.
-         */
-        post: operations["post_v1_kyc_signing_decline"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/kyc/signing/sign": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sign the agreement for a company
-         * @description Unauthenticated: {token, typedName, accept: true}. Records the signature with the time, the client address and user agent, and the agreement's SHA-256, consuming the token. When the signatures on the case bind the company under its firmateckning the case becomes VERIFIED; a case without a readable firmateckning goes to MANUAL_REVIEW once everyone asked has signed. Returns {status}, the case status afterwards. 400 KYC_SIGNING_LINK_INVALID as for view.
-         */
-        post: operations["post_v1_kyc_signing_sign"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/kyc/signing/view": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Show a KYC signing request
-         * @description Unauthenticated: {token} from the mailed link is the credential, sent in the body so it never reaches an access log. Returns the company, the signer's name and role, the agreement version with its SHA-256, and a short-lived download url for the exact PDF being signed. An unknown, used, declined or expired token, or one whose case is no longer waiting for signatures, is 400 KYC_SIGNING_LINK_INVALID.
-         */
-        post: operations["post_v1_kyc_signing_view"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Current principal
-         * @description The signed-in user. session reports {authMethod: "password"|"sso", issuer, provider}, describing how they signed in; it is absent for an API key. Reachable even while user.mustChangePassword is true, when every other route is refused — so a client can tell why it is being refused. canViewBilling says whether GET /v1/billing will answer this caller: true for an owner, a user holding the billing.view grant, and a desk session; false for every API key. For a signed-in user, mfa is {enrolled, required, missing}: whether the user has an authenticator app, whether the account requires a second factor, and — when this session is held at that gate — which way out is left: "second-factor" (set up an app or a passkey) or "passkey-signin" (the user has a passkey and signed in with the password), "" otherwise. mfaEnrollmentRequired is true exactly when missing is set. Reachable while held at the gate.
-         */
-        get: operations["get_v1_me"];
         put?: never;
         post?: never;
         delete?: never;
@@ -767,14 +471,64 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List messages
-         * @description Documents belonging to the companies this credential reaches; ?companyId narrows to one. ?q matches the sender and receiver participant from the start of the value, case-sensitively, or the document id exactly — never a substring in the middle. ?counts=true without an explicit ?from covers the last 30 days rather than the account's whole history. ?type is an alias from the register (invoice, credit-note, …), which names a document type and process together, or a raw documentTypeId. ?outcome is one of the statistics outcomes and stands for a set of statuses: delivered (AS4_ACCEPTED, CUSTOMER_DELIVERED), failed (SEND_FAILED, DISCOVERY_FAILED, REJECTED, VALIDATION_UNAVAILABLE, VALIDATION_ERROR, CUSTOMER_DELIVERY_FAILED), invalid (VALIDATION_FAILED, BUSINESS_INVALID), pending (every other status) and parked, which matches no document: a parked payload never became one. ?status still applies inside ?outcome. ?source is network or test. ?sandbox is exclude (leave sandbox companies' documents out), only (just theirs) or include (both, the default when it is absent). All four narrow ?counts=true and format=csv as well, so with the same from/to days, scope, type, outcome and source, and sandbox=exclude unless the statistics were asked with includeSandbox=true, its per-status counts add up to the statistics' count. ?direction is INBOUND or OUTBOUND, ?status one document status, ?delivery=pending the inbound documents not yet delivered to the customer. An unknown direction, status, delivery, outcome, source or sandbox value is 400 VALIDATION_FAILED naming the values it takes; case is not significant. format=csv exports every document the filter matches, newest first, as one file — not one page: it reads the list page by page, up to 10000 rows. When the filter matches more, the answer carries X-Truncated: true and X-Next-Cursor; repeat the same request with ?cursor= set to that value for the next rows, until a response comes without the headers. ?limit and ?before do not apply to the export. ?externalReference= lists the documents with exactly that sender reference (case-sensitive, not unique: a resent invoice keeps its number); it is the last column of format=csv.
+         * List documents
+         * @description Documents belonging to the companies this credential reaches; ?companyId narrows to one.
+         *
+         *     ?q matches the sender and receiver participant from the start of the value, case-sensitively, or the document id exactly — never a substring in the middle.
+         *
+         *     ?counts=true without an explicit ?from covers the last 30 days rather than the account's whole history.
+         *
+         *     ?type is an alias from the register (invoice, credit-note, …), which names a document type and process together, or a raw documentTypeId.
+         *
+         *     ?outcome is one of the statistics outcomes and stands for a set of statuses: delivered (AS4_ACCEPTED, CUSTOMER_DELIVERED), failed (SEND_FAILED, DISCOVERY_FAILED, REJECTED, VALIDATION_UNAVAILABLE, VALIDATION_ERROR, CUSTOMER_DELIVERY_FAILED), invalid (VALIDATION_FAILED, BUSINESS_INVALID), pending (every other status) and parked, which matches no document: a parked payload never became one.
+         *
+         *     ?status still applies inside ?outcome.
+         *
+         *     ?source is network or test.
+         *
+         *     ?sandbox is exclude (leave sandbox companies' documents out), only (just theirs) or include (both, the default when it is absent). All four narrow ?counts=true and format=csv as well, so with the same from/to days, scope, type, outcome and source, and sandbox=exclude unless the statistics were asked with includeSandbox=true, its per-status counts add up to the statistics' count.
+         *
+         *     ?direction is INBOUND or OUTBOUND, ?status one document status, ?delivery=pending the inbound documents not yet delivered to the customer. An unknown direction, status, delivery, outcome, source or sandbox value is 400 VALIDATION_FAILED naming the values it takes; case is not significant.
+         *
+         *     format=csv exports every document the filter matches, newest first, as one file — not one page: it reads the list page by page, up to 10000 rows. When the filter matches more, the answer carries X-Truncated: true and X-Next-Cursor; repeat the same request with ?cursor= set to that value for the next rows, until a response comes without the headers.
+         *
+         *     ?limit and ?before do not apply to the export.
+         *
+         *     ?externalReference= lists the documents with exactly that sender reference (case-sensitive, not unique: a resent invoice keeps its number); it is the last column of format=csv.
          */
         get: operations["get_v1_messages"];
         put?: never;
         /**
-         * Submit outbound message
-         * @description Optional externalReference (your own name for the document, at most 128 characters, compared exactly) and metadata (at most 16 string values, keys up to 40 characters, values up to 256) are stored and returned as given on GET /v1/messages/{id}, the lists and every webhook body about the document; outside those bounds the request is 400 VALIDATION_FAILED. 202 with status QUEUED_VALIDATION is the usual answer: the document is checked against the Peppol rules after this request returns, not inside it, so the verdict is on a later GET rather than here: a passed document moves straight on to QUEUED and sending; VALIDATION_FAILED raises message.outbound.failed on the account's webhooks and is mailed to the company's notification contacts, with the findings on GET /v1/messages/{id}. VALIDATION_ERROR (a validator answer that cannot be read) and VALIDATION_UNAVAILABLE (no rules for the document and unvalidated sending not allowed) raise message.outbound.failed too, without the mail. A document type with no rules to check, sent under a capability that allows unvalidated documents, skips that step and is 201 with status UNVALIDATED: queued for sending like QUEUED, named so that the status says no rules were checked. A document whose rules the validator reports unavailable later becomes UNVALIDATED the same way when the capability allows it. A replayed Idempotency-Key is 200 with the current status. A key answers for 24 hours from its first use; after that it is unused, and the same key creates a new document. A payload that is a whole Standard Business Document is accepted: the envelope is taken off and the business document inside is what is stored and sent, under the platform's own SBDH. The envelope's sender, receiver, document type and process must then match the request's, or the request is 400 VALIDATION_FAILED. type is a document type alias from the register (invoice, credit-note, order, …); pint-aunz-invoice and pint-aunz-credit-note are Peppol PINT A-NZ, the billing format for Australian and New Zealand receivers, whose documentTypeId is under the peppol-doctype-wildcard scheme rather than busdox-docid-qns. The business document must be what it is sent as: its root element and namespace, its cbc:CustomizationID (exactly) and, when present, its cbc:ProfileID must be the ones documentTypeId and processId name, or the request is 400 VALIDATION_FAILED before anything is stored — a BIS Billing 3.0 invoice sent as pint-aunz-invoice, a PINT invoice sent as invoice, a credit note sent as invoice. A documentTypeId ending in the wildcard indicator * matches no document (BR-PDW-02: * belongs in SMP registrations only). A document that states no CustomizationID among the root's children (CII, non-UBL) is not checked on that point. sender and receiver must both be among the business document's cbc:EndpointID values (schemeID:value; an organisation number written with a hyphen and a difference in case still match), or the request is 400 PARTY_MISMATCH before anything is stored, with a message naming the request's value and the document's endpoints. To send for a customer, send from the customer's own participant. A document that names no EndpointID (CII, non-UBL) is not checked on that point. Only sender and the payload are required. receiver left out is read off the document: the one cbc:EndpointID that is not the sender; a document that names no other party, or more than one (a delivery party, say), is 400 VALIDATION_FAILED asking for receiver. type, documentTypeId and processId all left out are read off the document as POST /v1/validate does — root element and namespace, cbc:CustomizationID and cbc:ProfileID — and a document that does not state them (CII, non-UBL) is 400 VALIDATION_FAILED asking for type. Whatever is stated is held to the document as above; the response's receiver, documentTypeId and processId say what was used. ?dryRun=true tries the send: every check above, by the same code, and then the Peppol validation the send would run later, inline — with nothing stored, queued or sent. The Idempotency-Key is neither looked up nor taken, and a payloadObjectKey upload is left in place, so the same request without dryRun is the real send. A refusal is the error and code the send would answer. Otherwise 200 {dryRun: true, companyId, sender, receiver, type, documentTypeId, processId, validated, valid, findings, ruleset, vesid, upcoming}, the findings, ruleset, vesid and upcoming as POST /v1/validate answers them: valid false is a document the send would accept and then fail as VALIDATION_FAILED. validated false and valid null is a type with no rules that its capability allows to go unvalidated. dryRun accepts only true or false; any other value is 400 VALIDATION_FAILED and sends nothing. It shares POST /v1/validate's rate limit. ?wait=N (whole seconds, 0 to 30) holds the answer until the document's validation is decided, or N seconds pass: a verdict in time is 201 with that status (QUEUED, VALIDATION_FAILED, …), a wait that runs out the usual 202 QUEUED_VALIDATION, a replay 200 either way. Any other wait value is 400 VALIDATION_FAILED and sends nothing. Two test receivers take a real send that never leaves the platform: 0007:0000000000 accepts it (AS4_ACCEPTED, then an MLS AP, recipientStatus CONFIRMED) and 0007:0000000018 rejects it (AS4_ACCEPTED, then an MLS RE with one BV issue). Name one as the document's buyer EndpointID. Every check and the validation run as usual; any sender may use them, a sandbox's local participants included; the document is source test and never billed.
+         * Send a document
+         * @description Optional externalReference (your own name for the document, at most 128 characters, compared exactly) and metadata (at most 16 string values, keys up to 40 characters, values up to 256) are stored and returned as given on GET /v1/messages/{id}, the lists and every webhook body about the document; outside those bounds the request is 400 VALIDATION_FAILED. 202 with status QUEUED_VALIDATION is the usual answer: the document is checked against the Peppol rules after this request returns, not inside it, so the verdict is on a later GET rather than here: a passed document moves straight on to QUEUED and sending; VALIDATION_FAILED raises message.outbound.failed on the account's webhooks and is mailed to the company's notification contacts, with the findings on GET /v1/messages/{id}. VALIDATION_ERROR (a validator answer that cannot be read) and VALIDATION_UNAVAILABLE (no rules for the document and unvalidated sending not allowed) raise message.outbound.failed too, without the mail.
+         *
+         *     A document type with no rules to check, sent under a capability that allows unvalidated documents, skips that step and is 201 with status UNVALIDATED: queued for sending like QUEUED, named so that the status says no rules were checked. A document whose rules the validator reports unavailable later becomes UNVALIDATED the same way when the capability allows it. A replayed Idempotency-Key is 200 with the current status.
+         *
+         *     A key answers for 24 hours from its first use; after that it is unused, and the same key creates a new document. A payload that is a whole Standard Business Document is accepted: the envelope is taken off and the business document inside is what is stored and sent, under the platform's own SBDH. The envelope's sender, receiver, document type and process must then match the request's, or the request is 400 VALIDATION_FAILED.
+         *
+         *     type is a document type alias from the register (invoice, credit-note, order, …); pint-aunz-invoice and pint-aunz-credit-note are Peppol PINT A-NZ, the billing format for Australian and New Zealand receivers, whose documentTypeId is under the peppol-doctype-wildcard scheme rather than busdox-docid-qns. The business document must be what it is sent as: its root element and namespace, its cbc:CustomizationID (exactly) and, when present, its cbc:ProfileID must be the ones documentTypeId and processId name, or the request is 400 VALIDATION_FAILED before anything is stored — a BIS Billing 3.0 invoice sent as pint-aunz-invoice, a PINT invoice sent as invoice, a credit note sent as invoice. A documentTypeId ending in the wildcard indicator * matches no document (BR-PDW-02: * belongs in SMP registrations only).
+         *
+         *     A document that states no CustomizationID among the root's children (CII, non-UBL) is not checked on that point.
+         *
+         *     sender and receiver must both be among the business document's cbc:EndpointID values (schemeID:value; an organisation number written with a hyphen and a difference in case still match), or the request is 400 PARTY_MISMATCH before anything is stored, with a message naming the request's value and the document's endpoints. To send for a customer, send from the customer's own participant. A document that names no EndpointID (CII, non-UBL) is not checked on that point.
+         *
+         *     Only sender and the payload are required.
+         *
+         *     receiver left out is read off the document: the one cbc:EndpointID that is not the sender; a document that names no other party, or more than one (a delivery party, say), is 400 VALIDATION_FAILED asking for receiver.
+         *
+         *     type, documentTypeId and processId all left out are read off the document as POST /v1/validate does — root element and namespace, cbc:CustomizationID and cbc:ProfileID — and a document that does not state them (CII, non-UBL) is 400 VALIDATION_FAILED asking for type. Whatever is stated is held to the document as above; the response's receiver, documentTypeId and processId say what was used.
+         *
+         *     ?dryRun=true tries the send: every check above, by the same code, and then the Peppol validation the send would run later, inline — with nothing stored, queued or sent. The Idempotency-Key is neither looked up nor taken, and a payloadObjectKey upload is left in place, so the same request without dryRun is the real send. A refusal is the error and code the send would answer.
+         *
+         *     Otherwise 200 {dryRun: true, companyId, sender, receiver, type, documentTypeId, processId, validated, valid, findings, ruleset, vesid, upcoming}, the findings, ruleset, vesid and upcoming as POST /v1/validate answers them: valid false is a document the send would accept and then fail as VALIDATION_FAILED.
+         *
+         *     validated false and valid null is a type with no rules that its capability allows to go unvalidated.
+         *
+         *     dryRun accepts only true or false; any other value is 400 VALIDATION_FAILED and sends nothing. It shares POST /v1/validate's rate limit.
+         *
+         *     ?wait=N (whole seconds, 0 to 30) holds the answer until the document's validation is decided, or N seconds pass: a verdict in time is 201 with that status (QUEUED, VALIDATION_FAILED, …), a wait that runs out the usual 202 QUEUED_VALIDATION, a replay 200 either way. Any other wait value is 400 VALIDATION_FAILED and sends nothing. Two test receivers take a real send that never leaves the platform: 0007:0000000000 accepts it (AS4_ACCEPTED, then an MLS AP, recipientStatus CONFIRMED) and 0007:0000000018 rejects it (AS4_ACCEPTED, then an MLS RE with one BV issue).
+         *
+         *     Name one as the document's buyer EndpointID. Every check and the validation run as usual; any sender may use them, a sandbox's local participants included; the document is source test and never billed.
          */
         post: operations["post_v1_messages"];
         delete?: never;
@@ -793,8 +547,14 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Presign payload upload
-         * @description Body {bytes, sender?, companyId?}. sender is the participant the document will be sent from, as on POST /v1/messages: the upload is filed under that sender's company, which is where the send looks for it, so a caller reaching several companies needs no company id. companyId names the company directly; given both, they must agree (else 400 VALIDATION_FAILED); given neither, a caller reaching more than one company gets 400 COMPANY_REQUIRED. A sender outside the caller's companies is 400 SENDER_NOT_FOUND, as on the send. Answers {payloadObjectKey, uploadUrl, expiresAt, headers}. The uploadUrl is signed over Content-Type and Content-Length: PUT the document with exactly the headers in headers (Content-Type: application/xml) and a body of exactly bytes long, or the object store answers 403 SignatureDoesNotMatch. Then send the key with POST /v1/messages or check it with POST /v1/validate.
+         * Upload a large document
+         * @description Body {bytes, sender?, companyId?}.
+         *
+         *     sender is the participant the document will be sent from, as on POST /v1/messages: the upload is filed under that sender's company, which is where the send looks for it, so a caller reaching several companies needs no company id.
+         *
+         *     companyId names the company directly; given both, they must agree (else 400 VALIDATION_FAILED); given neither, a caller reaching more than one company gets 400 COMPANY_REQUIRED. A sender outside the caller's companies is 400 SENDER_NOT_FOUND, as on the send. Answers {payloadObjectKey, uploadUrl, expiresAt, headers}.
+         *
+         *     The uploadUrl is signed over Content-Type and Content-Length: PUT the document with exactly the headers in headers (Content-Type: application/xml) and a body of exactly bytes long, or the object store answers 403 SignatureDoesNotMatch. Then send the key with POST /v1/messages or check it with POST /v1/validate.
          */
         post: operations["post_v1_messages_uploads"];
         delete?: never;
@@ -811,8 +571,18 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get message
-         * @description deliveryUnconfirmed is true on an outbound SEND_FAILED message whose send outcome the platform could not learn: the receiver may already have it, and it is never resent. Show it as unconfirmed rather than failed, and do not resend it either. mlsEvents lists the Peppol Message Level Status trail, oldest first. An entry with direction INBOUND and status RECEIVED is an MLS the receiving Service Provider sent about this outbound message: responseCode is AP (delivered with confirmation), AB (delivered without) or RE (rejected); description is its text; issues is its line responses [{location, reasonCode, description}] with reasonCode SV, BV, BW or FD, and reasons their distinct codes; receivedAt, mlsId and sender (the SP's 0242 participant) identify it. A message's own status does not change on an MLS. Entries with direction OUTBOUND (PENDING/SENT/FAILED/SKIPPED) are history from before 2026-10-08 and carry none of these fields. The message.mls webhook carries mlsEventId, responseCode, reasons and issues for the entry it announces. recipientStatus, on an outbound message once the receiving Service Provider's MLS has arrived, is that status in one word: CONFIRMED (AP, delivered with confirmation), DELIVERED (AB, delivered without) or REJECTED (RE), with recipientStatusReasons the distinct reason codes of a rejection. Outbound documents ask for a status on every send (MLS_TYPE=ALWAYS_SEND), but a receiving Service Provider that does not support MLS sends none, so an absent recipientStatus means no answer, not a failure. validation {ruleset, vesid, validatedAt} says which Peppol rules decided the message's validation status: the release in force when it was submitted (outbound) or received (inbound), not when it was checked, so a message submitted the day before a new release becomes mandatory is judged by the old one. Absent while it has not been validated, for a type with no rules, and for messages validated before 2026-11-24. validation.upcoming {ruleset, vesid, effectiveFrom, valid, findings} is an outbound message checked against the release scheduled next, shown until that release takes effect: a forecast that never changes the message's status. When valid is false, message.outbound.ruleset_warning was raised for it.
+         * Get a document
+         * @description deliveryUnconfirmed is true on an outbound SEND_FAILED message whose send outcome the platform could not learn: the receiver may already have it, and it is never resent. Show it as unconfirmed rather than failed, and do not resend it either.
+         *
+         *     mlsEvents lists the Peppol Message Level Status trail, oldest first. An entry with direction INBOUND and status RECEIVED is an MLS the receiving Service Provider sent about this outbound message: responseCode is AP (delivered with confirmation), AB (delivered without) or RE (rejected); description is its text; issues is its line responses [{location, reasonCode, description}] with reasonCode SV, BV, BW or FD, and reasons their distinct codes; receivedAt, mlsId and sender (the SP's 0242 participant) identify it. A message's own status does not change on an MLS.
+         *
+         *     Entries with direction OUTBOUND (PENDING/SENT/FAILED/SKIPPED) are history from before 2026-10-08 and carry none of these fields. The message.mls webhook carries mlsEventId, responseCode, reasons and issues for the entry it announces.
+         *
+         *     recipientStatus, on an outbound message once the receiving Service Provider's MLS has arrived, is that status in one word: CONFIRMED (AP, delivered with confirmation), DELIVERED (AB, delivered without) or REJECTED (RE), with recipientStatusReasons the distinct reason codes of a rejection. Outbound documents ask for a status on every send (MLS_TYPE=ALWAYS_SEND), but a receiving Service Provider that does not support MLS sends none, so an absent recipientStatus means no answer, not a failure.
+         *
+         *     validation {ruleset, vesid, validatedAt} says which Peppol rules decided the message's validation status: the release in force when it was submitted (outbound) or received (inbound), not when it was checked, so a message submitted the day before a new release becomes mandatory is judged by the old one. Absent while it has not been validated, for a type with no rules, and for messages validated before 2026-11-24.
+         *
+         *     validation.upcoming {ruleset, vesid, effectiveFrom, valid, findings} is an outbound message checked against the release scheduled next, shown until that release takes effect: a forecast that never changes the message's status. When valid is false, message.outbound.ruleset_warning was raised for it.
          */
         get: operations["get_v1_messages_id"];
         put?: never;
@@ -832,7 +602,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Ack inbound message */
+        /** Mark a received document as collected */
         post: operations["post_v1_messages_id_ack"];
         delete?: never;
         options?: never;
@@ -847,70 +617,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Download message payload */
+        /**
+         * Download the business document
+         * @description The business document itself, the XML exactly as the platform stored it, not JSON. Content-Type is application/xml; charset=utf-8, Content-Disposition is an attachment named <id>.xml, and the ETag is the stored document's SHA-256, which never changes for a message.
+         */
         get: operations["get_v1_messages_id_payload"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/mfa": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Turn off your authenticator app
-         * @description Body {currentPassword}. Turns the signed-in user's two-factor off and discards their recovery codes; sessions stay signed in. 400 CURRENT_PASSWORD_REQUIRED or CURRENT_PASSWORD_INVALID, 409 MFA_NOT_ENROLLED when it is not on, 429 RATE_LIMITED after repeated wrong passwords. When the account requires two-factor, the next request is held at the gate until a new factor is set up: this is how a user moves to a new phone. 403 FORBIDDEN for credentials without a person.
-         */
-        delete: operations["delete_v1_mfa"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/mfa/confirm": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Confirm authenticator app enrolment
-         * @description Body {code} from the app. Turns two-factor on and answers {recoveryCodes}: ten one-time codes, shown this once and never again, each of which stands in for an app code once. Every other session of the user is signed out; this one stays. 400 MFA_CODE_INVALID for a wrong code, 409 MFA_NOT_ENROLLED without POST /v1/mfa/enroll first, 409 MFA_ALREADY_ENROLLED when it is already on, 429 RATE_LIMITED after repeated wrong codes. Reachable while held at the gate. 403 FORBIDDEN for credentials without a person, as above.
-         */
-        post: operations["post_v1_mfa_confirm"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/mfa/enroll": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Begin authenticator app enrolment
-         * @description Answers {secret, otpauthUrl} for the signed-in user; show otpauthUrl as a QR code. Nothing is turned on until POST /v1/mfa/confirm, and calling this again replaces the secret. 409 MFA_ALREADY_ENROLLED when an app is already on; turn it off first. Reachable while the account's two-factor requirement holds the session at the gate. An API key, a desk session and an OIDC bearer get 403 FORBIDDEN: an authenticator app belongs to a person.
-         */
-        post: operations["post_v1_mfa_enroll"];
         delete?: never;
         options?: never;
         head?: never;
@@ -927,8 +640,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Bulk discover remote participants
-         * @description {companyId?, ids: ["scheme:value", ...]}, at most 100 ids (400 VALIDATION_FAILED naming the cap above that, or on an empty list). Looked up concurrently, capped at 8 against SMP. Returns {results: [{id, status: OK|INVALID|ERROR, canonicalId?, exists?, smpUrl?, capabilities?, testReceiver?, error?}]}, one entry per id in the same order, even when some ids fail: INVALID is a malformed id (no SMP call made), ERROR is a failed SMP call, and OK carries exists (false is a normal, common answer, not an error). A test receiver (0007:0000000000, 0007:0000000018) answers exists:true with the invoice and credit-note capabilities, no smpUrl and testReceiver:true: it is on no SMP and is answered without one.
+         * Look up many participants
+         * @description {companyId?, ids: ["scheme:value", ...]}, at most 100 ids (400 VALIDATION_FAILED naming the cap above that, or on an empty list). Looked up concurrently, capped at 8 against SMP. Returns {results: [{id, status: OK|INVALID|ERROR, canonicalId?, exists?, smpUrl?, capabilities?, testReceiver?, error?}]}, one entry per id in the same order, even when some ids fail: INVALID is a malformed id (no SMP call made), ERROR is a failed SMP call, and OK carries exists (false is a normal, common answer, not an error).
+         *
+         *     A test receiver (0007:0000000000, 0007:0000000018) answers exists:true with the invoice and credit-note capabilities, no smpUrl and testReceiver:true: it is on no SMP and is answered without one.
          */
         post: operations["post_v1_network_participants_lookup"];
         delete?: never;
@@ -945,8 +660,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Search counterparties by name or national number
-         * @description ?q is either a full Peppol id, looked up exactly (response mode "id"), or free text tried as a national registration number against every scheme we know a format rule for and, where the Peppol Directory is available, as a name or number query against it (mode "search"). Search results are confirmed hits only: a candidate that does not parse, is not registered, or returns no Directory match all give zero rows rather than a not-found entry — unlike "id" mode, whose exists:false is definitive, a search miss only means this route did not find them. directoryConfigured says whether the Directory was consulted, so an empty result can be explained as "they may simply never have published a business card". A test receiver (0007:0000000000, 0007:0000000018) answers exists:true with the invoice and credit-note capabilities, no smpUrl and testReceiver:true: it is on no SMP and is answered without one. The search answers both, named, for q "test", "test receiver(s)" or "testmottagare".
+         * Search participants by name or number
+         * @description ?q is either a full Peppol id, looked up exactly (response mode "id"), or free text tried as a national registration number against every scheme we know a format rule for and, where the Peppol Directory is available, as a name or number query against it (mode "search"). Search results are confirmed hits only: a candidate that does not parse, is not registered, or returns no Directory match all give zero rows rather than a not-found entry — unlike "id" mode, whose exists:false is definitive, a search miss only means this route did not find them.
+         *
+         *     directoryConfigured says whether the Directory was consulted, so an empty result can be explained as "they may simply never have published a business card". A test receiver (0007:0000000000, 0007:0000000018) answers exists:true with the invoice and credit-note capabilities, no smpUrl and testReceiver:true: it is on no SMP and is answered without one. The search answers both, named, for q "test", "test receiver(s)" or "testmottagare".
          */
         get: operations["get_v1_network_participants_search"];
         put?: never;
@@ -965,8 +682,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Discover remote participant
-         * @description {exists, canonicalId, smpUrl, capabilities, testReceiver?}. exists:false is definitive: the id is not registered on Peppol. A test receiver (0007:0000000000, 0007:0000000018) answers exists:true with the invoice and credit-note capabilities, no smpUrl and testReceiver:true: it is on no SMP and is answered without one.
+         * Look up a participant
+         * @description {exists, canonicalId, smpUrl, capabilities, testReceiver?}.
+         *
+         *     exists:false is definitive: the id is not registered on Peppol. A test receiver (0007:0000000000, 0007:0000000018) answers exists:true with the invoice and credit-note capabilities, no smpUrl and testReceiver:true: it is on no SMP and is answered without one.
          */
         get: operations["get_v1_network_participants_peppolId"];
         put?: never;
@@ -985,27 +704,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Discover remote capabilities
+         * List what a participant receives
          * @description {capabilities: [documentTypeId, ...]} the participant is registered to receive. A test receiver (0007:0000000000, 0007:0000000018) answers exists:true with the invoice and credit-note capabilities, no smpUrl and testReceiver:true: it is on no SMP and is answered without one.
          */
         get: operations["get_v1_network_participants_peppolId_capabilities"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/openapi.json": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** OpenAPI 3 document */
-        get: operations["get_v1_openapi.json"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1023,13 +725,19 @@ export interface paths {
         };
         /**
          * List participants
-         * @description Every participant under the companies the principal reaches; ?companyId narrows to one of them. ?status and ?q (scheme:value, canonicalId, name, identifier) filter in memory like the admin list. ?counts=true adds a status breakdown for the account (scoped by companyId when given). An unknown status, direction or category value is 400 VALIDATION_FAILED naming the values the parameter takes; case is not significant.
+         * @description Every participant under the companies the principal reaches; ?companyId narrows to one of them.
+         *
+         *     ?status and ?q (scheme:value, canonicalId, name, identifier) filter in memory like the admin list.
+         *
+         *     ?counts=true adds a status breakdown for the account (scoped by companyId when given). An unknown status, direction or category value is 400 VALIDATION_FAILED naming the values the parameter takes; case is not significant.
          */
         get: operations["get_v1_participants"];
         put?: never;
         /**
-         * Create participant
-         * @description Optional capabilities: an array of {documentTypeId, processId, direction, allowUnvalidated}, the same element shape as POST /v1/participants/{id}/capabilities, document type aliases included ({"type": "invoice"} or {"documentTypeId": "invoice"}). Created in the same transaction as the participant. Omitted = no capabilities, matching pre-existing behaviour. A Peppol id another live participant holds, on any account, is 409 CONFLICT; one whose participant is DEACTIVATED is free to register again (DEACTIVATING still holds it until the SMP entry is gone).
+         * Register a participant
+         * @description Optional capabilities: an array of {documentTypeId, processId, direction, allowUnvalidated}, the same element shape as POST /v1/participants/{id}/capabilities, document type aliases included ({"type": "invoice"} or {"documentTypeId": "invoice"}). Created in the same transaction as the participant. Omitted = no capabilities, matching pre-existing behaviour.
+         *
+         *     A Peppol id another live participant holds, on any account, is 409 CONFLICT; one whose participant is DEACTIVATED is free to register again (DEACTIVATING still holds it until the SMP entry is gone).
          */
         post: operations["post_v1_participants"];
         delete?: never;
@@ -1045,18 +753,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get participant */
+        /** Get a participant */
         get: operations["get_v1_participants_id"];
         put?: never;
         post?: never;
         /**
-         * Deactivate, then delete, a participant
-         * @description On any status but DEACTIVATED it deactivates and returns the participant: one with anything in SMP becomes DEACTIVATING and stays published for the unpublish grace, anything else becomes DEACTIVATED. On a participant already DEACTIVATED it deletes it instead and answers 204 No Content: the participant leaves every list and count, GET /v1/participants/{id} answers 404, and its identifier is free again in its company. Calling DELETE until it answers 204 therefore takes a participant all the way off. The deletion is soft — documents, usage and billing keep pointing at it — and is audited as PARTICIPANT_DELETED. Participant responses carry deletedAt, always null on the customer API.
+         * Remove a participant
+         * @description On any status but DEACTIVATED it deactivates and returns the participant: one with anything in SMP becomes DEACTIVATING and stays published for the unpublish grace, anything else becomes DEACTIVATED. On a participant already DEACTIVATED it deletes it instead and answers 204 No Content: the participant leaves every list and count, GET /v1/participants/{id} answers 404, and its identifier is free again in its company. Calling DELETE until it answers 204 therefore takes a participant all the way off.
+         *
+         *     The deletion is soft — documents, usage and billing keep pointing at it — and is audited as PARTICIPANT_DELETED. Participant responses carry deletedAt, always null on the customer API.
          */
         delete: operations["delete_v1_participants_id"];
         options?: never;
         head?: never;
-        /** Update participant name/identifier */
+        /** Update a participant */
         patch: operations["patch_v1_participants_id"];
         trace?: never;
     };
@@ -1068,7 +778,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Participant audit log
+         * Participant history
          * @description Filter with ?eventType, ?q (substring over actor and metadata), ?from/?to. Each row carries actorName and, where the event has one, targetType/targetId/targetName/targetSub (A8) — no targetHref, since this surface has no admin pages to link a company/account/login target to. An unknown status, direction or category value is 400 VALIDATION_FAILED naming the values the parameter takes; case is not significant.
          */
         get: operations["get_v1_participants_id_audit"];
@@ -1088,19 +798,25 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get Peppol Directory business card
-         * @description The business card published to the Peppol Directory for this participant: {participantId, custom, entities: [{names: [{name, language?}], countryCode, geographicalInformation?, identifiers: [{scheme, value}], websites: [url], contacts: [{type?, name?, phoneNumber?, email?}], additionalInformation?, registrationDate?}]}. custom is false when no card has been set and entities is the default built from the company's name and country — what is published until a card is PUT.
+         * Get the business card
+         * @description The business card published to the Peppol Directory for this participant: {participantId, custom, entities: [{names: [{name, language?}], countryCode, geographicalInformation?, identifiers: [{scheme, value}], websites: [url], contacts: [{type?, name?, phoneNumber?, email?}], additionalInformation?, registrationDate?}]}.
+         *
+         *     custom is false when no card has been set and entities is the default built from the company's name and country — what is published until a card is PUT.
          */
         get: operations["get_v1_participants_id_business-card"];
         /**
-         * Set Peppol Directory business card
-         * @description Replaces the whole card with {entities: [...]} (participantId and custom are accepted and ignored, so a GET response can be sent back as is) and queues it for republishing. At least one entity, each with at least one name (at most 256 characters); countryCode is ISO 3166-1 alpha-2; language a two- or three-letter ISO 639 code; registrationDate YYYY-MM-DD; websites absolute http(s) URLs; email a bare address; at most 20 entities, 10 names, 20 identifiers, 10 websites and 20 contacts per entity. Anything else is 400 VALIDATION_FAILED naming the field. Answers the stored card, same shape as GET. Audited as BUSINESS_CARD_UPDATED. Published only while the participant is ACTIVE on the network.
+         * Set the business card
+         * @description Replaces the whole card with {entities: [...]} (participantId and custom are accepted and ignored, so a GET response can be sent back as is) and queues it for republishing. At least one entity, each with at least one name (at most 256 characters); countryCode is ISO 3166-1 alpha-2; language a two- or three-letter ISO 639 code; registrationDate YYYY-MM-DD; websites absolute http(s) URLs; email a bare address; at most 20 entities, 10 names, 20 identifiers, 10 websites and 20 contacts per entity. Anything else is 400 VALIDATION_FAILED naming the field.
+         *
+         *     Answers the stored card, same shape as GET. Audited as BUSINESS_CARD_UPDATED. Published only while the participant is ACTIVE on the network.
          */
         put: operations["put_v1_participants_id_business-card"];
         post?: never;
         /**
-         * Revert to default business card
-         * @description Drops the stored card; the default built from the company's name and country is republished. Answers that default (custom false). A no-op when no card is stored. Audited as BUSINESS_CARD_DELETED.
+         * Reset the business card
+         * @description Drops the stored card; the default built from the company's name and country is republished. Answers that default (custom false). A no-op when no card is stored.
+         *
+         *     Audited as BUSINESS_CARD_DELETED.
          */
         delete: operations["delete_v1_participants_id_business-card"];
         options?: never;
@@ -1115,11 +831,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List capabilities */
+        /** List what a participant receives */
         get: operations["get_v1_participants_id_capabilities"];
         put?: never;
         /**
-         * Add capability
+         * Add a document type it receives
          * @description {documentTypeId, processId, direction, allowUnvalidated} with canonical Peppol identifiers, or a document type alias as on POST /v1/messages: {type: "invoice", direction} — or the alias as documentTypeId with no processId. Stored canonical; an unknown alias, or a type that contradicts the ids given with it, is 400 VALIDATION_FAILED.
          */
         post: operations["post_v1_participants_id_capabilities"];
@@ -1139,7 +855,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Remove capability */
+        /** Remove a document type it receives */
         delete: operations["delete_v1_participants_id_capabilities_capability"];
         options?: never;
         head?: never;
@@ -1155,73 +871,9 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Participant SMP migration */
+        /** Move a participant from another provider */
         post: operations["post_v1_participants_id_migration"];
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/passkeys": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List your passkeys
-         * @description {passkeys:[{id, name, aaguid, transports, createdAt, lastUsedAt}]} for the signed-in user. An API key has no passkeys and gets 403: a passkey belongs to a person, not to an account.
-         */
-        get: operations["get_v1_passkeys"];
-        put?: never;
-        /**
-         * Finish passkey registration
-         * @description {name, id, attestationObject, clientDataJSON, transports}, the binary members base64url. The challenge must be one issued to this same user, and must not have been used already.
-         */
-        post: operations["post_v1_passkeys"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/passkeys/challenge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Begin passkey registration
-         * @description Returns {publicKey}: PublicKeyCredentialCreationOptions for the signed-in user, with their existing credentials in excludeCredentials so one authenticator cannot hold two passkeys for the same account.
-         */
-        post: operations["post_v1_passkeys_challenge"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/passkeys/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Remove a passkey
-         * @description Removing the last one is allowed and needs no confirmation: every user always has a password, so a passkey is an alternative sign-in method rather than the only one.
-         */
-        delete: operations["delete_v1_passkeys_id"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1234,7 +886,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** SFTP connection details (host, port, host key fingerprint, per-login root and layout, file settings) */
+        /** Get SFTP connection details */
         get: operations["get_v1_sftp_connection"];
         put?: never;
         post?: never;
@@ -1253,7 +905,9 @@ export interface paths {
         };
         /**
          * List SFTP logins
-         * @description A credential confined to particular companies sees only the logins belonging to them; a login with no company reaches the whole account and is visible only to credentials that do too. ?companyId narrows to one company; an account-wide login stays in view whichever company is asked for.
+         * @description A credential confined to particular companies sees only the logins belonging to them; a login with no company reaches the whole account and is visible only to credentials that do too.
+         *
+         *     ?companyId narrows to one company; an account-wide login stays in view whichever company is asked for.
          */
         get: operations["get_v1_sftp_logins"];
         put?: never;
@@ -1278,71 +932,10 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Reset SFTP login password
+         * Reset an SFTP password
          * @description {resetPassword: true} and nothing else: the new password is in the response, once. Changing the authentication method, disabling a login, setting a password directly or moving it between companies is 400 OPERATOR_MANAGED — ask us instead. Owner or company admin, the latter only for a login belonging to one of its own companies.
          */
         patch: operations["patch_v1_sftp_logins_id"];
-        trace?: never;
-    };
-    "/v1/sso/identities": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List SSO identities */
-        get: operations["get_v1_sso_identities"];
-        put?: never;
-        /**
-         * Link SSO identity
-         * @description Session principal or API key. For a session, the token's email must match the caller's own account email or the request is refused with 400 SSO_EMAIL_MISMATCH — an API key has no user to match against and keeps the unrestricted automation path.
-         */
-        post: operations["post_v1_sso_identities"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/sso/identities/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Unlink SSO identity
-         * @description An owner may remove any identity in the account; any other signed-in user only one whose email is their own (403 FORBIDDEN otherwise); an API key keeps the account-wide automation path.
-         */
-        delete: operations["delete_v1_sso_identities_id"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/sso/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Customer SSO configuration
-         * @description Unauthenticated: {configured, provider, issuer, passkeysEnabled}, so a sign-in page can show or hide the single sign-on button, and label it with the right provider name, before anyone has signed in.
-         */
-        get: operations["get_v1_sso_status"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
     "/v1/stream": {
@@ -1352,7 +945,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Customer live stream (WebSocket) */
+        /**
+         * Open the live stream
+         * @description A WebSocket, not a JSON response: send an Upgrade request and the answer is 101 Switching Protocols. Authenticate either with ?ticket= from POST /v1/stream-tickets (for a browser) or with the usual credential header, in which case ?documentId= narrows the stream to one document. A missing, expired or already used ticket is 401 UNAUTHORIZED.
+         *
+         *     Once open, the server sends one text message per event, each a JSON StreamEvent {id, type, accountId, companyId, documentId, participantId, status, responseCode, at}, for the companies the credential reaches; it sends nothing else but WebSocket pings, and reads nothing from the client. The stream is a live notification of change, not a durable feed: events published while no connection is open are not replayed, and a client that falls behind loses events rather than slowing the server, so read GET /v1/events or GET /v1/messages to catch up after a reconnect.
+         */
         get: operations["get_v1_stream"];
         put?: never;
         post?: never;
@@ -1371,7 +969,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Issue customer stream ticket */
+        /**
+         * Get a live-stream ticket
+         * @description A one-time ticket for opening GET /v1/stream from a browser, which cannot set an Authorization header on a WebSocket upgrade: connect to path with ?ticket= before expiresAt. The ticket carries this credential's account and companies; redeeming it once uses it up. An optional JSON body {documentId} narrows the stream to that one document, which must be one this credential can read (404 otherwise).
+         */
         post: operations["post_v1_stream-tickets"];
         delete?: never;
         options?: never;
@@ -1387,8 +988,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Account usage
-         * @description Metered events for the caller's account in [from, to) (default: the last 24 hours): totals per kind and the same per company, for re-billing. ?companyId narrows to one company the principal reaches; format=csv exports accountId,companyId,kind,count.
+         * Get usage
+         * @description Metered events for the caller's account in [from, to) (default: the last 24 hours): totals per kind and the same per company, for re-billing.
+         *
+         *     ?companyId narrows to one company the principal reaches; format=csv exports accountId,companyId,kind,count.
          */
         get: operations["get_v1_usage"];
         put?: never;
@@ -1408,13 +1011,25 @@ export interface paths {
         };
         /**
          * List users
-         * @description Owner or company admin. An owner sees every user under the account; a company admin sees only the users whose companies lie entirely inside its own, plus itself. ?companyId narrows to the users who reach that company; a user with no confinement reaches every company and stays in view. Every user carries status ("active" | "inactive"); a deactivated one also carries disabledAt, and erasableAt once it can be erased. Only active users are listed unless ?include=inactive; any other value is 400 VALIDATION_FAILED. Every user carries grants, the rights stored for them on top of their role (today only "billing.view"); it is always an array, and always empty for an owner, who holds every grant implicitly. mfaEnrolled says whether the user has an authenticator app turned on, and passkeyCount how many passkeys they hold (DELETE /v1/users/{id}/passkeys removes them).
+         * @description Owner or company admin. An owner sees every user under the account; a company admin sees only the users whose companies lie entirely inside its own, plus itself.
+         *
+         *     ?companyId narrows to the users who reach that company; a user with no confinement reaches every company and stays in view. Every user carries status ("active" | "inactive"); a deactivated one also carries disabledAt, and erasableAt once it can be erased. Only active users are listed unless ?include=inactive; any other value is 400 VALIDATION_FAILED.
+         *
+         *     Every user carries grants, the rights stored for them on top of their role (today only "billing.view"); it is always an array, and always empty for an owner, who holds every grant implicitly.
+         *
+         *     mfaEnrolled says whether the user has an authenticator app turned on, and passkeyCount how many passkeys they hold (DELETE /v1/users/{id}/passkeys removes them).
          */
         get: operations["get_v1_users"];
         put?: never;
         /**
-         * Invite user
-         * @description Owner or company admin. role is one of owner, company_admin, member. companyIds confines the user to those companies; from an owner, empty means every company, an owner can never be confined, and a company admin must name at least one. A company admin may create only a member or another company admin, only within its own companies, and an omitted companyIds then means its own companies rather than the whole account. Leave password out: a random one is generated, the user is flagged mustChangePassword, and a one-time set-password link is emailed. If mail is not available, temporaryPassword comes back once instead, for you to hand over another way.
+         * Invite a user
+         * @description Owner or company admin.
+         *
+         *     role is one of owner, company_admin, member.
+         *
+         *     companyIds confines the user to those companies; from an owner, empty means every company, an owner can never be confined, and a company admin must name at least one. A company admin may create only a member or another company admin, only within its own companies, and an omitted companyIds then means its own companies rather than the whole account. Leave password out: a random one is generated, the user is flagged mustChangePassword, and a one-time set-password link is emailed.
+         *
+         *     If mail is not available, temporaryPassword comes back once instead, for you to hand over another way.
          */
         post: operations["post_v1_users"];
         delete?: never;
@@ -1434,15 +1049,27 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Deactivate, then erase, a user
-         * @description Owner or company admin, the latter only for a user inside its own companies. The first call deactivates: sign-in is refused, sessions and passkeys are deleted, and status becomes "inactive". The last active owner cannot be deactivated (409 LAST_OWNER), nor can you deactivate yourself (400 VALIDATION_FAILED). After the user has stayed deactivated for the grace period — 30 days — a second call erases them permanently instead; 409 USER_NOT_DISABLED, ERASURE_TOO_SOON and ERASURE_NOT_CONFIGURED name the cases where it will not. POST /v1/users/{id}/enable reverses a deactivation.
+         * Remove a user
+         * @description Owner or company admin, the latter only for a user inside its own companies. The first call deactivates: sign-in is refused, sessions and passkeys are deleted, and status becomes "inactive". The last active owner cannot be deactivated (409 LAST_OWNER), nor can you deactivate yourself (400 VALIDATION_FAILED).
+         *
+         *     After the user has stayed deactivated for the grace period — 30 days — a second call erases them permanently instead; 409 USER_NOT_DISABLED, ERASURE_TOO_SOON and ERASURE_NOT_CONFIGURED name the cases where it will not. POST /v1/users/{id}/enable reverses a deactivation.
          */
         delete: operations["delete_v1_users_id"];
         options?: never;
         head?: never;
         /**
-         * Update user
-         * @description Changing your own password requires currentPassword: wrong is 400 CURRENT_PASSWORD_INVALID, missing is 400 CURRENT_PASSWORD_REQUIRED. It is not required when an owner resets somebody else's. Setting your own password while signed in through single sign-on is refused with 403 PASSWORD_CHANGE_NOT_ALLOWED_FOR_SSO_SESSION. On your own id this is one of the two routes still reachable while mustChangePassword is true, and setting a real password clears the flag without a fresh sign-in. role and companyIds need an owner, or a company admin acting on someone else — never on your own row, so nobody widens their own access. companyIds replaces the user's confinement; omitted leaves it alone, and from an owner, empty means every company. Promoting someone to owner always clears it. A change takes effect on the user's next request. resendInvite is the sibling of resetPassword for a user who never set a password: it mails a 48-hour invitation link rather than the one-hour reset link. grants replaces the user's grants — today only "billing.view", the right to read GET /v1/billing; omitted leaves them alone and [] takes them all away. Only an owner gives grants (403 FORBIDDEN for a company admin, a member and every API key); an owner holds them all implicitly, so a non-empty grants on an owner, and an unknown grant, are 400 VALIDATION_FAILED.
+         * Update a user
+         * @description Changing your own password requires currentPassword: wrong is 400 CURRENT_PASSWORD_INVALID, missing is 400 CURRENT_PASSWORD_REQUIRED. It is not required when an owner resets somebody else's. Setting your own password while signed in through single sign-on is refused with 403 PASSWORD_CHANGE_NOT_ALLOWED_FOR_SSO_SESSION.
+         *
+         *     On your own id this is one of the two routes still reachable while mustChangePassword is true, and setting a real password clears the flag without a fresh sign-in.
+         *
+         *     role and companyIds need an owner, or a company admin acting on someone else — never on your own row, so nobody widens their own access.
+         *
+         *     companyIds replaces the user's confinement; omitted leaves it alone, and from an owner, empty means every company. Promoting someone to owner always clears it. A change takes effect on the user's next request.
+         *
+         *     resendInvite is the sibling of resetPassword for a user who never set a password: it mails a 48-hour invitation link rather than the one-hour reset link.
+         *
+         *     grants replaces the user's grants — today only "billing.view", the right to read GET /v1/billing; omitted leaves them alone and [] takes them all away. Only an owner gives grants (403 FORBIDDEN for a company admin, a member and every API key); an owner holds them all implicitly, so a non-empty grants on an owner, and an unknown grant, are 400 VALIDATION_FAILED.
          */
         patch: operations["patch_v1_users_id"];
         trace?: never;
@@ -1458,7 +1085,9 @@ export interface paths {
         put?: never;
         /**
          * Reactivate a user
-         * @description Owner or company admin, the latter only for a user inside its own companies. The user signs in again with the password they already had and keeps the companies they had; deactivation never touched either. Passkeys do not come back — deactivation deleted them — so a new one has to be registered. API keys are unaffected either way: a key belongs to the account, not to whoever created it, and is revoked on its own. Reactivating an already-active user is not an error.
+         * @description Owner or company admin, the latter only for a user inside its own companies. The user signs in again with the password they already had and keeps the companies they had; deactivation never touched either. Passkeys do not come back — deactivation deleted them — so a new one has to be registered.
+         *
+         *     API keys are unaffected either way: a key belongs to the account, not to whoever created it, and is revoked on its own. Reactivating an already-active user is not an error.
          */
         post: operations["post_v1_users_id_enable"];
         delete?: never;
@@ -1479,7 +1108,9 @@ export interface paths {
         post?: never;
         /**
          * Reset a user's authenticator app
-         * @description Owner only: the way back for a user who lost both phone and recovery codes. Turns the user's two-factor off without their password, discards their recovery codes and signs out every session they hold; passkeys stay. They sign in again with their password, and when the account requires two-factor they are asked to set up a new factor. 403 FORBIDDEN for anyone but an owner — a company admin included — and for API keys and desk sessions; 400 VALIDATION_FAILED on your own id (use DELETE /v1/mfa with your password); 404 for a user not in this account; 409 MFA_NOT_ENROLLED when the user has no app.
+         * @description Owner only: the way back for a user who lost both phone and recovery codes. Turns the user's two-factor off without their password, discards their recovery codes and signs out every session they hold; passkeys stay. They sign in again with their password, and when the account requires two-factor they are asked to set up a new factor.
+         *
+         *     403 FORBIDDEN for anyone but an owner — a company admin included — and for API keys and desk sessions; 400 VALIDATION_FAILED on your own id (use DELETE /v1/mfa with your password); 404 for a user not in this account; 409 MFA_NOT_ENROLLED when the user has no app.
          */
         delete: operations["delete_v1_users_id_mfa"];
         options?: never;
@@ -1499,7 +1130,9 @@ export interface paths {
         post?: never;
         /**
          * Remove a user's passkeys
-         * @description Owner only: the way back for a user who signs in with a passkey and lost the device. Removes every passkey the user holds and signs out every session they hold; their password and authenticator app stay. They sign in again with their password, and when the account requires two-factor and they have no authenticator app they are asked to set one up or register a new passkey. Works whether or not passkeys are configured on this deployment. 403 FORBIDDEN for anyone but an owner — a company admin included — and for API keys and desk sessions; 400 VALIDATION_FAILED on your own id (use DELETE /v1/passkeys/{id}); 404 for a user not in this account; 409 INVALID_STATE when the user has no passkeys.
+         * @description Owner only: the way back for a user who signs in with a passkey and lost the device. Removes every passkey the user holds and signs out every session they hold; their password and authenticator app stay. They sign in again with their password, and when the account requires two-factor and they have no authenticator app they are asked to set one up or register a new passkey.
+         *
+         *     Works whether or not passkeys are configured on this deployment. 403 FORBIDDEN for anyone but an owner — a company admin included — and for API keys and desk sessions; 400 VALIDATION_FAILED on your own id (use DELETE /v1/passkeys/{id}); 404 for a user not in this account; 409 INVALID_STATE when the user has no passkeys.
          */
         delete: operations["delete_v1_users_id_passkeys"];
         options?: never;
@@ -1517,8 +1150,16 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Validate a document without sending it
-         * @description Runs a document through the same Peppol validation an outbound message gets — XML safety, then XSD and Schematron in the validator — and answers every finding, warnings included. Nothing is stored and nothing is sent. Body {type?, documentTypeId?, processId?, payload} or, for a document over the 1 MiB JSON body limit, {payloadObjectKey, sender? or companyId?} naming an upload from POST /v1/messages/uploads and the sender or company it was uploaded with; the upload is read and left in place, so the same key can be sent next. type is an alias ("invoice", …); with neither type nor ids the identifiers are read off the document (root element, CustomizationID, ProfileID). A stated type the document contradicts (as POST /v1/messages would refuse with 400) is answered here as the first finding — severity fatal, rule DOCUMENT_TYPE_MISMATCH, no layer — followed by the validator's own, with valid false. Answers {valid, documentTypeId, processId, type, findings: [{severity, rule, location, message, layer}]}: valid is false only on a fatal finding; layer "schema" means the document is not valid UBL and Schematron did not run. ruleset and vesid say what the answer was reached under: the Peppol release in force now ("2026.5") and the exact validation artefacts the validator ran; Peppol publishes a new release twice a year, each mandatory from a set date, and the answer changes with it. While a release is scheduled, upcoming {ruleset, vesid, effectiveFrom, valid, findings} is the same document checked against it: what it will meet from effectiveFrom. ?ruleset=NAME checks against one release from GET /v1/validation/rulesets instead, in force or scheduled, and answers no upcoming; any other name is 400 VALIDATION_FAILED. 400 PEPPOL_DOCUMENT_NOT_SUPPORTED for a type without artefacts, 400 PEPPOL_VALIDATION_FAILED for unsafe XML, 413 PAYLOAD_TOO_LARGE for an upload over PAYLOAD_MAX_BYTES, 404 for a company the credential does not reach, 503 VALIDATION_UNAVAILABLE while the validator is down. Rate limited per account, 120 a minute shared with dry runs: every answer carries RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset (seconds until the oldest call in the window leaves it), and a refusal is 429 RATE_LIMITED with Retry-After.
+         * Validate a document
+         * @description Runs a document through the same Peppol validation an outbound message gets — XML safety, then XSD and Schematron in the validator — and answers every finding, warnings included. Nothing is stored and nothing is sent. Body {type?, documentTypeId?, processId?, payload} or, for a document over the 1 MiB JSON body limit, {payloadObjectKey, sender?
+         *
+         *     or companyId?} naming an upload from POST /v1/messages/uploads and the sender or company it was uploaded with; the upload is read and left in place, so the same key can be sent next.
+         *
+         *     type is an alias ("invoice", …); with neither type nor ids the identifiers are read off the document (root element, CustomizationID, ProfileID). A stated type the document contradicts (as POST /v1/messages would refuse with 400) is answered here as the first finding — severity fatal, rule DOCUMENT_TYPE_MISMATCH, no layer — followed by the validator's own, with valid false. Answers {valid, documentTypeId, processId, type, findings: [{severity, rule, location, message, layer}]}: valid is false only on a fatal finding; layer "schema" means the document is not valid UBL and Schematron did not run.
+         *
+         *     ruleset and vesid say what the answer was reached under: the Peppol release in force now ("2026.5") and the exact validation artefacts the validator ran; Peppol publishes a new release twice a year, each mandatory from a set date, and the answer changes with it. While a release is scheduled, upcoming {ruleset, vesid, effectiveFrom, valid, findings} is the same document checked against it: what it will meet from effectiveFrom.
+         *
+         *     ?ruleset=NAME checks against one release from GET /v1/validation/rulesets instead, in force or scheduled, and answers no upcoming; any other name is 400 VALIDATION_FAILED. 400 PEPPOL_DOCUMENT_NOT_SUPPORTED for a type without artefacts, 400 PEPPOL_VALIDATION_FAILED for unsafe XML, 413 PAYLOAD_TOO_LARGE for an upload over PAYLOAD_MAX_BYTES, 404 for a company the credential does not reach, 503 VALIDATION_UNAVAILABLE while the validator is down. Rate limited per account, 120 a minute shared with dry runs: every answer carries RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset (seconds until the oldest call in the window leaves it), and a refusal is 429 RATE_LIMITED with Retry-After.
          */
         post: operations["post_v1_validate"];
         delete?: never;
@@ -1535,8 +1176,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Peppol validation releases in force and scheduled
-         * @description Unauthenticated. Peppol publishes its validation rules as releases, twice a year, each mandatory from a date announced months ahead. Answers {rulesets: [{name, title, effectiveFrom, status}]}, oldest first: the release in force (status in_force) and any scheduled after it (status scheduled), effectiveFrom being when it takes effect (RFC 3339 UTC; absent on a release in force from the start). A message is validated under the release in force when it was submitted or received; name is what validation.ruleset on GET /v1/messages/{id}, ruleset on POST /v1/validate and ?ruleset= use. Cached for five minutes.
+         * List Peppol rule releases
+         * @description Unauthenticated. Peppol publishes its validation rules as releases, twice a year, each mandatory from a date announced months ahead. Answers {rulesets: [{name, title, effectiveFrom, status}]}, oldest first: the release in force (status in_force) and any scheduled after it (status scheduled), effectiveFrom being when it takes effect (RFC 3339 UTC; absent on a release in force from the start).
+         *
+         *     A message is validated under the release in force when it was submitted or received; name is what validation.ruleset on GET /v1/messages/{id}, ruleset on POST /v1/validate and ?ruleset= use. Cached for five minutes.
          */
         get: operations["get_v1_validation_rulesets"];
         put?: never;
@@ -1556,17 +1199,25 @@ export interface paths {
         };
         /**
          * List webhooks
-         * @description A credential confined to particular companies sees only the endpoints belonging to them. An endpoint with no company receives events for the whole account and is visible only to credentials that reach it. ?companyId narrows to one company; an account-wide endpoint stays in view whichever company is asked for.
+         * @description A credential confined to particular companies sees only the endpoints belonging to them. An endpoint with no company receives events for the whole account and is visible only to credentials that reach it.
+         *
+         *     ?companyId narrows to one company; an account-wide endpoint stays in view whichever company is asked for.
          */
         get: operations["get_v1_webhooks"];
         /**
-         * Create or update a webhook by endpoint URL
-         * @description Same body and access as POST /v1/webhooks, made idempotent for a platform that registers its endpoint on every deploy. An endpoint with the same URL and companyId is updated in place — enabled, timeoutMs, and the secret only when one is given — and answered 200 with created: false and no secret. Otherwise one is created and answered 201 with created: true and the signing secret, exactly as POST. A URL that changes is a new endpoint; delete the old one. A new endpoint must be https://, as for POST; an existing http:// endpoint can still be updated in place.
+         * Create or update a webhook by URL
+         * @description Same body and access as POST /v1/webhooks, made idempotent for a platform that registers its endpoint on every deploy. An endpoint with the same URL and companyId is updated in place — enabled, timeoutMs, and the secret only when one is given — and answered 200 with created: false and no secret. Otherwise one is created and answered 201 with created: true and the signing secret, exactly as POST.
+         *
+         *     A URL that changes is a new endpoint; delete the old one. A new endpoint must be https://, as for POST; an existing http:// endpoint can still be updated in place.
          */
         put: operations["put_v1_webhooks"];
         /**
-         * Create webhook
-         * @description Owner, company admin, or an API key with manage. companyId confines the endpoint to one company's documents; leaving it out sends every company under the account to it, which only an owner or an account-wide key may create. A key confined to one company manages that company's endpoints only. Payloads carry accountId and companyId, so one endpoint can serve many companies. The endpoint URL must be https://; an http:// URL is refused with 400 VALIDATION_FAILED (only a local development deployment accepts it). The signing secret is returned once, here.
+         * Create a webhook
+         * @description Owner, company admin, or an API key with manage.
+         *
+         *     companyId confines the endpoint to one company's documents; leaving it out sends every company under the account to it, which only an owner or an account-wide key may create. A key confined to one company manages that company's endpoints only. Payloads carry accountId and companyId, so one endpoint can serve many companies.
+         *
+         *     The endpoint URL must be https://; an http:// URL is refused with 400 VALIDATION_FAILED (only a local development deployment accepts it). The signing secret is returned once, here.
          */
         post: operations["post_v1_webhooks"];
         delete?: never;
@@ -1584,7 +1235,9 @@ export interface paths {
         };
         /**
          * List webhook deliveries
-         * @description Deliveries for the principal's account (companyFilter applies). Filter with ?status, ?companyId, ?from, ?to; page with ?cursor and ?limit. Returns {deliveries, nextCursor?}. An unknown status, direction or category value is 400 VALIDATION_FAILED naming the values the parameter takes; case is not significant.
+         * @description Deliveries for the principal's account (companyFilter applies). Filter with ?status, ?companyId, ?from, ?to; page with ?cursor and ?limit. Returns {deliveries, nextCursor?}.
+         *
+         *     An unknown status, direction or category value is 400 VALIDATION_FAILED naming the values the parameter takes; case is not significant.
          */
         get: operations["get_v1_webhooks_deliveries"];
         put?: never;
@@ -1605,8 +1258,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Retry a dead-lettered webhook delivery
-         * @description Sends a DEAD_LETTER delivery again, now, with the same X-Peppol-Event-ID, type and body; the normal retry schedule follows if it fails again. Find them with GET /v1/webhooks/deliveries?status=DEAD_LETTER. Needs manage. 409 INVALID_STATE for a delivery that is not a dead letter (still pending or retrying, delivered, cancelled), whose webhook is disabled, or whose company is closed. 404 for an id outside the caller's companies. Audit-logged as WEBHOOK_DELIVERY_RETRIED.
+         * Retry a failed delivery
+         * @description Sends a DEAD_LETTER delivery again, now, with the same X-Peppol-Event-ID, type and body; the normal retry schedule follows if it fails again. Find them with GET /v1/webhooks/deliveries?status=DEAD_LETTER. Needs manage.
+         *
+         *     409 INVALID_STATE for a delivery that is not a dead letter (still pending or retrying, delivered, cancelled), whose webhook is disabled, or whose company is closed. 404 for an id outside the caller's companies. Audit-logged as WEBHOOK_DELIVERY_RETRIED.
          */
         post: operations["post_v1_webhooks_deliveries_id_retry"];
         delete?: never;
@@ -1626,15 +1281,19 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Delete webhook
+         * Delete a webhook
          * @description Owner, company admin, or an API key with manage, with the same rule about which endpoints it reaches as PATCH.
          */
         delete: operations["delete_v1_webhooks_id"];
         options?: never;
         head?: never;
         /**
-         * Update webhook
-         * @description Owner, company admin, or an API key with manage — a company admin or a company-confined key only for an endpoint belonging to its own companies. A changed endpoint must be https://; an existing http:// endpoint keeps its URL unless it is replaced by an https:// one. rotateSecret, or a new secret, issues a new signing secret and returns it once. X-Peppol-Signature uses the new secret from the next attempt on; for 24 hours the replaced secret also signs every delivery in X-Peppol-Signature-Previous, so the new one can be rolled out to every verifier without dropping calls, and the response carries previousSecretExpiresAt. A second rotation inside the window replaces the overlap. expirePreviousSecret: true ends the overlap at once (with rotateSecret in the same request, the rotation has none) — for a secret replaced because it leaked.
+         * Update a webhook
+         * @description Owner, company admin, or an API key with manage — a company admin or a company-confined key only for an endpoint belonging to its own companies. A changed endpoint must be https://; an existing http:// endpoint keeps its URL unless it is replaced by an https:// one.
+         *
+         *     rotateSecret, or a new secret, issues a new signing secret and returns it once. X-Peppol-Signature uses the new secret from the next attempt on; for 24 hours the replaced secret also signs every delivery in X-Peppol-Signature-Previous, so the new one can be rolled out to every verifier without dropping calls, and the response carries previousSecretExpiresAt. A second rotation inside the window replaces the overlap.
+         *
+         *     expirePreviousSecret: true ends the overlap at once (with rotateSecret in the same request, the rotation has none) — for a secret replaced because it leaked.
          */
         patch: operations["patch_v1_webhooks_id"];
         trace?: never;
@@ -1643,6 +1302,605 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        Account: {
+            /**
+             * @description The account's customer id in the billing system, when it has one.
+             * @example cus_R2x9LmQ4
+             */
+            billingCustomerId?: string;
+            /** @example SE */
+            countryCode: string;
+            /** @example 2026-11-02T09:14:00Z */
+            createdAt: string;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            id: string;
+            /**
+             * @description required or exempt; absent when unset.
+             * @example required
+             */
+            kycPolicy?: string;
+            /** @example Acme AB */
+            legalName: string;
+            /** @description Whether the owner requires every user to hold a second factor. */
+            mfaRequired: boolean;
+            /** @example Acme AB */
+            name: string;
+            /** @example 5561234567 */
+            registrationNumber?: string;
+            /**
+             * @description active or closed.
+             * @example active
+             */
+            status: string;
+            /** @example 2026-11-20T15:40:12Z */
+            updatedAt: string;
+            /** @example SE556123456701 */
+            vatNumber?: string;
+        };
+        AccountExport: {
+            /**
+             * @description The zip, once status is DONE and within its 24-hour lifetime.
+             * @example https://exports.example/acme/5b6c7d8e.zip?X-Amz-Signature=…
+             */
+            downloadUrl?: string;
+            /** @description Why a FAILED export failed. */
+            error?: string;
+            /**
+             * Format: date-time
+             * @description When downloadUrl stops working.
+             * @example 2026-11-26T09:14:00Z
+             */
+            expiresAt?: string;
+            /** @example 5b6c7d8e-9f0a-4b1c-8d2e-3f4a5b6c7d8e */
+            id: string;
+            /**
+             * @description PENDING, PROCESSING, DONE or FAILED.
+             * @example DONE
+             */
+            status: string;
+        };
+        AccountExportResult: {
+            export: components["schemas"]["AccountExport"];
+        };
+        AccountOverview: {
+            account: components["schemas"]["AccountView"];
+            /** @description The companies this credential reaches. */
+            companies: components["schemas"]["Company"][];
+            /** @description true for a credential confined to particular companies; it reads only the account's id, name and status. */
+            restricted: boolean;
+        };
+        AccountResult: {
+            account: components["schemas"]["Account"];
+        };
+        AccountUpdate: {
+            /**
+             * @description Require every user of the account to hold a second factor.
+             * @example true
+             */
+            mfaRequired: boolean;
+        };
+        AccountView: {
+            /**
+             * @description The account's customer id in the billing system, when it has one.
+             * @example cus_R2x9LmQ4
+             */
+            billingCustomerId?: string;
+            /**
+             * @description Absent for a restricted credential.
+             * @example SE
+             */
+            countryCode?: string;
+            /**
+             * @description Absent for a restricted credential.
+             * @example 2026-11-02T09:14:00Z
+             */
+            createdAt?: string;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            id: string;
+            /**
+             * @description required or exempt; absent when unset, and for a restricted credential.
+             * @example required
+             */
+            kycPolicy?: string;
+            /**
+             * @description Absent, with every field below it, for a restricted credential (restricted: true); always present otherwise.
+             * @example Acme AB
+             */
+            legalName?: string;
+            /** @description Whether the owner requires every user to hold a second factor. Absent for a restricted credential. */
+            mfaRequired?: boolean;
+            /** @example Acme AB */
+            name: string;
+            /** @example 5561234567 */
+            registrationNumber?: string;
+            /**
+             * @description active or closed.
+             * @example active
+             */
+            status: string;
+            /**
+             * @description Absent for a restricted credential.
+             * @example 2026-11-20T15:40:12Z
+             */
+            updatedAt?: string;
+            /** @example SE556123456701 */
+            vatNumber?: string;
+        };
+        ApiKey: {
+            /**
+             * @description The one company the key is confined to; absent for a key that reaches the whole account.
+             * @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f
+             */
+            companyId?: string;
+            /** @example 2026-11-02T09:14:00Z */
+            createdAt: string;
+            /** @example 9e8d7c6b-5a49-4382-a1b0-c9d8e7f6a5b4 */
+            id: string;
+            /** @description The key itself, in the response to POST /v1/api-keys only, once. Store it then: it cannot be read again. */
+            key?: string;
+            /** @example ERP integration */
+            name: string;
+            /**
+             * @description read, send, receive and manage, or a subset.
+             * @example [
+             *       "read",
+             *       "send"
+             *     ]
+             */
+            permissions: string[];
+            /**
+             * @description The key's first characters, to tell keys apart; the rest is never shown again.
+             * @example pap_3k9x2m7q
+             */
+            prefix: string;
+            /**
+             * @description When the key was revoked; absent while it works.
+             * @example 2026-11-20T15:40:12Z
+             */
+            revokedAt?: string;
+        };
+        ApiKeyInput: {
+            /**
+             * @description Confine the key to one company. Leaving it out makes an account-wide key, which only an owner may create.
+             * @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f
+             */
+            companyId?: string;
+            /** @example ERP integration */
+            name?: string;
+            /**
+             * @description Any of read, send, receive, manage. Omitted or empty means all four.
+             * @example [
+             *       "read",
+             *       "send"
+             *     ]
+             */
+            permissions?: string[];
+        };
+        ApiKeyList: {
+            apiKeys: components["schemas"]["ApiKey"][];
+        };
+        BillingLine: {
+            /**
+             * Format: int64
+             * @description null when no price was set for the month.
+             */
+            amountMinor: number | null;
+            /** @example SEK */
+            currency: string;
+            /**
+             * @description company_month, participant_month or message.
+             * @example company_month
+             */
+            lineType: string;
+            /** Format: int64 */
+            quantity: number;
+            /**
+             * Format: int64
+             * @description null when no price was set for the month.
+             */
+            unitPriceMinor: number | null;
+        };
+        BillingReport: {
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            accountId: string;
+            companies: components["schemas"]["BillingReportCompany"][];
+            /** @description Echoes a ?companyId selection; absent when none was made. */
+            companyIds?: string[];
+            /**
+             * @description ISO 4217. Amounts are in minor units (öre for SEK).
+             * @example SEK
+             */
+            currency: string;
+            /** @example 2026-11-25T09:14:00Z */
+            generatedAt: string;
+            lines: components["schemas"]["BillingLine"][];
+            months: components["schemas"]["BillingReportMonth"][];
+            period: {
+                from: string;
+                key: string;
+                kind: string;
+                to: string;
+            };
+            /** @description account, or companies when every figure is a sum over some of the account's companies only. */
+            scope: string;
+            totals: {
+                period: components["schemas"]["BillingReportTotal"];
+                sinceStart: components["schemas"]["BillingReportTotal"];
+                yearToDate: components["schemas"]["BillingReportTotal"];
+            };
+        };
+        BillingReportCompany: {
+            /** Format: int64 */
+            amountMinor: number | null;
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
+            companyId: string;
+            /** Format: int64 */
+            companyMonths: number;
+            /** Format: int64 */
+            inboundMessages: number | null;
+            lines: components["schemas"]["BillingLine"][];
+            /** Format: int64 */
+            messages: number;
+            months: components["schemas"]["BillingReportCompanyMonth"][];
+            /** @example Acme AB */
+            name: string;
+            /** Format: int64 */
+            outboundMessages: number | null;
+            /** Format: int64 */
+            participantMonths: number;
+            priceMissing: boolean;
+            /** Format: int64 */
+            pricedAmountMinor: number;
+        };
+        BillingReportCompanyMonth: {
+            /** Format: int64 */
+            amountMinor: number | null;
+            /** Format: int64 */
+            companyMonths: number;
+            /** Format: int64 */
+            inboundMessages: number | null;
+            /** Format: int64 */
+            messages: number;
+            /** @example 2026-10 */
+            month: string;
+            /** Format: int64 */
+            outboundMessages: number | null;
+            /** Format: int64 */
+            participantMonths: number;
+            priceMissing: boolean;
+            /** Format: int64 */
+            pricedAmountMinor: number;
+            /**
+             * @description locked, draft, running, unmeasured or future.
+             * @example locked
+             */
+            state: string;
+        };
+        BillingReportMonth: {
+            /**
+             * Format: int64
+             * @description null when priceMissing: some month behind the figure has no price. pricedAmountMinor is the priced part.
+             */
+            amountMinor: number | null;
+            /** Format: int64 */
+            companyMonths: number;
+            /**
+             * Format: int64
+             * @description null when the split by direction is not known.
+             */
+            inboundMessages: number | null;
+            lines: components["schemas"]["BillingLine"][];
+            /** Format: int64 */
+            messages: number;
+            /** @example 2026-10 */
+            month: string;
+            /**
+             * Format: int64
+             * @description null when the split by direction is not known.
+             */
+            outboundMessages: number | null;
+            /** Format: int64 */
+            participantMonths: number;
+            priceMissing: boolean;
+            /** Format: int64 */
+            pricedAmountMinor: number;
+            /**
+             * @description locked (invoiced on), draft (measured, not locked), running (not ended), unmeasured or future.
+             * @example locked
+             */
+            state: string;
+        };
+        BillingReportTotal: {
+            /** Format: int64 */
+            amountMinor: number | null;
+            /** Format: int64 */
+            companyMonths: number;
+            from: string;
+            /** Format: int64 */
+            inboundMessages: number | null;
+            /** Format: int64 */
+            messages: number;
+            /** Format: int64 */
+            outboundMessages: number | null;
+            /** Format: int64 */
+            participantMonths: number;
+            priceMissing: boolean;
+            /** Format: int64 */
+            pricedAmountMinor: number;
+            to: string;
+        };
+        BusinessCard: {
+            /**
+             * @description false when no card was set: entities is then the default built from the company's name and country.
+             * @example true
+             */
+            custom: boolean;
+            entities: components["schemas"]["BusinessCardEntity"][];
+            /**
+             * @description The participant the card is for.
+             * @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c
+             */
+            participantId: string;
+        };
+        BusinessCardContact: {
+            /** @example sales@acme.se */
+            email: string;
+            /** @example Anna Lind */
+            name: string;
+            /** @example +46 31 123 45 67 */
+            phoneNumber: string;
+            /**
+             * @description Free text naming the contact's role. Every contact field may be empty, but not all of them.
+             * @example Sales
+             */
+            type: string;
+        };
+        BusinessCardEntity: {
+            /** @example Invoices by Peppol only. */
+            additionalInformation: string;
+            contacts: components["schemas"]["BusinessCardContact"][];
+            /**
+             * @description ISO 3166-1 alpha-2.
+             * @example SE
+             */
+            countryCode: string;
+            /**
+             * @description Free text, usually an address. Empty when not given.
+             * @example Storgatan 1, 411 38 Göteborg
+             */
+            geographicalInformation: string;
+            identifiers: components["schemas"]["BusinessCardIdentifier"][];
+            names: components["schemas"]["BusinessCardName"][];
+            /**
+             * @description YYYY-MM-DD, or empty.
+             * @example 2019-03-01
+             */
+            registrationDate: string;
+            /**
+             * @example [
+             *       "https://acme.se"
+             *     ]
+             */
+            websites: string[];
+        };
+        BusinessCardIdentifier: {
+            /**
+             * @description The identifier's scheme, such as an ISO 6523 ICD or VAT.
+             * @example 0007
+             */
+            scheme: string;
+            /** @example 5561234567 */
+            value: string;
+        };
+        BusinessCardInput: {
+            /** @description Accepted and ignored, so a GET response can be sent back as is. */
+            custom?: boolean;
+            /** @description The whole card: at least one entity, at most 20. */
+            entities: {
+                /** @example Invoices by Peppol only. */
+                additionalInformation?: string;
+                contacts?: {
+                    /** @example sales@acme.se */
+                    email?: string;
+                    /** @example Anna Lind */
+                    name?: string;
+                    /** @example +46 31 123 45 67 */
+                    phoneNumber?: string;
+                    /** @example Sales */
+                    type?: string;
+                }[];
+                /** @example SE */
+                countryCode: string;
+                /** @example Storgatan 1, 411 38 Göteborg */
+                geographicalInformation?: string;
+                identifiers?: {
+                    /** @example 0007 */
+                    scheme: string;
+                    /** @example 5561234567 */
+                    value: string;
+                }[];
+                names: {
+                    /** @example sv */
+                    language?: string;
+                    /** @example Acme AB */
+                    name: string;
+                }[];
+                /** @example 2019-03-01 */
+                registrationDate?: string;
+                /**
+                 * @example [
+                 *       "https://acme.se"
+                 *     ]
+                 */
+                websites?: string[];
+            }[];
+            /** @description Accepted and ignored, so a GET response can be sent back as is. */
+            participantId?: string;
+        };
+        BusinessCardName: {
+            /**
+             * @description ISO 639 code, or empty.
+             * @example sv
+             */
+            language: string;
+            /** @example Acme AB */
+            name: string;
+        };
+        Capability: {
+            /**
+             * @description Documents of a type with no Peppol rules to check may be sent and received without validation (status UNVALIDATED).
+             * @example false
+             */
+            allowUnvalidated: boolean;
+            /** @example 2026-11-02T09:12:30Z */
+            createdAt: string;
+            /**
+             * @description SEND, RECEIVE or BOTH.
+             * @example BOTH
+             */
+            direction: string;
+            /**
+             * @description The Peppol document type identifier, stored canonical.
+             * @example busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1
+             */
+            documentTypeId: string;
+            /** @example 5a7c9e1b-3d2f-4c6a-8b0e-7f1d2c3b4a59 */
+            id: string;
+            /**
+             * @description The Peppol process identifier, stored canonical.
+             * @example cenbii-procid-ubl::urn:fdc:peppol.eu:2017:poacc:billing:01:1.0
+             */
+            processId: string;
+            /** @example ACTIVE */
+            status: string;
+        };
+        CapabilityInput: {
+            /**
+             * @description Allow documents of a type with no Peppol rules to go unvalidated.
+             * @example false
+             */
+            allowUnvalidated?: boolean;
+            /**
+             * @description SEND, RECEIVE or BOTH.
+             * @example BOTH
+             */
+            direction: string;
+            /** @description A canonical Peppol document type identifier, or an alias with no processId. */
+            documentTypeId?: string;
+            /** @description A canonical Peppol process identifier. */
+            processId?: string;
+            /**
+             * @description A document type alias from GET /v1/document-types (invoice, credit-note, …), in place of documentTypeId and processId.
+             * @example invoice
+             */
+            type?: string;
+        };
+        CapabilityList: {
+            capabilities: components["schemas"]["Capability"][];
+        };
+        Company: {
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            accountId: string;
+            /** @example SE */
+            countryCode: string;
+            /** @example 2026-11-02T09:14:00Z */
+            createdAt: string;
+            /** @description Always null here: a deleted company is no longer listed or returned. */
+            deletedAt: string | null;
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
+            id: string;
+            /**
+             * @description The company's short handle, unique within the account; derived from the name when not given.
+             * @example acme-ab
+             */
+            identifier: string;
+            /**
+             * @description The status of the company's latest KYC case (GET /v1/companies/{id}/kyc); absent before one is started.
+             * @example VERIFIED
+             */
+            kycStatus?: string;
+            /** @description Whether a KYC case has verified the company. Stays true while a newer case is in progress. */
+            kycVerified: boolean;
+            /** @example Acme AB */
+            name: string;
+            /** @example 5561234567 */
+            registrationNumber?: string;
+            /** @description A sandbox company's participants are local only, never on the Peppol network. */
+            sandbox: boolean;
+            /**
+             * @description active or closed.
+             * @example active
+             */
+            status: string;
+            /** @example 2026-11-20T15:40:12Z */
+            updatedAt: string;
+            /** @example SE556123456701 */
+            vatNumber?: string;
+        };
+        CompanyCreated: {
+            company: components["schemas"]["Company"];
+            /** @description A hosted onboarding link for the company's KYC, when the account is expected to do KYC. */
+            onboarding?: components["schemas"]["OnboardingLink"];
+        };
+        CompanyInput: {
+            /**
+             * @description ISO 3166-1 alpha-2. Empty inherits the account's.
+             * @example SE
+             */
+            countryCode?: string;
+            /**
+             * @description Unique within the account; derived from the name when left out.
+             * @example acme-ab
+             */
+            identifier?: string;
+            /**
+             * @description Required.
+             * @example Acme AB
+             */
+            name?: string;
+            /** @example 5561234567 */
+            registrationNumber?: string;
+            /** @description Make a sandbox company. Fixed at creation. */
+            sandbox?: boolean;
+            /** @example SE556123456701 */
+            vatNumber?: string;
+        };
+        CompanyPage: {
+            companies: components["schemas"]["Company"][];
+            /**
+             * @description Present while a paginated read (?limit or ?cursor) has more; ask again with ?cursor set to it.
+             * @example eyJpZCI6IjdjMWQyZTNmIn0
+             */
+            nextCursor?: string;
+        };
+        CompanyResult: {
+            company: components["schemas"]["Company"];
+        };
+        CompanyUpdate: {
+            /** @example SE */
+            countryCode?: string;
+            /**
+             * @description 409 IDENTIFIER_TAKEN when another company of the account has it.
+             * @example acme-ab
+             */
+            identifier?: string;
+            /** @example Acme AB */
+            name?: string;
+            /**
+             * @description Refused with 409 KYC_LOCKED once KYC has verified the company, like countryCode.
+             * @example 5561234567
+             */
+            registrationNumber?: string;
+            /** @description Refused on this route: only an operator changes it. */
+            sandbox?: boolean;
+            /** @example SE556123456701 */
+            vatNumber?: string;
+        };
+        CompanyUpdated: {
+            company: components["schemas"]["Company"];
+            /** @description Notes about a side effect of the change, such as participants that will now report under a new country. */
+            warnings?: string[];
+        };
         DocumentTypes: {
             defaults: {
                 /** @description Aliases offered pre-checked to a new participant, by ISO 3166-1 alpha-2 country code. */
@@ -1748,6 +2006,94 @@ export interface components {
             /** @description Always present. Ask again with ?after= set to it. */
             nextCursor: string;
         };
+        File: {
+            /** @example a1d4c7e0-2b5f-4a8c-9e1d-3f6a9c2e5b80 */
+            accountId: string;
+            /**
+             * @description The account's name, when it could be read.
+             * @example Acme
+             */
+            accountName?: string;
+            /**
+             * Format: int64
+             * @description How many times the intake has tried it.
+             * @example 1
+             */
+            attempts: number;
+            /** @example 7c9e2f4a-1b3d-4e5f-8a6b-0c2d4e6f8a1b */
+            companyId: string;
+            /**
+             * @description The company's name, when it could be read.
+             * @example Acme AB
+             */
+            companyName?: string;
+            /**
+             * @description When it was uploaded, RFC 3339 UTC.
+             * @example 2026-11-24T09:30:00Z
+             */
+            createdAt: string;
+            /**
+             * @description On a failed file, the machine-readable object of its .error.json, verbatim.
+             * @example {
+             *       "companyParticipants": [
+             *         "0007:5561234567"
+             *       ],
+             *       "documentEndpoints": [
+             *         "0007:5569876542"
+             *       ]
+             *     }
+             */
+            detail?: unknown;
+            /**
+             * @description The message the file became, when it became one.
+             * @example 5d8e1a3c-7b2f-4c6e-9a0d-2f4b6c8e0a1d
+             */
+            documentId?: string;
+            /** @example invoice-1001.xml */
+            fileName: string;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            id: string;
+            /**
+             * @description Where the file was uploaded, relative to the account's SFTP root; not where it was moved to afterwards.
+             * @example acme-ab/out/invoice-1001.xml
+             */
+            path: string;
+            /**
+             * @description Why a failed file was refused, or why a queued one is being retried. The same text as its .error.json.
+             * @example the sending participant could not be resolved
+             */
+            reason?: string;
+            /**
+             * @description The uploaded file's SHA-256, hex.
+             * @example 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
+             */
+            sha256: string;
+            /**
+             * Format: int64
+             * @description The uploaded file's size.
+             * @example 18342
+             */
+            sizeBytes: number;
+            /**
+             * @description queued (waiting, possibly after a transient failure that reason names), processing, sent (became a message, filed under out/sent/) or failed (filed under out/failed/).
+             * @example failed
+             */
+            status: string;
+            /**
+             * @description RFC 3339 UTC.
+             * @example 2026-11-24T09:30:04Z
+             */
+            updatedAt: string;
+        };
+        FilePage: {
+            /** @description Newest first. */
+            files: components["schemas"]["File"][];
+            /**
+             * @description Present when there are more; ask again with ?cursor= set to it.
+             * @example eyJ0IjoiMjAyNi0xMS0yNFQwOTozMDowMFoiLCJpZCI6IjNmMmIifQ
+             */
+            nextCursor?: string;
+        };
         Finding: {
             /** @description schema (the document is not valid UBL, so Schematron did not run) or schematron. */
             layer?: string;
@@ -1756,6 +2102,365 @@ export interface components {
             rule?: string;
             /** @description fatal, error or warning. A fatal finding makes valid false. */
             severity: string;
+        };
+        KycAlternative: {
+            /** @description The whole board signs jointly; count and roles are then absent. */
+            board: boolean;
+            /**
+             * Format: int64
+             * @description How many distinct people holding one of roles must sign together.
+             * @example 2
+             */
+            count?: number;
+            /**
+             * @description The persons who may sign under this alternative.
+             * @example [
+             *       "8f9a0b1c-2d3e-4f5a-8b6c-7d8e9f0a1b2c",
+             *       "9a0b1c2d-3e4f-4a5b-9c6d-8e9f0a1b2c3d"
+             *     ]
+             */
+            eligiblePersonIds: string[];
+            /**
+             * @example [
+             *       "member",
+             *       "ceo"
+             *     ]
+             */
+            roles?: string[];
+        };
+        KycCase: {
+            /** @example Storgatan 1, 111 22 Stockholm */
+            address?: string;
+            /** @example 4d5e6f7a-8b9c-4d0e-a1f2-3a4b5c6d7e8f */
+            agreementId?: string;
+            /**
+             * Format: int64
+             * @description The index into signatoryRule.alternatives chosen in POST .../kyc/signatories.
+             * @example 1
+             */
+            alternative?: number;
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
+            companyId: string;
+            /** @example SE */
+            countryCode: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-02T09:14:00Z
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description When the register issued the uploaded extract: the seal's signing time.
+             * @example 2026-11-01T08:30:00Z
+             */
+            evidenceIssuedAt?: string;
+            /** @example 2a3b4c5d-6e7f-4a8b-9c0d-1e2f3a4b5c6d */
+            id: string;
+            /** @example Acme AB */
+            legalName: string;
+            /** @example 5561234567 */
+            orgNumber: string;
+            persons: components["schemas"]["KycPerson"][];
+            /** @description The signatories are named freely and an operator reviews the case before it is verified. */
+            requiresReview: boolean;
+            signatoryRule: components["schemas"]["KycSignatoryRule"];
+            /** @example Firman tecknas av styrelsen. Firman tecknas av två ledamöter i förening. */
+            signatoryText?: string;
+            signatures: components["schemas"]["KycSignature"][];
+            /**
+             * @description bolagsverket, manual or operator.
+             * @example bolagsverket
+             */
+            source: string;
+            /**
+             * @description PENDING_SIGNATURES, MANUAL_REVIEW, VERIFIED, REJECTED, EXPIRED or WITHDRAWN.
+             * @example PENDING_SIGNATURES
+             */
+            status: string;
+            /** @description Why the case is in its status, such as a rejection reason. */
+            statusReason?: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-03T10:22:17Z
+             */
+            updatedAt: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-04T13:05:41Z
+             */
+            verifiedAt?: string;
+        };
+        KycCaseResult: {
+            kyc: components["schemas"]["KycCase"];
+        };
+        KycInput: {
+            /** @description The company entered by hand, for method manual: orgNumber and legalName required, address and signatoryText optional. */
+            manual?: {
+                /** @example Karl Johans gate 1, 0154 Oslo */
+                address?: string;
+                /** @example Acme Norge AS */
+                legalName: string;
+                /** @example NO912345678 */
+                orgNumber: string;
+                /** @example Styrets leder alene. */
+                signatoryText?: string;
+            };
+            /**
+             * @description From POST /v1/companies/{id}/kyc/uploads, for method register. Exactly one of objectKey and manual.
+             * @example kyc/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/0d1e2f3a-4b5c-4d6e-8f7a-9b0c1d2e3f4a.pdf
+             */
+            objectKey?: string;
+        };
+        KycPerson: {
+            /** @example Storgatan 1, 111 22 Stockholm */
+            address?: string;
+            /**
+             * Format: int64
+             * @description From the personnummer, which itself is never returned.
+             * @example 1979
+             */
+            birthYear?: number;
+            /** @example 8f9a0b1c-2d3e-4f5a-8b6c-7d8e9f0a1b2c */
+            id: string;
+            /** @example Anna Lind */
+            name: string;
+            /**
+             * @description member, deputy, ceo, external or other.
+             * @example member
+             */
+            role: string;
+        };
+        KycSignatoriesInput: {
+            /**
+             * Format: int64
+             * @description With a signatory rule: the index into signatoryRule.alternatives. Left out when the case requiresReview.
+             * @example 1
+             */
+            alternative?: number;
+            /** @description With a rule: {personId, email} per signer. Without one: {name, role?, email}. Every signer needs their own email address. */
+            signers: {
+                /** @example anna@acme.example */
+                email: string;
+                /** @example Anna Lind */
+                name?: string;
+                /** @example 8f9a0b1c-2d3e-4f5a-8b6c-7d8e9f0a1b2c */
+                personId?: string;
+                /** @example Styrelseledamot */
+                role?: string;
+            }[];
+        };
+        KycSignatoriesResult: {
+            kyc: components["schemas"]["KycCase"];
+            /** @description Signing links mail could not deliver, to pass on another way. Absent when every request was mailed. */
+            unsentLinks?: components["schemas"]["KycUnsentLink"][];
+        };
+        KycSignatoryRule: {
+            alternatives: components["schemas"]["KycAlternative"][];
+            /**
+             * @description Clauses of the firmateckning that cannot be offered as a way to sign, such as one naming an individual. Always an array.
+             * @example [
+             *       "Firman tecknas därjämte av Anna Lind"
+             *     ]
+             */
+            notOffered: string[];
+        };
+        KycSignature: {
+            /** @example 4d5e6f7a-8b9c-4d0e-a1f2-3a4b5c6d7e8f */
+            agreementId: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-03T09:20:00Z
+             */
+            createdAt: string;
+            /** Format: date-time */
+            declinedAt?: string;
+            /** @example anna@acme.example */
+            email: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-17T09:20:00Z
+             */
+            expiresAt: string;
+            /** @example 6c7d8e9f-0a1b-4c2d-9e3f-4a5b6c7d8e9f */
+            id: string;
+            /** @example 8f9a0b1c-2d3e-4f5a-8b6c-7d8e9f0a1b2c */
+            personId: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-04T13:05:41Z
+             */
+            signedAt?: string;
+            /**
+             * @description pending, signed, declined or expired.
+             * @example signed
+             */
+            status: string;
+        };
+        KycStatus: {
+            /** @example Storgatan 1, 111 22 Stockholm */
+            address?: string;
+            /**
+             * @description The agreement version the signatories were sent.
+             * @example 4d5e6f7a-8b9c-4d0e-a1f2-3a4b5c6d7e8f
+             */
+            agreementId?: string;
+            /**
+             * Format: int64
+             * @description The index into signatoryRule.alternatives chosen in POST .../kyc/signatories.
+             * @example 1
+             */
+            alternative?: number;
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
+            companyId: string;
+            /** @description Whether a case has verified the company; stays true while a newer case is in progress. */
+            companyVerified: boolean;
+            /**
+             * @description The case's country, or the company's while there is no case.
+             * @example SE
+             */
+            countryCode: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-02T09:14:00Z
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description When the register issued the uploaded extract: the seal's signing time.
+             * @example 2026-11-01T08:30:00Z
+             */
+            evidenceIssuedAt?: string;
+            /** @example 2a3b4c5d-6e7f-4a8b-9c0d-1e2f3a4b5c6d */
+            id?: string;
+            /** @example Acme AB */
+            legalName?: string;
+            /**
+             * @description register: upload a register extract (Sweden: a Bolagsverket registreringsbevis). manual: enter the company by hand.
+             * @example register
+             */
+            method: string;
+            /** @example 5561234567 */
+            orgNumber?: string;
+            persons?: components["schemas"]["KycPerson"][];
+            /** @description false when the account is exempt from KYC: offer it as optional rather than as a step to finish. */
+            required: boolean;
+            /** @description The signatories are named freely and an operator reviews the case before it is verified. */
+            requiresReview?: boolean;
+            /** @description Who can bind the company, read from the register. Empty alternatives mean a person reads the firmateckning (requiresReview). */
+            signatoryRule?: components["schemas"]["KycSignatoryRule"];
+            /** @example Firman tecknas av styrelsen. Firman tecknas av två ledamöter i förening. */
+            signatoryText?: string;
+            signatures?: components["schemas"]["KycSignature"][];
+            /**
+             * @description bolagsverket, manual or operator.
+             * @example bolagsverket
+             */
+            source?: string;
+            /**
+             * @description NOT_STARTED, PENDING_SIGNATURES, MANUAL_REVIEW, VERIFIED, REJECTED, EXPIRED or WITHDRAWN. On NOT_STARTED only companyId, countryCode, status, method, required and companyVerified are present; every other field is there once a case exists.
+             * @example PENDING_SIGNATURES
+             */
+            status: string;
+            /** @description Why the case is in its status, such as a rejection reason. */
+            statusReason?: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-03T10:22:17Z
+             */
+            updatedAt?: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-04T13:05:41Z
+             */
+            verifiedAt?: string;
+        };
+        KycStatusResult: {
+            kyc: components["schemas"]["KycStatus"];
+        };
+        KycUnsentLink: {
+            /** @example anna@acme.example */
+            email: string;
+            /** @example 6c7d8e9f-0a1b-4c2d-9e3f-4a5b6c7d8e9f */
+            signatureId: string;
+            /** @example https://console.example/sign#token=kys_4f1c… */
+            url: string;
+        };
+        KycUpload: {
+            /**
+             * Format: date-time
+             * @example 2026-11-25T09:29:00Z
+             */
+            expiresAt: string;
+            /**
+             * @description PUT the PDF to uploadUrl with exactly these headers and a body of exactly the declared size.
+             * @example {
+             *       "Content-Type": "application/pdf"
+             *     }
+             */
+            headers: {
+                [key: string]: string;
+            };
+            /** @example kyc/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/0d1e2f3a-4b5c-4d6e-8f7a-9b0c1d2e3f4a.pdf */
+            objectKey: string;
+            /** @example https://uploads.example/kyc/7c1d2e3f/0d1e2f3a.pdf?X-Amz-Signature=… */
+            uploadUrl: string;
+        };
+        KycUploadInput: {
+            /**
+             * Format: int64
+             * @description The PDF's size in bytes, at most 5 MiB.
+             * @example 184320
+             */
+            size: number;
+        };
+        ListedUser: {
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            accountId: string;
+            /** @description The companies the user is confined to; absent for one who reaches every company. */
+            companies?: components["schemas"]["UserCompany"][];
+            /**
+             * Format: date-time
+             * @example 2026-11-02T09:14:00Z
+             */
+            createdAt: string;
+            /** @example YYYY-MM-DD */
+            dateFormat: string;
+            /**
+             * Format: date-time
+             * @description When the user was deactivated; absent while active.
+             */
+            disabledAt?: string;
+            /** @example anna@acme.example */
+            email: string;
+            /**
+             * Format: date-time
+             * @description From when DELETE /v1/users/{id} erases the deactivated user; absent when erasure is not configured.
+             */
+            erasableAt?: string;
+            /** @description Rights on top of the role, today only billing.view. Always an array; always empty for an owner. */
+            grants: string[];
+            /** @example 2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f */
+            id: string;
+            /** @description Whether the user has an authenticator app. */
+            mfaEnrolled: boolean;
+            mustChangePassword?: boolean;
+            /** @example Anna Lind */
+            name: string;
+            /**
+             * Format: int64
+             * @description How many passkeys the user holds.
+             * @example 1
+             */
+            passkeyCount: number;
+            /**
+             * @description owner, company_admin or member.
+             * @example member
+             */
+            role: string;
+            /** @description active or inactive. */
+            status: string;
+            /** @example Europe/Stockholm */
+            timezone: string;
         };
         MLSEvent: {
             createdAt: string;
@@ -1781,18 +2486,29 @@ export interface components {
             accountName?: string;
             as4AcceptedAt?: string;
             as4MessageId?: string;
+            /** @example 9d1c2b3a-4e5f-4a6b-8c7d-0e1f2a3b4c5d */
             companyId?: string;
+            /** @example Acme AB */
             companyName?: string;
+            /** @example 2026-11-25T09:14:02Z */
             createdAt: string;
             deliveredToCustomerAt?: string;
             /** @description An outbound SEND_FAILED document whose send outcome is unknown: the receiver may have it. Never resend it. */
             deliveryUnconfirmed?: boolean;
-            /** @description INBOUND or OUTBOUND. */
+            /**
+             * @description INBOUND or OUTBOUND.
+             * @example OUTBOUND
+             */
             direction: string;
+            /** @example INV-1001 */
             documentNumber?: string;
+            /** @example urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1 */
             documentTypeId: string;
+            /** @example INV-1001 */
             externalReference?: string;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
             id: string;
+            /** @example 2026-11-25 */
             issueDate?: string;
             lastErrorCode?: string;
             lastErrorMessage?: string;
@@ -1803,27 +2519,87 @@ export interface components {
             mlsEvents?: components["schemas"]["MLSEvent"][];
             /** @description The business document, on GET /v1/messages/{id} only while it is under the inline limit. */
             payload?: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @example 18234
+             */
             payloadBytes: number;
+            /** @example 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 */
             payloadSha256: string;
+            /** @example urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 */
             processId: string;
             queuedAt?: string;
             receivedAt?: string;
+            /** @example 0007:5569876542 */
             receiver: string;
             /** @description CONFIRMED, DELIVERED or REJECTED, from the receiving Service Provider's MLS. Absent until one arrives. */
             recipientStatus?: string;
             recipientStatusReasons?: string[];
             sbdhInstanceId?: string;
+            /** @example 0007:5561234567 */
             sender: string;
             sentAt?: string;
-            /** @description The document status. */
+            /**
+             * @description The document status.
+             * @example QUEUED_VALIDATION
+             */
             status: string;
-            /** @description The register alias for documentTypeId and processId; absent for a pair the register does not know. */
+            /**
+             * @description The register alias for documentTypeId and processId; absent for a pair the register does not know.
+             * @example invoice
+             */
             type?: string;
             /** @description Which Peppol rules decided the validation status. GET /v1/messages/{id} only. */
             validation?: components["schemas"]["MessageValidation"];
             /** @description The findings of a failed validation, grouped. GET /v1/messages/{id} only. */
             validationErrors?: components["schemas"]["ValidationError"][];
+        };
+        /**
+         * @example {
+         *       "externalReference": "INV-1001",
+         *       "payload": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Invoice xmlns=\"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2\">…</Invoice>",
+         *       "sender": "0007:5561234567"
+         *     }
+         */
+        MessageInput: {
+            documentTypeId?: string;
+            /**
+             * @description Your own reference, returned on the message and its webhooks.
+             * @example INV-1001
+             */
+            externalReference?: string;
+            /**
+             * @description Your own key-value labels, returned on the message.
+             * @example {
+             *       "erpId": "84211"
+             *     }
+             */
+            metadata?: {
+                [key: string]: string;
+            };
+            /**
+             * @description The business document as a UTF-8 string. Exactly one of payload and payloadObjectKey.
+             * @example <?xml version="1.0" encoding="UTF-8"?><Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">…</Invoice>
+             */
+            payload?: string;
+            /** @description The key from POST /v1/messages/uploads, for a document too large to send inline. */
+            payloadObjectKey?: string;
+            processId?: string;
+            /**
+             * @description Read off the document when left out; when given, it must be one of the document's EndpointIDs.
+             * @example 0007:5569876542
+             */
+            receiver?: string;
+            /**
+             * @description Your participant the document is sent from. It must be the document's sender EndpointID.
+             * @example 0007:5561234567
+             */
+            sender: string;
+            /**
+             * @description A short alias for documentTypeId and processId (GET /v1/document-types). Read off the document when left out.
+             * @example invoice
+             */
+            type?: string;
         };
         MessagePage: {
             counts?: {
@@ -1850,6 +2626,497 @@ export interface components {
             /** @description The exact validation artefacts the engine ran. */
             vesid: string;
         };
+        NetworkCapabilities: {
+            /**
+             * @description The document type identifiers the participant is registered to receive.
+             * @example [
+             *       "busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1"
+             *     ]
+             */
+            capabilities: string[];
+        };
+        NetworkLookupInput: {
+            /**
+             * @description Optional. When given, it must be a company the credential reaches.
+             * @example 8c1d4e2a-6b3f-4a7e-9d5c-2f1e0a9b8c7d
+             */
+            companyId?: string;
+            /**
+             * @description Peppol ids as scheme:value, at most 100.
+             * @example [
+             *       "0007:5569876542",
+             *       "0088:7300010000001"
+             *     ]
+             */
+            ids: string[];
+        };
+        NetworkLookupResult: {
+            /** @example iso6523-actorid-upis::0007:5569876542 */
+            canonicalId?: string;
+            /**
+             * @example [
+             *       "busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1"
+             *     ]
+             */
+            capabilities?: string[];
+            /**
+             * @description Why the status is INVALID or ERROR.
+             * @example network lookup failed
+             */
+            error?: string;
+            /**
+             * @description Meaningful for status OK only, where false is a normal answer: not on the network.
+             * @example true
+             */
+            exists: boolean;
+            /**
+             * @description The id exactly as it was sent.
+             * @example 0007:5569876542
+             */
+            id: string;
+            /** @example http://B-3a8f2c1d9e7b6a5f4c3d2e1f0a9b8c7d.iso6523-actorid-upis.edelivery.tech.ec.europa.eu */
+            smpUrl?: string;
+            /**
+             * @description OK (SMP answered: see exists), INVALID (the id does not parse; no SMP call was made) or ERROR (the SMP lookup failed).
+             * @example OK
+             */
+            status: string;
+            /**
+             * @description Present and true for one of the platform's test receivers.
+             * @example false
+             */
+            testReceiver?: boolean;
+        };
+        NetworkLookupResults: {
+            /** @description One entry per id, in the order of ids. */
+            results: components["schemas"]["NetworkLookupResult"][];
+        };
+        NetworkParticipant: {
+            /**
+             * @description The id as SMP and SML know it.
+             * @example iso6523-actorid-upis::0007:5569876542
+             */
+            canonicalId: string;
+            /**
+             * @description The document type identifiers the participant is registered to receive.
+             * @example [
+             *       "busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1"
+             *     ]
+             */
+            capabilities: string[];
+            /**
+             * @description false is definitive: the id is not registered on Peppol.
+             * @example true
+             */
+            exists: boolean;
+            /**
+             * @description The SMP the participant is registered at; empty for a test receiver or one that does not exist.
+             * @example http://B-3a8f2c1d9e7b6a5f4c3d2e1f0a9b8c7d.iso6523-actorid-upis.edelivery.tech.ec.europa.eu
+             */
+            smpUrl: string;
+            /**
+             * @description Present and true for one of the platform's test receivers.
+             * @example false
+             */
+            testReceiver?: boolean;
+        };
+        NetworkSearch: {
+            /**
+             * @description Whether the Peppol Directory was searched at all; without it, only national numbers are tried.
+             * @example true
+             */
+            directoryConfigured: boolean;
+            /**
+             * @description id when q was a full Peppol id, looked up exactly; search when it was free text.
+             * @example search
+             */
+            mode: string;
+            /** @description mode id: one entry, whose exists may be false. mode search: confirmed hits only. */
+            results: components["schemas"]["NetworkSearchResult"][];
+        };
+        NetworkSearchResult: {
+            /** @example iso6523-actorid-upis::0007:5569876542 */
+            canonicalId: string;
+            /**
+             * @example [
+             *       "busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1"
+             *     ]
+             */
+            capabilities?: string[];
+            /**
+             * @description The country the Peppol Directory lists.
+             * @example SE
+             */
+            countryCode?: string;
+            /** @example true */
+            exists: boolean;
+            /**
+             * @description The name the Peppol Directory lists, when it has the participant.
+             * @example Acme AB
+             */
+            name?: string;
+            /** @example http://B-3a8f2c1d9e7b6a5f4c3d2e1f0a9b8c7d.iso6523-actorid-upis.edelivery.tech.ec.europa.eu */
+            smpUrl?: string;
+            /**
+             * @description Present and true for one of the platform's test receivers.
+             * @example false
+             */
+            testReceiver?: boolean;
+        };
+        OnboardingLink: {
+            /**
+             * Format: date-time
+             * @example 2026-12-25T09:14:00Z
+             */
+            expiresAt: string;
+            /**
+             * @description The hosted onboarding page. The link is the credential: hand it only to the company.
+             * @example https://console.example/onboard#token=kyo_8b2e…
+             */
+            url: string;
+        };
+        OnboardingLinkResult: {
+            onboarding: components["schemas"]["OnboardingLink"];
+        };
+        ParkedInbound: {
+            /** @example test-0c4f7a2e-5b1d-4e8a-9f3c-6d2b1a0e9f8c */
+            as4MessageId?: string;
+            /** @example SE */
+            countryCodeC4?: string;
+            /** @example 2026-11-25T09:14:00Z */
+            createdAt: string;
+            /** @example busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1 */
+            documentTypeId: string;
+            /** @example 2026-12-25T09:14:00Z */
+            expiresAt: string;
+            /** @example 1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e */
+            id: string;
+            /** @example user:2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f */
+            injectedBy?: string;
+            lastReplayAt?: string;
+            lastReplayReason?: string;
+            /** @example 9f2c4e1a7b3d5f6e8a0c2b4d6f8e0a1c3b5d7f9e1a3c5b7d9f1e3a5c7b9d1f3e */
+            payloadSha256: string;
+            /** @description The operator API's route for the payload; not reachable with customer credentials. */
+            payloadUrl: string;
+            /** @example cenbii-procid-ubl::urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 */
+            processId: string;
+            /**
+             * @description Why routing refused the document: RECEIVER_NOT_FOUND, RECEIVER_NOT_READY, RECEIVER_SUSPENDED, COMPANY_CLOSED, ACCOUNT_CLOSED or NO_CAPABILITY.
+             * @example NO_CAPABILITY
+             */
+            reason: string;
+            reasonDetail?: string;
+            /** @example 0007:5561234567 */
+            receiver: string;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            receiverAccountId?: string;
+            /** @example Acme AB */
+            receiverAccountName?: string;
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
+            receiverCompanyId?: string;
+            /** @example Acme AB */
+            receiverCompanyName?: string;
+            /** @example 0e1f2a3b-4c5d-4e6f-8a7b-9c0d1e2f3a4b */
+            receiverParticipantId?: string;
+            /** Format: int64 */
+            replayCount: number;
+            replayedDocumentId?: string;
+            sbdhInstanceId?: string;
+            /** @example 0007:5569876542 */
+            sender: string;
+            /** @example test */
+            source: string;
+        };
+        Participant: {
+            /** @description The account the company belongs to. Operator API only; never on /v1. */
+            accountId?: string;
+            /** @description required or exempt. Operator API only; never on /v1. */
+            accountKycPolicy?: string;
+            /** @description The account's name. Operator API only; never on /v1. */
+            accountName?: string;
+            /**
+             * @description When it became reachable on the network.
+             * @example 2026-11-02T09:15:41Z
+             */
+            activatedAt?: string;
+            /**
+             * @description The Peppol participant id as SMP and SML know it.
+             * @example iso6523-actorid-upis::0007:5561234567
+             */
+            canonicalId: string;
+            /** @example 8c1d4e2a-6b3f-4a7e-9d5c-2f1e0a9b8c7d */
+            companyId: string;
+            /** @description The company's KYC status. Operator API only; never on /v1. */
+            companyKycStatus?: string;
+            /** @description Whether the company is KYC verified. Operator API only; never on /v1. */
+            companyKycVerified?: boolean;
+            /** @description The company's name. Operator API only; never on /v1. */
+            companyName?: string;
+            /**
+             * @description ISO 3166-1 alpha-2. Absent for a scheme that implies no country (GLN, DUNS) when none was given.
+             * @example SE
+             */
+            countryCode?: string;
+            /** @example 2026-11-02T09:12:30Z */
+            createdAt: string;
+            /**
+             * Format: int64
+             * @description The configured unpublish grace. Operator API only; never on /v1.
+             */
+            deactivateGraceSeconds?: number;
+            /** @description When an operator waived the grace. Operator API only; never on /v1. */
+            deactivateGraceSkippedAt?: string;
+            /**
+             * @description When it was deactivated.
+             * @example 2026-11-20T16:03:12Z
+             */
+            deactivatedAt?: string;
+            /** @description Always null on /v1: a deleted participant is 404 there. */
+            deletedAt: string | null;
+            /**
+             * @description The participant's id on this platform, used in every /v1/participants/{id} path.
+             * @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c
+             */
+            id: string;
+            /**
+             * @description Your own short handle for the participant, unique within its company.
+             * @example acme-ab
+             */
+            identifier: string;
+            /**
+             * @description Where an SMP migration stands (POST /v1/participants/{id}/migration); absent when none was ever started.
+             * @example TOKEN_REQUESTED
+             */
+            migrationStatus?: string;
+            /**
+             * @description Display name; empty shows the Peppol id.
+             * @example Acme AB
+             */
+            name: string;
+            /**
+             * @description network (a real Peppol identity, published to SMP, SML and the Directory) or local (a platform-only test participant, never published).
+             * @example network
+             */
+            networkRegistration: string;
+            /**
+             * @description The ISO 6523 ICD of the Peppol id: 0007 is a Swedish organisation number, 0088 a GLN.
+             * @example 0007
+             */
+            scheme: string;
+            /** @description What the SMP worker last failed on. Operator API only; never on /v1. */
+            smpLastError?: string;
+            /**
+             * @description REGISTERING, PUBLISHED, ERROR or UNPUBLISHED: where its entry in our SMP stands.
+             * @example PUBLISHED
+             */
+            smpStatus?: string;
+            /**
+             * @description PENDING_APPROVAL, READY, REGISTERING, ACTIVE, SUSPENDED, DEACTIVATING, DEACTIVATED, REJECTED or ERROR.
+             * @example ACTIVE
+             */
+            status: string;
+            /** @description While DEACTIVATING, when the SMP entry is removed. Operator API only; never on /v1. */
+            unpublishAfter?: string;
+            /** @example 2026-11-02T09:15:41Z */
+            updatedAt: string;
+            /**
+             * @description The identifier within scheme.
+             * @example 5561234567
+             */
+            value: string;
+            /**
+             * @description When the participant was approved.
+             * @example 2026-11-02T09:14:05Z
+             */
+            verifiedAt?: string;
+        };
+        ParticipantAuditEvent: {
+            /** @example 1e9a7c3b-5d2f-4b6a-9c8e-0f1d2a3b4c5e */
+            accountId?: string;
+            /**
+             * @description Who did it: user:{id}, customer:{API key id}, desk-session:…, or an operator.
+             * @example user:6d2e8f1a-4b3c-4a9e-8d7f-1c0b2a3e4f5d
+             */
+            actor: string;
+            /**
+             * @description The actor's name, resolved when the event is read.
+             * @example Anna Lind
+             */
+            actorName?: string;
+            /**
+             * @description One of the eight fixed audit categories.
+             * @example participants
+             */
+            category?: string;
+            /** @example 8c1d4e2a-6b3f-4a7e-9d5c-2f1e0a9b8c7d */
+            companyId?: string;
+            /** @example 2026-11-02T09:12:30Z */
+            createdAt: string;
+            /** @example b7e3f1a2-9c4d-4e8b-a6f0-2d1c5e7a9b3f */
+            eventId: string;
+            /**
+             * @description The audit event code.
+             * @example PARTICIPANT_CREATED
+             */
+            eventType: string;
+            /**
+             * @description Event-specific details.
+             * @example {
+             *       "status": "PENDING_APPROVAL"
+             *     }
+             */
+            metadata?: {
+                [key: string]: string;
+            };
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            participantId?: string;
+            /** @description A link to the target's page. Operator API only; never on /v1. */
+            targetHref?: string;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            targetId?: string;
+            /** @example Acme AB */
+            targetName?: string;
+            /** @description A line of context under targetName, such as a participant's company. */
+            targetSub?: string;
+            /**
+             * @description participant, company, account, login or certificate, where the event has a target.
+             * @example participant
+             */
+            targetType?: string;
+        };
+        ParticipantAuditPage: {
+            events: components["schemas"]["ParticipantAuditEvent"][];
+            /**
+             * @description Absent on the last page. Ask again with ?cursor= set to it.
+             * @example eyJ0IjoiMjAyNi0xMS0yMFQxNjowMzoxMloiLCJpZCI6Ijk0MTIifQ
+             */
+            nextCursor?: string;
+        };
+        ParticipantInput: {
+            /** @description Capabilities to create with the participant, in the same transaction. */
+            capabilities?: components["schemas"]["CapabilityInput"][];
+            /**
+             * @description The company the participant belongs to. May be left out when the credential reaches exactly one company.
+             * @example 8c1d4e2a-6b3f-4a7e-9d5c-2f1e0a9b8c7d
+             */
+            companyId?: string;
+            /**
+             * @description ISO 3166-1 alpha-2. Derived from a scheme that implies a country; needed only for GLN, DUNS and similar.
+             * @example SE
+             */
+            countryCode?: string;
+            /**
+             * @description Your own short handle, unique within the company. Derived from name (or scheme-value) when left out.
+             * @example acme-ab
+             */
+            identifier?: string;
+            /**
+             * @description Display name; empty shows the Peppol id.
+             * @example Acme AB
+             */
+            name?: string;
+            /**
+             * @description The ISO 6523 ICD of the Peppol id: 0007 is a Swedish organisation number, 0088 a GLN.
+             * @example 0007
+             */
+            scheme: string;
+            /**
+             * @description The identifier within scheme; checked against the scheme's format rule (Luhn, GS1 check digit, …).
+             * @example 5561234567
+             */
+            value: string;
+        };
+        ParticipantMigration: {
+            accountId?: string;
+            accountKycPolicy?: string;
+            accountName?: string;
+            /** @example 2026-11-02T09:15:41Z */
+            activatedAt?: string;
+            /** @example iso6523-actorid-upis::0007:5561234567 */
+            canonicalId: string;
+            /** @example 8c1d4e2a-6b3f-4a7e-9d5c-2f1e0a9b8c7d */
+            companyId: string;
+            companyKycStatus?: string;
+            companyKycVerified?: boolean;
+            companyName?: string;
+            /** @example SE */
+            countryCode?: string;
+            /** @example 2026-11-02T09:12:30Z */
+            createdAt: string;
+            /** Format: int64 */
+            deactivateGraceSeconds?: number;
+            deactivateGraceSkippedAt?: string;
+            /** @example 2026-11-20T16:03:12Z */
+            deactivatedAt?: string;
+            deletedAt: string | null;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            id: string;
+            /** @example acme-ab */
+            identifier: string;
+            /**
+             * @description request_token only: the migration key to hand the Service Provider the participant moves to. Shown once.
+             * @example Y3RmLTVhN2M5ZTFiLTNkMmY
+             */
+            issuedToken?: string;
+            /** @example TOKEN_REQUESTED */
+            migrationStatus?: string;
+            /** @example Acme AB */
+            name: string;
+            /** @example network */
+            networkRegistration: string;
+            /** @example 0007 */
+            scheme: string;
+            smpLastError?: string;
+            /** @example PUBLISHED */
+            smpStatus?: string;
+            /** @example ACTIVE */
+            status: string;
+            unpublishAfter?: string;
+            /** @example 2026-11-02T09:15:41Z */
+            updatedAt: string;
+            /** @example 5561234567 */
+            value: string;
+            /** @example 2026-11-02T09:14:05Z */
+            verifiedAt?: string;
+        };
+        ParticipantMigrationInput: {
+            /**
+             * @description request_token, submit_token, start, complete, cleanup_done or fail.
+             * @example submit_token
+             */
+            action: string;
+            /**
+             * @description submit_token only: the migration key the previous Service Provider issued.
+             * @example 7KQ2-M9XD-4TRB-WP3H
+             */
+            token?: string;
+        };
+        ParticipantPage: {
+            /**
+             * @description ?counts=true only: the number of participants in each status, for the account or the ?companyId given.
+             * @example {
+             *       "ACTIVE": 12,
+             *       "PENDING_APPROVAL": 1
+             *     }
+             */
+            counts?: {
+                [key: string]: number;
+            };
+            participants: components["schemas"]["Participant"][];
+        };
+        ParticipantUpdate: {
+            /**
+             * @description Left out keeps the current identifier.
+             * @example acme-ab
+             */
+            identifier?: string;
+            /**
+             * @description Left out keeps the current name.
+             * @example Acme AB
+             */
+            name?: string;
+        };
         Ruleset: {
             /** @description When the release takes effect; absent on one in force since before the platform recorded dates. */
             effectiveFrom?: string;
@@ -1860,6 +3127,303 @@ export interface components {
         };
         Rulesets: {
             rulesets: components["schemas"]["Ruleset"][];
+        };
+        SftpAllowedIp: {
+            /**
+             * @description An address or range in CIDR notation.
+             * @example 203.0.113.0/24
+             */
+            cidr: string;
+            /** @example office */
+            comment?: string;
+            /** @example 2e4a6c8e-0b1d-4f3a-9c5e-7a9b1d3f5c7e */
+            id: string;
+        };
+        SftpConnection: {
+            /** @description The account's directory layout and file naming. Absent on a deployment without per-account file settings, where the default company layout applies. */
+            fileSettings?: components["schemas"]["SftpFileSettings"];
+            /** @example sftp.businessgateway.se */
+            host: string;
+            /**
+             * @description The server's host key, SHA-256. Pin it in your client.
+             * @example SHA256:Xq3vJ8mR2kLpW5nT9yB4cF7hD1sG6aZ0eU2iO8rK3xM
+             */
+            hostKeyFingerprint: string;
+            /** @description The logins this credential can see, and what each finds at its root. */
+            logins: components["schemas"]["SftpConnectionLogin"][];
+            /**
+             * Format: int64
+             * @example 2222
+             */
+            port: number;
+        };
+        SftpConnectionLogin: {
+            /**
+             * @description What the login sees at its root: in/ and out/ and their subdirectories, or the company (and participant) directories it browses through first.
+             * @example [
+             *       "in/",
+             *       "out/",
+             *       "out/sent/",
+             *       "out/failed/"
+             *     ]
+             */
+            layout: string[];
+            /**
+             * @description The login's root directory.
+             * @example sftp/a1d4c7e0-2b5f-4a8c-9e1d-3f6a9c2e5b80/acme-ab/
+             */
+            root: string;
+            /** @description The company the login is confined to; null for one that reaches the whole account. */
+            scope: components["schemas"]["SftpScope"] | null;
+            /** @example acme */
+            username: string;
+        };
+        SftpFileSettings: {
+            /**
+             * @description company (a directory per company), participant (one per participant under it) or flat (in/ and out/ at the root; one company only).
+             * @example company
+             */
+            directoryLayout: string;
+            /**
+             * @description Put in front of every file name the platform writes.
+             * @example acme-
+             */
+            filenamePrefix: string;
+            /**
+             * @description Date directories under in/: empty (none), YYYY, YYYY/MM or YYYY/MM/DD.
+             * @example YYYY/MM
+             */
+            inboundDateDirs: string;
+            /**
+             * @description How a received document's file is named.
+             * @example {documentId}.xml
+             */
+            inboundNamePattern: string;
+            /**
+             * @description Whether <name>.json (sender, receiver, document type, process, receivedAt, sha256) is written beside each received document.
+             * @example true
+             */
+            inboundSidecar: boolean;
+            /**
+             * @description Whether an uploaded file keeps its name when it is filed under out/sent/ or out/failed/.
+             * @example true
+             */
+            outboundKeepName: boolean;
+            /**
+             * @description The name it is filed under otherwise.
+             * @example {original}
+             */
+            outboundNamePattern: string;
+            /**
+             * @description When they were last changed, RFC 3339 UTC; absent while they are the defaults.
+             * @example 2026-10-02T14:20:00Z
+             */
+            updatedAt?: string;
+            /**
+             * @description Who last changed them.
+             * @example admin
+             */
+            updatedBy?: string;
+        };
+        SftpKey: {
+            /** @example erp-prod */
+            comment?: string;
+            /** @example 2026-09-01T12:05:00Z */
+            createdAt: string;
+            /**
+             * @description The public key's SHA-256 fingerprint.
+             * @example SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8
+             */
+            fingerprint: string;
+            /** @example 9a1c3e5f-7b2d-4f6a-8c0e-1d3f5a7c9e2b */
+            id: string;
+            /**
+             * @description RFC 3339 UTC; absent until it is first used.
+             * @example 2026-11-24T07:02:11Z
+             */
+            lastUsedAt?: string;
+        };
+        SftpLogin: {
+            /** @description Where it may connect from. Empty is anywhere. */
+            allowedIps: components["schemas"]["SftpAllowedIp"][];
+            /**
+             * @description password, key or both.
+             * @example both
+             */
+            authMethod: string;
+            /**
+             * @description RFC 3339 UTC.
+             * @example 2026-09-01T12:00:00Z
+             */
+            createdAt: string;
+            /**
+             * @description When the operator disabled it; absent on an enabled login.
+             * @example 2026-11-20T08:15:00Z
+             */
+            disabledAt?: string;
+            /**
+             * @description Whether a password is set. The password itself is never shown, except once on a reset.
+             * @example true
+             */
+            hasPassword: boolean;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            id: string;
+            /** @description The public keys it may authenticate with. */
+            keys: components["schemas"]["SftpKey"][];
+            /**
+             * @description RFC 3339 UTC; absent until the first login.
+             * @example 2026-11-24T07:02:11Z
+             */
+            lastLoginAt?: string;
+            /**
+             * @description The login's root directory.
+             * @example sftp/a1d4c7e0-2b5f-4a8c-9e1d-3f6a9c2e5b80/acme-ab/
+             */
+            root: string;
+            /** @description The company the login is confined to; null for one that reaches the whole account. */
+            scope: components["schemas"]["SftpScope"] | null;
+            /** @example acme */
+            username: string;
+        };
+        SftpLoginList: {
+            logins: components["schemas"]["SftpLogin"][];
+        };
+        SftpLoginUpdate: {
+            /** @description Operator-managed: any value is refused with 400 OPERATOR_MANAGED. */
+            authMethod?: string;
+            /** @description Operator-managed: any value is refused with 400 OPERATOR_MANAGED. */
+            companyId?: unknown;
+            /** @description Operator-managed: any value is refused with 400 OPERATOR_MANAGED. */
+            disabled?: boolean;
+            /** @description Operator-managed: any value is refused with 400 OPERATOR_MANAGED. */
+            password?: string;
+            /**
+             * @description true generates a new password and returns it once. The only change a customer may make.
+             * @example true
+             */
+            resetPassword: boolean;
+        };
+        SftpPassword: {
+            /**
+             * @description The new password, shown this once. Store it now: it cannot be read again.
+             * @example vR7m-Kq2x-Hw9p-Ld4c
+             */
+            password?: string;
+        };
+        SftpScope: {
+            /** @example 7c9e2f4a-1b3d-4e5f-8a6b-0c2d4e6f8a1b */
+            companyId: string;
+            /**
+             * @description The company's directory name under the account root.
+             * @example acme-ab
+             */
+            companyIdentifier: string;
+        };
+        StreamEvent: {
+            /** @example a1d4c7e0-2b5f-4a8c-9e1d-3f6a9c2e5b80 */
+            accountId?: string;
+            /**
+             * Format: date-time
+             * @description When the event was published, RFC 3339 UTC.
+             * @example 2026-11-24T09:30:02Z
+             */
+            at: string;
+            /** @example 7c9e2f4a-1b3d-4e5f-8a6b-0c2d4e6f8a1b */
+            companyId?: string;
+            /** @example 5d8e1a3c-7b2f-4c6e-9a0d-2f4b6c8e0a1d */
+            documentId?: string;
+            /** @example e2a4c6e8-0a1c-4e3a-8b5d-7f9b1d3f5a7c */
+            id: string;
+            /** @description participant.status only. */
+            participantId?: string;
+            /** @description message.mls only: AP, AB or RE. status stays the document's own. */
+            responseCode?: string;
+            /**
+             * @description The document's (or, on participant.status, the participant's) status after the change.
+             * @example AS4_ACCEPTED
+             */
+            status?: string;
+            /**
+             * @description message.status, message.outbound.as4_accepted, message.outbound.failed, message.inbound.received, message.inbound.validation_failed, message.mls, participant.status or webhook.delivery.
+             * @example message.status
+             */
+            type: string;
+        };
+        StreamTicket: {
+            /**
+             * @description RFC 3339 UTC. A ticket not redeemed by then is refused.
+             * @example 2026-11-24T09:31:00Z
+             */
+            expiresAt: string;
+            /**
+             * @description Where to connect with it.
+             * @example /v1/stream
+             */
+            path: string;
+            /**
+             * @description One-time: pass it as ?ticket= on the WebSocket upgrade.
+             * @example 9b1f3c7a2e5d4f6a8c0b2d4e6f8a1c3e
+             */
+            ticket: string;
+        };
+        TestInboundInput: {
+            /**
+             * @description Generated when left out; repeating one replays the earlier document (duplicate: true).
+             * @example test-0c4f7a2e-5b1d-4e8a-9f3c-6d2b1a0e9f8c
+             */
+            as4MessageId?: string;
+            documentTypeId?: string;
+            /**
+             * @description The document, or an SBD carrying it, as a UTF-8 string.
+             * @example <?xml version="1.0" encoding="UTF-8"?><Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">…</Invoice>
+             */
+            payload: string;
+            processId?: string;
+            /**
+             * @description One of this company's participants. Read off the payload when it is an SBD and this is left out.
+             * @example 0007:5561234567
+             */
+            receiver?: string;
+            /**
+             * @description Read off the payload when it is an SBD and this is left out.
+             * @example 0007:5569876542
+             */
+            sender?: string;
+            /**
+             * @description A short alias for documentTypeId and processId (GET /v1/document-types).
+             * @example invoice
+             */
+            type?: string;
+        };
+        TestInboundParked: {
+            parked: components["schemas"]["ParkedInbound"];
+        };
+        TestInboundResult: {
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            accountId: string;
+            /** @example Acme AB */
+            accountName?: string;
+            /**
+             * @description The one given, or a generated test- id.
+             * @example test-0c4f7a2e-5b1d-4e8a-9f3c-6d2b1a0e9f8c
+             */
+            as4MessageId: string;
+            /** @example 7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f */
+            companyId: string;
+            /** @example Acme AB */
+            companyName?: string;
+            /** @example 2026-11-25T09:14:00Z */
+            createdAt: string;
+            /** @description true when the AS4 message id was already accepted; the document is the earlier one. */
+            duplicate: boolean;
+            /** @example 0d1e2f3a-4b5c-4d6e-8f7a-9b0c1d2e3f4a */
+            id: string;
+            /** @example 0007:5561234567 */
+            receiver: string;
+            /** @example 0007:5569876542 */
+            sender: string;
+            /** @example AS4_RECEIVED */
+            status: string;
         };
         UpcomingCheck: {
             /** @description When the release becomes mandatory, RFC 3339 UTC. */
@@ -1877,6 +3441,182 @@ export interface components {
             };
             payloadObjectKey: string;
             uploadUrl: string;
+        };
+        /**
+         * @example {
+         *       "bytes": 2400000,
+         *       "sender": "0007:5561234567"
+         *     }
+         */
+        UploadInput: {
+            /**
+             * Format: int64
+             * @description The document's size in bytes.
+             * @example 2400000
+             */
+            bytes: number;
+            companyId?: string;
+            /**
+             * @description The participant the document will be sent from, so the upload lands under its company.
+             * @example 0007:5561234567
+             */
+            sender?: string;
+        };
+        Usage: {
+            /** @description The same per company. */
+            byCompany: components["schemas"]["UsageCompanyCount"][];
+            /** @example 2026-11-24T09:00:00Z */
+            from: string;
+            /** @example 2026-11-25T09:00:01Z */
+            to: string;
+            /** @description Totals per kind over [from, to). */
+            usage: components["schemas"]["UsageCount"][];
+        };
+        UsageCompanyCount: {
+            accountId: string;
+            companyId: string;
+            /** Format: int64 */
+            count: number;
+            /** @description MESSAGE_OUTBOUND, MESSAGE_INBOUND or PARTICIPANT_ACTIVE. */
+            kind: string;
+        };
+        UsageCount: {
+            /** Format: int64 */
+            count: number;
+            /** @description MESSAGE_OUTBOUND, MESSAGE_INBOUND or PARTICIPANT_ACTIVE. */
+            kind: string;
+        };
+        User: {
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            accountId: string;
+            /** @description The companies the user is confined to; absent for one who reaches every company. */
+            companies?: components["schemas"]["UserCompany"][];
+            /**
+             * Format: date-time
+             * @example 2026-11-02T09:14:00Z
+             */
+            createdAt: string;
+            /** @example YYYY-MM-DD */
+            dateFormat: string;
+            /**
+             * Format: date-time
+             * @description When the user was deactivated; absent while active.
+             */
+            disabledAt?: string;
+            /** @example anna@acme.example */
+            email: string;
+            /**
+             * Format: date-time
+             * @description From when DELETE /v1/users/{id} erases the deactivated user; absent when erasure is not configured.
+             */
+            erasableAt?: string;
+            /** @description Rights on top of the role, today only billing.view. Always an array; always empty for an owner. */
+            grants: string[];
+            /** @example 2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f */
+            id: string;
+            /** @description The user signs in with a generated password and must set their own first. */
+            mustChangePassword?: boolean;
+            /** @example Anna Lind */
+            name: string;
+            /**
+             * @description owner, company_admin or member.
+             * @example member
+             */
+            role: string;
+            /** @description active or inactive. */
+            status: string;
+            /** @example Europe/Stockholm */
+            timezone: string;
+        };
+        UserCompany: {
+            id: string;
+            identifier: string;
+            name: string;
+        };
+        UserInput: {
+            /**
+             * @description Confine the user to these companies. Never for an owner; at least one from a company admin.
+             * @example [
+             *       "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f"
+             *     ]
+             */
+            companyIds?: string[];
+            /** @example anna@acme.example */
+            email: string;
+            /**
+             * @description Taken from the email address when left out.
+             * @example Anna Lind
+             */
+            name?: string;
+            /** @description Leave out: a random one is generated and a set-password link mailed. */
+            password?: string;
+            /**
+             * @description owner, company_admin or member; member when left out.
+             * @example member
+             */
+            role?: string;
+        };
+        UserList: {
+            users: components["schemas"]["ListedUser"][];
+        };
+        UserResult: {
+            /**
+             * @description A generated password, returned once, only when no set-password link could be mailed. Hand it over another way.
+             * @example vT7#qL2m9xRw
+             */
+            temporaryPassword?: string;
+            user: components["schemas"]["User"];
+        };
+        UserUpdate: {
+            /**
+             * @description Replaces the user's confinement; omitted leaves it alone, and from an owner, empty means every company.
+             * @example [
+             *       "7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f"
+             *     ]
+             */
+            companyIds?: string[];
+            /** @description Your current password, when changing your own. */
+            currentPassword?: string;
+            /** @example YYYY-MM-DD */
+            dateFormat?: string;
+            /**
+             * @description Replaces the user's grants (today only billing.view); owner only. [] takes them all away.
+             * @example [
+             *       "billing.view"
+             *     ]
+             */
+            grants?: string[];
+            /** @example Anna Lind */
+            name?: string;
+            /** @description A new password. Changing your own needs currentPassword. */
+            password?: string;
+            /** @description Mail a fresh invite link to a user who never set their own password. */
+            resendInvite?: boolean;
+            /** @description Generate a new password and mail a set-password link. */
+            resetPassword?: boolean;
+            /** @example company_admin */
+            role?: string;
+            /** @example Europe/Stockholm */
+            timezone?: string;
+        };
+        /**
+         * @example {
+         *       "payload": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Invoice xmlns=\"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2\">…</Invoice>"
+         *     }
+         */
+        ValidateInput: {
+            companyId?: string;
+            documentTypeId?: string;
+            /**
+             * @description The document as a UTF-8 string. Exactly one of payload and payloadObjectKey.
+             * @example <?xml version="1.0" encoding="UTF-8"?><Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">…</Invoice>
+             */
+            payload?: string;
+            payloadObjectKey?: string;
+            processId?: string;
+            sender?: string;
+            /** @example invoice */
+            type?: string;
         };
         ValidationError: {
             /**
@@ -1898,6 +3638,118 @@ export interface components {
             upcoming?: components["schemas"]["UpcomingCheck"];
             valid: boolean;
             vesid?: string;
+        };
+        Webhook: {
+            /**
+             * @description The one company whose events this endpoint receives. Absent on an account-wide endpoint, which receives every company's.
+             * @example 7c9e2f4a-1b3d-4e5f-8a6b-0c2d4e6f8a1b
+             */
+            companyId?: string;
+            /**
+             * @description RFC 3339 UTC.
+             * @example 2026-11-24T09:30:00Z
+             */
+            createdAt: string;
+            /** @example true */
+            enabled: boolean;
+            /**
+             * @description The https:// URL events are POSTed to.
+             * @example https://erp.acme.example/peppol/webhook
+             */
+            endpoint: string;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            id: string;
+            /**
+             * @description While a rotation's overlap runs, when the replaced secret stops signing deliveries in X-Peppol-Signature-Previous. Absent when there is no overlap.
+             * @example 2026-11-25T09:30:00Z
+             */
+            previousSecretExpiresAt?: string;
+            /**
+             * @description The signing secret for X-Peppol-Signature. Returned once, on the answer that created or replaced it (POST, PUT when it creates, PATCH with rotateSecret or secret), and never again: store it then.
+             * @example 5f0c2b9a7e3d4c1b8a6f2e0d9c7b5a314e6d8c0b2a4f6e8d0c2b4a6f8e0d2c4b
+             */
+            secret?: string;
+            /**
+             * Format: int64
+             * @description How long a delivery waits for the endpoint to answer.
+             * @example 10000
+             */
+            timeoutMs: number;
+        };
+        WebhookDelivery: {
+            /** @example a1d4c7e0-2b5f-4a8c-9e1d-3f6a9c2e5b80 */
+            accountId: string;
+            /**
+             * Format: int64
+             * @description How many times it has been POSTed.
+             * @example 8
+             */
+            attempts: number;
+            /** @example 7c9e2f4a-1b3d-4e5f-8a6b-0c2d4e6f8a1b */
+            companyId: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-24T09:30:00Z
+             */
+            createdAt?: string;
+            /** @description The message.mls or message.outbound.ruleset_warning fields of the body; absent for the other event types. */
+            detail?: components["schemas"]["WebhookDeliveryDetail"];
+            /** @example 5d8e1a3c-7b2f-4c6e-9a0d-2f4b6c8e0a1d */
+            documentId: string;
+            /**
+             * @description The X-Peppol-Event-ID, the same as the event's id in GET /v1/events.
+             * @example c4e6a8b0-1d3f-4b5a-8c7e-9f1a3b5d7e9c
+             */
+            eventId: string;
+            /**
+             * @description One of the six event types.
+             * @example message.outbound.failed
+             */
+            eventType: string;
+            /** @example 6b8d0f2a-4c6e-4a1b-9d3f-5e7a9c1b3d5f */
+            id: string;
+            /**
+             * @description Why the last attempt failed.
+             * @example webhook delivery failed
+             */
+            lastError?: string;
+            /**
+             * @description The document status the event body carries.
+             * @example VALIDATION_FAILED
+             */
+            payloadStatus: string;
+            /**
+             * @description PENDING, RETRY, DELIVERED, DEAD_LETTER (retries exhausted; POST /v1/webhooks/deliveries/{id}/retry sends it again) or CANCELLED (its webhook was disabled or deleted).
+             * @example DEAD_LETTER
+             */
+            status: string;
+            /**
+             * @description The endpoint it was sent to.
+             * @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c
+             */
+            webhookId: string;
+        };
+        WebhookDeliveryDetail: {
+            /** @description message.outbound.ruleset_warning: when that release takes effect, RFC 3339 UTC. */
+            effectiveFrom?: string;
+            issues?: components["schemas"]["WebhookMLSIssue"][];
+            mlsEventId?: string;
+            /** @description message.mls: the distinct reason codes of its line responses. */
+            reasons?: string[];
+            /** @description message.mls: AP, AB or RE. */
+            responseCode?: string;
+            /** @description message.outbound.ruleset_warning: the distinct rules it breaks there. */
+            rules?: string[];
+            /** @description message.outbound.ruleset_warning: the scheduled release the document would fail. */
+            ruleset?: string;
+        };
+        WebhookDeliveryPage: {
+            deliveries: components["schemas"]["WebhookDelivery"][];
+            /**
+             * @description Present when there are more; ask again with ?cursor= set to it.
+             * @example eyJ0IjoiMjAyNi0xMS0yNFQwOTozMDowMFoiLCJpZCI6IjNmMmIifQ
+             */
+            nextCursor?: string;
         };
         WebhookEvent: {
             accountId?: string;
@@ -1924,10 +3776,111 @@ export interface components {
             type: string;
             unvalidated?: boolean;
         };
+        WebhookInput: {
+            /**
+             * @description Confine the endpoint to one company's events. Left out, it receives every company's, which only an owner or an account-wide key may create.
+             * @example 7c9e2f4a-1b3d-4e5f-8a6b-0c2d4e6f8a1b
+             */
+            companyId?: string;
+            /**
+             * @description Defaults to true.
+             * @example true
+             */
+            enabled?: boolean;
+            /**
+             * @description Must be https://. PUT matches an existing endpoint on this exact string and companyId.
+             * @example https://erp.acme.example/peppol/webhook
+             */
+            endpoint: string;
+            /**
+             * @description Your own signing secret, at least 16 characters. Left out, the platform generates one (64 hex characters) and returns it.
+             * @example 5f0c2b9a7e3d4c1b8a6f2e0d9c7b5a314e6d8c0b2a4f6e8d0c2b4a6f8e0d2c4b
+             */
+            secret?: string;
+            /**
+             * Format: int64
+             * @description How long a delivery waits for the endpoint to answer; left out or 0 is the default.
+             * @example 10000
+             */
+            timeoutMs?: number;
+        };
+        WebhookList: {
+            /** @description Without secrets: a secret is shown only when it is issued. */
+            webhooks: components["schemas"]["Webhook"][];
+        };
         WebhookMLSIssue: {
             description?: string;
             location: string;
             reasonCode: string;
+        };
+        WebhookUpdate: {
+            /** @example false */
+            enabled?: boolean;
+            /**
+             * @description A new URL; must be https://.
+             * @example https://erp.acme.example/peppol/webhook
+             */
+            endpoint?: string;
+            /** @description End the overlap now, so the replaced secret stops signing at once: for a secret that leaked. */
+            expirePreviousSecret?: boolean;
+            /**
+             * @description Generate a new signing secret and return it once. The old one keeps signing in X-Peppol-Signature-Previous for 24 hours.
+             * @example true
+             */
+            rotateSecret?: boolean;
+            /**
+             * @description Replace the signing secret with this one, at least 16 characters. It is returned once, and the old one keeps signing for the overlap.
+             * @example 5f0c2b9a7e3d4c1b8a6f2e0d9c7b5a314e6d8c0b2a4f6e8d0c2b4a6f8e0d2c4b
+             */
+            secret?: string;
+            /**
+             * Format: int64
+             * @description How long a delivery waits for the endpoint to answer.
+             * @example 15000
+             */
+            timeoutMs?: number;
+        };
+        WebhookUpsert: {
+            /**
+             * @description The one company whose events this endpoint receives. Absent on an account-wide endpoint.
+             * @example 7c9e2f4a-1b3d-4e5f-8a6b-0c2d4e6f8a1b
+             */
+            companyId?: string;
+            /**
+             * @description true when this call created the endpoint (201), false when it updated one in place (200).
+             * @example true
+             */
+            created: boolean;
+            /**
+             * @description RFC 3339 UTC.
+             * @example 2026-11-24T09:30:00Z
+             */
+            createdAt: string;
+            /** @example true */
+            enabled: boolean;
+            /**
+             * @description The https:// URL events are POSTed to; the key PUT matches on, with companyId.
+             * @example https://erp.acme.example/peppol/webhook
+             */
+            endpoint: string;
+            /** @example 3f2b6c1e-8a4d-4b7e-9c2a-1d5e7f9a0b3c */
+            id: string;
+            /**
+             * @description While a rotation's overlap runs, when the replaced secret stops signing deliveries.
+             * @example 2026-11-25T09:30:00Z
+             */
+            previousSecretExpiresAt?: string;
+            /**
+             * @description The signing secret, only when this call created the endpoint (201). An update in place (200) never returns it.
+             * @example 5f0c2b9a7e3d4c1b8a6f2e0d9c7b5a314e6d8c0b2a4f6e8d0c2b4a6f8e0d2c4b
+             */
+            secret?: string;
+            /**
+             * Format: int64
+             * @description How long a delivery waits for the endpoint to answer.
+             * @example 10000
+             */
+            timeoutMs: number;
         };
     };
     responses: {
@@ -1948,27 +3901,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    get_healthz: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
     get_v1_account: {
         parameters: {
             query?: never;
@@ -1984,7 +3916,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["AccountOverview"];
                 };
             };
             default: components["responses"]["Error"];
@@ -1999,7 +3931,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["AccountUpdate"];
             };
         };
         responses: {
@@ -2009,7 +3941,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["AccountResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2030,7 +3962,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["AccountExportResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2053,7 +3985,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["AccountExportResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2074,7 +4006,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ApiKeyList"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2089,7 +4021,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["ApiKeyInput"];
             };
         };
         responses: {
@@ -2099,7 +4031,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ApiKey"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2116,235 +4048,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_auth_forgot: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_auth_login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_auth_logout: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_auth_mfa: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_auth_oidc: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_auth_passkey_challenge: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_auth_passkey_login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_auth_reset: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_auth_signup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             default: components["responses"]["Error"];
         };
@@ -2370,7 +4079,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["BillingReport"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2398,7 +4107,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["CompanyPage"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2413,7 +4122,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["CompanyInput"];
             };
         };
         responses: {
@@ -2423,7 +4132,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["CompanyCreated"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2446,7 +4155,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["CompanyResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2463,14 +4172,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
+            /** @description No content */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             default: components["responses"]["Error"];
         };
@@ -2486,7 +4193,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["CompanyUpdate"];
             };
         };
         responses: {
@@ -2496,7 +4203,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["CompanyUpdated"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2519,7 +4226,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["KycStatusResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2536,7 +4243,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["KycInput"];
             };
         };
         responses: {
@@ -2546,7 +4253,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["KycCaseResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2570,7 +4277,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/pdf": string;
                 };
             };
             default: components["responses"]["Error"];
@@ -2593,7 +4300,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["OnboardingLinkResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2610,7 +4317,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["KycSignatoriesInput"];
             };
         };
         responses: {
@@ -2620,7 +4327,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["KycSignatoriesResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2637,7 +4344,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["KycUploadInput"];
             };
         };
         responses: {
@@ -2647,7 +4354,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["KycUpload"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2664,42 +4371,26 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["TestInboundInput"];
             };
         };
         responses: {
-            /** @description OK */
+            /** @description The AS4 message id was already accepted (duplicate: true, the earlier document), or routing refused the document and parked it. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["TestInboundResult"] | components["schemas"]["TestInboundParked"];
                 };
             };
-            default: components["responses"]["Error"];
-        };
-    };
-    "post_v1_desk-sessions_exchange": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
             /** @description OK */
-            200: {
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["TestInboundResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2774,7 +4465,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["FilePage"];
                 };
             };
             default: components["responses"]["Error"];
@@ -2797,203 +4488,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_kyc_onboarding_signatories: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_kyc_onboarding_submit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_kyc_onboarding_uploads: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_kyc_onboarding_view: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_kyc_signing_decline: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_kyc_signing_sign: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_kyc_signing_view: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    get_v1_me: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["File"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3050,7 +4545,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["MessageInput"];
             };
         };
         responses: {
@@ -3156,7 +4651,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["UploadInput"];
             };
         };
         responses: {
@@ -3235,78 +4730,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    delete_v1_mfa: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_mfa_confirm: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_mfa_enroll: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
+                    "application/xml": string;
                 };
             };
             default: components["responses"]["Error"];
@@ -3321,7 +4745,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["NetworkLookupInput"];
             };
         };
         responses: {
@@ -3331,7 +4755,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["NetworkLookupResults"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3352,7 +4776,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["NetworkSearch"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3375,7 +4799,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["NetworkParticipant"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3398,28 +4822,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    "get_v1_openapi.json": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["NetworkCapabilities"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3449,7 +4852,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ParticipantPage"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3464,7 +4867,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["ParticipantInput"];
             };
         };
         responses: {
@@ -3474,7 +4877,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["Participant"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3497,7 +4900,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["Participant"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3520,8 +4923,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["Participant"];
                 };
+            };
+            /** @description The participant was already DEACTIVATED and is now deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             default: components["responses"]["Error"];
         };
@@ -3537,7 +4947,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["ParticipantUpdate"];
             };
         };
         responses: {
@@ -3547,7 +4957,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["Participant"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3577,7 +4987,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ParticipantAuditPage"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3600,7 +5010,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["BusinessCard"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3617,7 +5027,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["BusinessCardInput"];
             };
         };
         responses: {
@@ -3627,7 +5037,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["BusinessCard"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3650,7 +5060,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["BusinessCard"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3673,7 +5083,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["CapabilityList"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3690,7 +5100,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["CapabilityInput"];
             };
         };
         responses: {
@@ -3700,7 +5110,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["Capability"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3718,14 +5128,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             default: components["responses"]["Error"];
         };
@@ -3741,7 +5149,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["ParticipantMigrationInput"];
             };
         };
         responses: {
@@ -3751,97 +5159,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    get_v1_passkeys: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_passkeys: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_passkeys_challenge: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    delete_v1_passkeys_id: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ParticipantMigration"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3862,7 +5180,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["SftpConnection"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3883,7 +5201,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["SftpLoginList"];
                 };
             };
             default: components["responses"]["Error"];
@@ -3900,7 +5218,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["SftpLoginUpdate"];
             };
         };
         responses: {
@@ -3910,97 +5228,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    get_v1_sso_identities: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    post_v1_sso_identities: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description OK */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    delete_v1_sso_identities_id: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    get_v1_sso_status: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["SftpPassword"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4008,21 +5236,22 @@ export interface operations {
     };
     get_v1_stream: {
         parameters: {
-            query?: never;
+            query?: {
+                ticket?: string;
+                documentId?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description Switching Protocols: the connection is now a WebSocket. */
+            101: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             default: components["responses"]["Error"];
         };
@@ -4042,7 +5271,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["StreamTicket"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4063,7 +5292,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["Usage"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4084,7 +5313,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["UserList"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4099,7 +5328,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["UserInput"];
             };
         };
         responses: {
@@ -4109,7 +5338,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["UserResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4126,14 +5355,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             default: components["responses"]["Error"];
         };
@@ -4149,7 +5376,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["UserUpdate"];
             };
         };
         responses: {
@@ -4159,7 +5386,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["UserResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4182,7 +5409,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["UserResult"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4199,14 +5426,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
+            /** @description No content */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             default: components["responses"]["Error"];
         };
@@ -4222,14 +5447,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
+            /** @description No content */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             default: components["responses"]["Error"];
         };
@@ -4245,7 +5468,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["ValidateInput"];
             };
         };
         responses: {
@@ -4297,7 +5520,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["WebhookList"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4312,7 +5535,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["WebhookInput"];
             };
         };
         responses: {
@@ -4322,7 +5545,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["WebhookUpsert"];
+                };
+            };
+            /** @description No endpoint had this URL and companyId, so one was created: created is true and the signing secret is in the body, once. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebhookUpsert"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4337,7 +5569,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["WebhookInput"];
             };
         };
         responses: {
@@ -4347,7 +5579,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["Webhook"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4375,7 +5607,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["WebhookDeliveryPage"];
                 };
             };
             default: components["responses"]["Error"];
@@ -4392,14 +5624,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
+            /** @description No content */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             default: components["responses"]["Error"];
         };
@@ -4415,14 +5645,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             default: components["responses"]["Error"];
         };
@@ -4438,7 +5666,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": components["schemas"]["WebhookUpdate"];
             };
         };
         responses: {
@@ -4448,7 +5676,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["Webhook"];
                 };
             };
             default: components["responses"]["Error"];
