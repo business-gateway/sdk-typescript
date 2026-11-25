@@ -9,6 +9,7 @@ import type {
   Message,
   Page,
   Ruleset,
+  Upload,
   SendInput,
   ValidateInput,
   ValidateResult,
@@ -91,6 +92,9 @@ export class BusinessGateway {
   }
 }
 
+/** The most POST /v1/messages?wait= takes. */
+const MAX_WAIT_SECONDS = 30;
+
 class Messages {
   constructor(
     private readonly t: Transport,
@@ -103,19 +107,29 @@ class Messages {
    * get(), a webhook or the event feed. A retried call — by this client or by
    * you with the same idempotencyKey — returns the message the first one
    * created instead of sending twice.
+   *
+   * With `wait` (seconds, at most 30) the answer is held until the
+   * validation is decided, and carries that status; if the time runs out it
+   * is QUEUED_VALIDATION as without it. The request timeout grows by the wait.
    */
   async send(input: SendInput): Promise<Message> {
+    const wait = input.wait;
+    if (wait !== undefined && (!Number.isInteger(wait) || wait < 0 || wait > MAX_WAIT_SECONDS)) {
+      throw new RangeError(`wait must be whole seconds from 0 to ${MAX_WAIT_SECONDS}`);
+    }
     const body = await this.body(input);
     return this.t.request<Message>({
       method: "POST",
       path: "/v1/messages",
+      query: { wait: wait || undefined },
       body,
       idempotencyKey: input.idempotencyKey ?? crypto.randomUUID(),
+      extraTimeoutMs: (wait ?? 0) * 1000,
     });
   }
 
   /** Every check send() makes and the validation, inline, with nothing stored or sent. */
-  async dryRun(input: Omit<SendInput, "idempotencyKey">): Promise<DryRunResult> {
+  async dryRun(input: Omit<SendInput, "idempotencyKey" | "wait">): Promise<DryRunResult> {
     const body = await this.body(input);
     return this.t.request<DryRunResult>({ method: "POST", path: "/v1/messages", query: { dryRun: true }, body });
   }
@@ -193,12 +207,6 @@ class Events {
   }
 }
 
-interface UploadGrant {
-  payloadObjectKey: string;
-  uploadUrl: string;
-  expiresAt: string;
-  headers: Record<string, string>;
-}
 
 /**
  * Stages a document too large to send inline and answers its key. The upload
@@ -206,7 +214,7 @@ interface UploadGrant {
  * the length, so the PUT carries exactly those.
  */
 async function stage(t: Transport, fetchImpl: typeof fetch, bytes: Uint8Array, sender?: string, companyId?: string): Promise<string> {
-  const grant = await t.request<UploadGrant>({
+  const grant = await t.request<Upload>({
     method: "POST",
     path: "/v1/messages/uploads",
     body: compact({ bytes: bytes.byteLength, sender, companyId }),

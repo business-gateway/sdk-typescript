@@ -22,6 +22,8 @@ const message = await bg.messages.send({
 // after the call returns. Follow it with a webhook, the event feed or get().
 ```
 
+Pass `wait: 20` (seconds, at most 30) to hold the answer until the validation is decided: the message then carries `QUEUED` or `VALIDATION_FAILED` instead of `QUEUED_VALIDATION`, unless the time runs out first.
+
 Only `sender` and `payload` are required; the receiver and document type are read off the document when you leave them out.
 
 Every send carries an `Idempotency-Key`. The client generates one, or you pass your own (`idempotencyKey: "erp-INV-1001"`) so a retry from your side cannot send twice either. Within 24 hours the same key answers with the message the first call created.
@@ -108,7 +110,9 @@ npm install
 npm test          # vitest
 npm run typecheck
 npm run build     # dist/
-npm run sync-spec # copy ../docs/openapi.json; the tests check every route the client calls against it
+npm run sync-spec # copy ../docs/openapi.json and regenerate src/generated/openapi.ts
+npm run generate  # regenerate the types from spec/openapi.json alone
+node scripts/spec-drift.mjs # compare the copy with what the API publishes
 ```
 
-The response types in `src/types.ts` are written from the platform's own response structs: the OpenAPI document names the routes and parameters but describes most bodies only as `object`. The webhook test pins the signature to a vector computed by the platform's own signing code.
+The response types in `src/types.ts` are aliases of the schemas in the OpenAPI document, generated into `src/generated/openapi.ts` by openapi-typescript; the platform derives those schemas from the structs its handlers encode. The aliases only narrow strings to the documented values, and the build refuses a narrowing that names a field the schema does not have. CI fails when the generated file is stale, and the weekly spec-drift workflow fails when the API publishes a route or field the SDK's copy lacks. The webhook test pins the signature to a vector computed by the platform's own signing code.
